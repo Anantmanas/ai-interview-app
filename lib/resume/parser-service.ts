@@ -1,10 +1,9 @@
-import OpenAI from 'openai'
+import { createChatCompletion, GENERATION_MODEL } from '@/lib/ai/client'
 import { formatResumeMarkdown, normalizeExperienceLevel } from '@/lib/resume/format'
 import type { StructuredResumeData } from '@/lib/resume/types'
 
 export class ResumeParsingService {
-  async parseFromUrl(resumeUrl: string) {
-    const rawText = await this.extractPdfText(resumeUrl)
+  async parseFromText(rawText: string) {
     const structuredData = await this.extractStructuredData(rawText)
 
     return {
@@ -12,6 +11,11 @@ export class ResumeParsingService {
       structuredData,
       markdown: formatResumeMarkdown({ ...structuredData, raw_text: rawText }),
     }
+  }
+
+  async parseFromUrl(resumeUrl: string) {
+    const rawText = await this.extractPdfText(resumeUrl)
+    return this.parseFromText(rawText)
   }
 
   private async extractPdfText(resumeUrl: string) {
@@ -41,17 +45,6 @@ export class ResumeParsingService {
   }
 
   private async extractStructuredData(resumeText: string): Promise<StructuredResumeData> {
-    const apiKey = process.env.DEEPSEAK_API_KEY
-
-    if (!apiKey) {
-      throw new Error('NVIDIA API key (DEEPSEAK_API_KEY) is not configured')
-    }
-
-    const openai = new OpenAI({
-      apiKey,
-      baseURL: process.env.DEEPSEAK_API_URL || 'https://integrate.api.nvidia.com/v1',
-    })
-
     const prompt = `
       You are a professional technical recruiter and resume analyzer.
       Analyze the following resume text and extract the key details as a JSON object.
@@ -70,18 +63,15 @@ export class ResumeParsingService {
       ${resumeText}
     `
 
-    const completion = await openai.chat.completions.create({
-      model: 'deepseek-ai/deepseek-v4-flash',
-      messages: [
-        { role: 'system', content: 'You are a professional technical recruiter and resume analyzer. You only respond with JSON matching the specified schema.' },
-        { role: 'user', content: prompt },
-      ],
-      temperature: 0.2,
-      response_format: { type: 'json_object' },
+    const rawContent = await createChatCompletion({
+      system: 'You are a professional technical recruiter and resume analyzer. You only respond with JSON matching the specified schema.',
+      messages: [{ role: 'user', content: prompt }],
+      model: GENERATION_MODEL,
+      responseFormat: { type: 'json_object' },
     })
 
     try {
-      let content = completion.choices[0]?.message?.content || '{}'
+      let content = rawContent || '{}'
 
       if (content.startsWith('```json')) {
         content = content.replace(/^```json\s*/, '').replace(/\s*```$/, '')
@@ -90,18 +80,20 @@ export class ResumeParsingService {
       }
 
       const analysis = JSON.parse(content.trim())
+      const rawSkills = analysis.key_skills ?? analysis.skills ?? []
 
       return {
         name: typeof analysis.name === 'string' ? analysis.name : null,
         position: typeof analysis.position === 'string' ? analysis.position : null,
         experience_level: normalizeExperienceLevel(analysis.experience_level),
         overview_summarized: typeof analysis.overview_summarized === 'string' ? analysis.overview_summarized : null,
-        key_skills: Array.isArray(analysis.key_skills) ? analysis.key_skills.filter((skill: unknown) => typeof skill === 'string') : [],
+        key_skills: Array.isArray(rawSkills)
+          ? rawSkills.filter((skill: unknown) => typeof skill === 'string' && skill.trim().length > 0)
+          : [],
       }
     } catch (error) {
-      console.error('Failed to parse resume analysis JSON response:', error)
+      console.error('[ResumeParsingService] Failed to parse resume analysis JSON response:', error)
       throw new Error('Failed to extract structured data from resume analysis response.')
     }
   }
 }
-

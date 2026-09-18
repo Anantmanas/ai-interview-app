@@ -1,153 +1,28 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import OpenAI from 'openai'
+import { supabaseAdmin } from '@/lib/supabase/admin'
+import { createChatCompletion, EVALUATION_MODEL } from '@/lib/ai/client'
+import { updateWeaknessScores } from '@/lib/ai/weakness-tracker'
+import { checkRateLimit } from '@/lib/middleware/rate-limit'
 
-type EvaluationMessage = {
-  id?: string
-  role?: string
-  text?: string
-  content?: string
-  parts?: Array<{ type?: string; text?: string }>
+const EVALUATION_SYSTEM_PROMPT = `
+You are a senior technical interviewer and engineering leader.
+Evaluate the candidate's answer with precise, objective feedback.
+Always respond in valid JSON format only with the following keys:
+{
+  "score": number (0 to 100, where 70+ is passing, 85+ is strong),
+  "feedback": "Concise analysis of what was good and what was missing",
+  "technicalAccuracy": "Assessment of technical correctness and depth",
+  "improvements": "Specific actionable points to improve this answer",
+  "topic": "The core topic or skill tested (e.g. System Design, React, Algorithms, Concurrency)"
 }
+`
 
-type EvaluationQuestion = {
-  id?: string
-  question_text: string
-  user_answer: string | null
-  question_type: string
-  sequence_order: number
-}
-
-const questionStarters = [
-  'could you',
-  'can you',
-  'would you',
-  'walk me',
-  'tell me',
-  'explain',
-  'describe',
-  'design',
-  'implement',
-  'solve',
-  'how would',
-  'what would',
-  'why would',
-  'let us start',
-  "let's start",
-]
-
-const normalizeMessageText = (value: string) => {
-  let text = value
-    .replace(/\\n/g, '\n')
-    .replace(/\r\n/g, '\n')
-    .trim()
-
-  text = text.replace(/^(assistant|user|system)\s*:\s*/i, '').trim()
-
-  return text
-    .replace(/\[\s*\{|\}\s*\]/g, '')
-    .replace(/['"],?\s*['"]type['"]\s*:\s*['"][^'"]+['"],?/g, '')
-    .replace(/^["']|["']$/g, '')
-    .replace(/\n{3,}/g, '\n\n')
-    .trim()
-}
-
-const getMessageText = (message: EvaluationMessage) => {
-  if (typeof message.text === 'string') {
-    return normalizeMessageText(message.text)
-  }
-
-  if (typeof message.content === 'string') {
-    return normalizeMessageText(message.content)
-  }
-
-  if (Array.isArray(message.parts)) {
-    return normalizeMessageText(
-      message.parts
-        .filter((part) => part.type === 'text')
-        .map((part) => part.text || '')
-        .join(' '),
-    )
-  }
-
-  return ''
-}
-
-const splitQuestionFromGuidance = (text: string) => {
-  const cleanText = normalizeMessageText(text)
-  const sentences = cleanText.match(/[^.!?]+[.!?]+(?:["'])?|[^.!?]+$/g) ?? [cleanText]
-  const questionIndex = sentences.findLastIndex((sentence) => {
-    const normalized = sentence.trim().toLowerCase()
-    return normalized.includes('?') || questionStarters.some((starter) => normalized.startsWith(starter))
-  })
-
-  if (questionIndex === -1) {
-    return cleanText
-  }
-
-  return sentences.slice(questionIndex).join(' ').trim()
-}
-
-const isPromptMessage = (text: string) => {
-  const normalized = text.toLowerCase()
-  return (
-    normalized.startsWith('start my ') ||
-    normalized.startsWith('[[sidebar]]')
-  )
-}
-
-const buildQuestionsFromMessages = (
-  messages: EvaluationMessage[],
-  questionType: string,
-) => {
-  const questions: EvaluationQuestion[] = []
-  let pendingQuestion: string | null = null
-
-  for (let i = 0; i < messages.length; i++) {
-    const message = messages[i]
-    const text = getMessageText(message)
-    if (!text) continue
-
-    if (message.role === 'assistant') {
-      const prev = messages[i - 1]
-      const prevText = prev && prev.role === 'user' ? getMessageText(prev) : ''
-      if (prevText.toLowerCase().startsWith('[[sidebar]]')) {
-        continue
-      }
-      pendingQuestion = splitQuestionFromGuidance(text) || text
-      continue
-    }
-
-    if (message.role === 'user') {
-      if (text.toLowerCase().startsWith('[[sidebar]]')) {
-        continue
-      }
-
-      if (isPromptMessage(text) || !pendingQuestion) continue
-
-      questions.push({
-        question_text: pendingQuestion,
-        user_answer: text,
-        question_type: questionType,
-        sequence_order: questions.length,
-      })
-      pendingQuestion = null
-    }
-  }
-
-  return questions
-}
-
-const asArray = <T,>(value: unknown): T[] => Array.isArray(value) ? value : []
-
-export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function POST(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
-    const body = await req.json().catch(() => ({}))
-    const openai = new OpenAI({
-      apiKey: process.env.DEEPSEAK_API_KEY,
-      baseURL: process.env.DEEPSEAK_API_URL || 'https://integrate.api.nvidia.com/v1',
-    })
-
     const { id } = await params
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -156,167 +31,187 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // 1. Fetch interview and all questions/answers
-    const { data: interview } = await supabase
+    const rateLimit = await checkRateLimit(user.id)
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        { error: 'Daily AI limit reached. Please upgrade or try again tomorrow.' },
+        { status: 429 }
+      )
+    }
+
+    const body = await req.json().catch(() => ({}))
+
+    // 1. Fetch interview to verify ownership
+    const { data: interview, error: interviewErr } = await supabaseAdmin
       .from('interviews')
       .select('*')
       .eq('id', id)
       .eq('user_id', user.id)
       .single()
 
-    if (!interview) {
+    if (interviewErr || !interview) {
       return NextResponse.json({ error: 'Interview not found' }, { status: 404 })
     }
 
-    const { data: existingQuestions } = await supabase
+    // Check if this is a single question evaluation call from interview room
+    const isSingleQuestion = !!body.question || !!body.currentQuestion
+
+    if (isSingleQuestion) {
+      const q = body.currentQuestion || body.question
+      const questionText = q?.text || q?.question_text || ''
+      const questionType = q?.type || q?.question_type || interview.type || 'technical'
+      const topic = q?.topic || q?.topicTag || 'General'
+      const difficulty = q?.difficulty || interview.difficulty || 'medium'
+      const userAnswer = body.userAnswer || body.textAnswer || (body.codeAnswer ? `Code Answer:\n${body.codeAnswer}` : '') || ''
+      const elapsedSeconds = Number(body.elapsedSeconds || body.time_taken_seconds || 0)
+      const sequenceOrder = Number(body.sequence_order ?? body.sequenceOrder ?? body.questionIndex ?? 0)
+
+      const userContent = `
+Question: ${questionText}
+Type: ${questionType}
+Topic: ${topic}
+Difficulty: ${difficulty}
+Candidate Answer: ${userAnswer || '(No answer provided)'}
+`
+
+      const rawContent = await createChatCompletion({
+        system: EVALUATION_SYSTEM_PROMPT,
+        messages: [{ role: 'user', content: userContent }],
+        model: EVALUATION_MODEL,
+        responseFormat: { type: 'json_object' },
+      })
+      let evalData: any = {}
+      try {
+        evalData = JSON.parse(rawContent)
+      } catch {
+        const match = rawContent.match(/\{[\s\S]*\}/)?.[0]
+        evalData = match ? JSON.parse(match) : { score: 70, feedback: 'Evaluated', improvements: '' }
+      }
+
+      const score = Math.max(0, Math.min(100, Number(evalData.score) || 70))
+      const evaluationResult = {
+        score,
+        feedback: evalData.feedback || 'Answer recorded.',
+        technicalAccuracy: evalData.technicalAccuracy || evalData.technical_accuracy || '',
+        improvements: evalData.improvements || evalData.improvement || '',
+        topic: evalData.topic || topic,
+      }
+
+      // Persist to interview_questions table using supabaseAdmin
+      const { data: insertedQuestion, error: insertError } = await supabaseAdmin
+        .from('interview_questions')
+        .insert({
+          interview_id: id,
+          question_text: questionText,
+          question_type: questionType,
+          topic: evaluationResult.topic,
+          difficulty: difficulty,
+          user_answer: userAnswer,
+          ai_evaluation: evaluationResult,
+          time_taken_seconds: elapsedSeconds,
+          sequence_order: sequenceOrder,
+        })
+        .select()
+        .single()
+
+      if (insertError) {
+        console.error('[evaluate] Error inserting into interview_questions:', insertError)
+      }
+
+      // Update weakness scores immediately
+      await updateWeaknessScores(user.id, [
+        {
+          topic: evaluationResult.topic,
+          score: evaluationResult.score,
+          feedback: evaluationResult.feedback,
+        },
+      ])
+
+      return NextResponse.json({
+        success: true,
+        evaluation: evaluationResult,
+        question: insertedQuestion,
+      })
+    }
+
+    // Fallback: Full interview session evaluation
+    const { data: existingQuestions } = await supabaseAdmin
       .from('interview_questions')
       .select('*')
       .eq('interview_id', id)
       .order('sequence_order', { ascending: true })
 
-    let questions: EvaluationQuestion[] = existingQuestions || []
+    const questions = (existingQuestions || []).filter((q) => (q.user_answer || '').trim().length > 0)
 
-    if (!questions || questions.length === 0) {
-      const fallbackQuestions = buildQuestionsFromMessages(
-        asArray<EvaluationMessage>(body.messages),
-        interview.type,
-      )
-
-      if (fallbackQuestions.length > 0) {
-        questions = fallbackQuestions
-
-        const { data: insertedQuestions } = await supabase
-          .from('interview_questions')
-          .insert(fallbackQuestions.map((question) => ({
-            interview_id: id,
-            question_text: question.question_text,
-            question_type: question.question_type,
-            sequence_order: question.sequence_order,
-            user_answer: question.user_answer,
-          })))
-          .select('*')
-
-        if (insertedQuestions && insertedQuestions.length > 0) {
-          questions = insertedQuestions
-        }
-      }
+    if (questions.length === 0) {
+      return NextResponse.json({ error: 'No answered questions to evaluate' }, { status: 400 })
     }
 
-    questions = (questions || []).filter((q) => (q.user_answer || '').trim().length > 0)
-
-    if (!questions || questions.length === 0) {
-      return NextResponse.json({ error: 'No answered interview questions found to evaluate' }, { status: 400 })
-    }
-
-    // 2. Prepare context for OpenAI evaluation
     const interviewContext = `
-      Interview Type: ${interview.type}
-      Difficulty: ${interview.difficulty}
-      Target Role: ${interview.target_role || 'Not specified'}
-      
-      Questions and Answers:
-      ${questions.map((q, i) => `
-        Q${i+1}: ${q.question_text}
-        A${i+1}: ${q.user_answer}
-      `).join('\n')}
-    `
+Interview Type: ${interview.type}
+Difficulty: ${interview.difficulty}
+Target Role: ${interview.target_role || 'Software Engineer'}
 
-    const prompt = `
-      Evaluate this technical interview session. 
-      Provide a comprehensive report in JSON format with:
-      - overall_score (0-100)
-      - strengths (array of strings)
-      - weaknesses (array of { topic, subtopic, score (0-100, higher=weaker), feedback })
-      - summary (short paragraph)
-      - individual_evaluations (array of { question_id, score, technical_accuracy, feedback })
-      Return only valid JSON.
-    `
+Questions and Answers:
+${questions.map((q, i) => `Q${i + 1} (${q.topic}): ${q.question_text}\nA${i + 1}: ${q.user_answer}`).join('\n\n')}
+`
 
-    const completion = await openai.chat.completions.create({
-      model: 'deepseek-ai/deepseek-v4-flash',
-      messages: [
-        { role: 'system', content: 'You are an expert technical interviewer.' },
-        { role: 'user', content: prompt + '\n\n' + interviewContext }
-      ],
-      response_format: { type: 'json_object' }
+    const batchPrompt = `
+Evaluate this full technical interview session.
+Return valid JSON with:
+{
+  "overall_score": number (0-100),
+  "strengths": string[],
+  "weaknesses": [{ "topic": string, "subtopic": string, "score": number (0-100, higher=weaker), "feedback": string }],
+  "summary": string
+}
+`
+
+    const rawEvaluation = await createChatCompletion({
+      system: 'You are an expert technical interviewer.',
+      messages: [{ role: 'user', content: batchPrompt + '\n\n' + interviewContext }],
+      model: EVALUATION_MODEL,
+      responseFormat: { type: 'json_object' },
     })
-
-    const rawEvaluation = completion.choices[0].message.content || '{}'
     let evaluation: any = {}
     try {
       evaluation = JSON.parse(rawEvaluation)
     } catch {
-      const evaluationJson = rawEvaluation.trim().match(/\{[\s\S]*\}/)?.[0] || '{}'
-      evaluation = JSON.parse(evaluationJson)
+      evaluation = { overall_score: 75, strengths: [], weaknesses: [], summary: '' }
     }
-    const individualEvaluations = asArray<any>(evaluation.individual_evaluations)
-    const weaknesses = asArray<any>(evaluation.weaknesses)
 
-    // 3. Update interview with overall results
-    await supabase
+    const overallScore = Math.max(0, Math.min(100, Number(evaluation.overall_score) || 75))
+    const strengths = Array.isArray(evaluation.strengths) ? evaluation.strengths : []
+    const weaknesses = Array.isArray(evaluation.weaknesses) ? evaluation.weaknesses : []
+
+    // Update interview record
+    await supabaseAdmin
       .from('interviews')
       .update({
-        overall_score: Number(evaluation.overall_score) || 0,
+        overall_score: overallScore,
         feedback_summary: evaluation.summary || null,
-        strengths: asArray<string>(evaluation.strengths),
+        strengths,
         weaknesses,
         status: 'completed',
+        completed_at: new Date().toISOString(),
       })
       .eq('id', id)
 
-    // 4. Update individual question evaluations
-    for (const [index, item] of individualEvaluations.entries()) {
-      const question = questions[index]
-      if (question?.id) {
-        await supabase
-          .from('interview_questions')
-          .update({
-            ai_evaluation: {
-              score: item.score,
-              feedback: item.feedback,
-              technical_accuracy: item.technical_accuracy
-            }
-          })
-          .eq('id', question.id)
-      }
-    }
+    // Update weakness tracking
+    const weaknessEvaluations = weaknesses.map((w: any) => ({
+      topic: w.topic || 'General',
+      subtopic: w.subtopic || undefined,
+      score: 100 - (Number(w.score) || 50),
+      feedback: w.feedback || '',
+    }))
 
-    // 5. Update user_weaknesses table for tracking trends
-    for (const w of weaknesses) {
-      // Upsert into user_weaknesses
-      const { data: existingWeakness } = await supabase
-        .from('user_weaknesses')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('topic', w.topic)
-        .maybeSingle()
-
-      if (existingWeakness) {
-        await supabase
-          .from('user_weaknesses')
-          .update({
-            weakness_score: (existingWeakness.weakness_score + w.score) / 2, // Simple moving average
-            occurrence_count: existingWeakness.occurrence_count + 1,
-            last_tested_at: new Date().toISOString(),
-          })
-          .eq('id', existingWeakness.id)
-      } else {
-        await supabase
-          .from('user_weaknesses')
-          .insert({
-            user_id: user.id,
-            topic: w.topic,
-            subtopic: w.subtopic,
-            weakness_score: w.score,
-            occurrence_count: 1,
-            last_tested_at: new Date().toISOString(),
-          })
-      }
+    if (weaknessEvaluations.length > 0) {
+      await updateWeaknessScores(user.id, weaknessEvaluations)
     }
 
     return NextResponse.json({ success: true, evaluation })
   } catch (error: any) {
-    console.error('Evaluation error:', error)
-    return NextResponse.json({ error: error.message || 'Failed to evaluate interview' }, { status: 500 })
+    console.error('[POST /api/interviews/[id]/evaluate] Error:', error)
+    return NextResponse.json({ error: error.message || 'Evaluation failed' }, { status: 500 })
   }
 }

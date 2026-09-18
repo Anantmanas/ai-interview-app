@@ -10,8 +10,15 @@ export function ResumeSummary() {
   const { resumeData, resumeMeta, isResumeReady } = useResume()
 
   if (!isResumeReady || !resumeData) {
+    // #region agent log
+    fetch('http://127.0.0.1:7657/ingest/ebbc3a05-84d1-4f07-893b-01831b601aad',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'bd394d'},body:JSON.stringify({sessionId:'bd394d',runId:'pre-fix',hypothesisId:'E',location:'resume-summary.tsx:render',message:'ResumeSummary hidden - not ready',data:{isResumeReady,hasResumeData:!!resumeData},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
     return null
   }
+
+  // #region agent log
+  fetch('http://127.0.0.1:7657/ingest/ebbc3a05-84d1-4f07-893b-01831b601aad',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'bd394d'},body:JSON.stringify({sessionId:'bd394d',runId:'pre-fix',hypothesisId:'E',location:'resume-summary.tsx:render',message:'ResumeSummary rendering',data:{skillsCount:resumeData.skills?.length??0,experienceCount:resumeData.experience?.length??0,name:resumeData.name||null,hasSummary:!!resumeData.summary},timestamp:Date.now()})}).catch(()=>{});
+  // #endregion
 
   const yearsExp = resumeData.experience.reduce((sum, exp) => sum + (exp.years || 0), 0)
   const currentPosition = resumeData.experience[0]?.role || resumeData.targetRole || 'Software Engineer'

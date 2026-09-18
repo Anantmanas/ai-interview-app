@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { createContext, useContext, useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
@@ -39,9 +39,17 @@ function isCorruptedResumeData(data: ResumeData): boolean {
   return false
 }
 
+function isStaleResumeData(data: ResumeData): boolean {
+  return (data.skills?.length ?? 0) === 0
+}
+
 export function saveResumePersistent(data: ResumeData, meta: ResumeMeta): void {
-  localStorage.setItem(DATA_KEY, JSON.stringify(data))
-  localStorage.setItem(META_KEY, JSON.stringify(meta))
+  try {
+    localStorage.setItem(DATA_KEY, JSON.stringify(data))
+    localStorage.setItem(META_KEY, JSON.stringify(meta))
+  } catch {
+    // localStorage might be full or restricted
+  }
 }
 
 export function loadResumePersistent(): ResumeData | null {
@@ -78,6 +86,7 @@ export function hasResumePersistent(): boolean {
 }
 
 export function clearResumePersistent(): void {
+  if (typeof window === 'undefined') return
   localStorage.removeItem(DATA_KEY)
   localStorage.removeItem(META_KEY)
 }
@@ -91,10 +100,53 @@ export function ResumeProvider({ children }: { children: ReactNode }) {
   const [extractionError, setExtractionError] = useState<string | null>(null)
 
   useEffect(() => {
-    const data = loadResumePersistent()
-    const meta = loadResumeMetaPersistent()
-    if (data) setResumeData(data)
-    if (meta) setResumeMeta(meta)
+    let cancelled = false
+
+    const hydrate = async () => {
+      // 1. Fetch from server/DB as source of truth
+      try {
+        const res = await fetch('/api/resume')
+        if (res.ok && !cancelled) {
+          const payload = await res.json()
+          if (payload?.resume && !cancelled) {
+            const serverData = payload.resume as ResumeData
+            const serverMeta = (payload.meta as ResumeMeta) || {
+              uploadedAt: new Date().toISOString(),
+              fileName: 'Saved Resume',
+              source: 'dashboard',
+            }
+
+            if (!isCorruptedResumeData(serverData)) {
+              setResumeData(serverData)
+              setResumeMeta(serverMeta)
+              saveResumePersistent(serverData, serverMeta) // Sync cache
+              return
+            }
+          }
+        }
+      } catch (err) {
+        console.warn('[ResumeProvider] Server hydration failed, falling back to localStorage:', err)
+      }
+
+      // 2. Fall back to localStorage only if server fetch didn't load data
+      if (cancelled) return
+      let localData = loadResumePersistent()
+      let localMeta = loadResumeMetaPersistent()
+
+      if (localData && (isCorruptedResumeData(localData) || isStaleResumeData(localData))) {
+        clearResumePersistent()
+        localData = null
+        localMeta = null
+      }
+
+      if (localData) {
+        setResumeData(localData)
+        if (localMeta) setResumeMeta(localMeta)
+      }
+    }
+
+    void hydrate()
+    return () => { cancelled = true }
   }, [])
 
   const handleResumeUpload = async (file: File, source: ResumeMeta['source']) => {

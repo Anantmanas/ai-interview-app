@@ -51,6 +51,17 @@ export function parseResumeMarkdown(markdown: string | null): StructuredResumeDa
   }
 }
 
+export function structuredToDashboardResume(structured: StructuredResumeData) {
+  return {
+    name: structured.name || '',
+    skills: structured.key_skills || [],
+    experience: [] as { role: string; company: string; years: number }[],
+    education: [] as string[],
+    targetRole: structured.position || undefined,
+    summary: structured.overview_summarized || undefined,
+  }
+}
+
 export function getResumeContext(markdown: string | null, structuredData?: StructuredResumeData | null) {
   if (markdown) return markdown
   if (!structuredData) return ''

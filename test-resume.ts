@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import { PDFParse } from 'pdf-parse'
-import OpenAI from 'openai'
+import { openai, GENERATION_MODEL } from './lib/ai/client'
 
 function loadEnvLocal() {
   const envPath = path.join(process.cwd(), '.env.local')
@@ -55,19 +55,12 @@ async function testResumeAnalysis() {
     return
   }
 
-  const apiKey = process.env.DEEPSEAK_API_KEY
-  if (!apiKey) {
-    console.error('Error: DEEPSEAK_API_KEY environment variable is not defined in .env.local')
+  if (!process.env.OPENAI_API_KEY) {
+    console.error('Error: OPENAI_API_KEY environment variable is not defined')
     return
   }
   
-  console.log('3. Initializing OpenAI client with DeepSeek endpoint...')
-  const openai = new OpenAI({
-    apiKey,
-    baseURL: process.env.DEEPSEAK_API_URL || 'https://integrate.api.nvidia.com/v1',
-  })
-
-  console.log('4. Calling deepseek-ai/deepseek-v4-flash for extraction...')
+  console.log('3. Calling OpenAI for extraction...')
   const prompt = `
     You are a professional technical recruiter and resume analyzer.
     Analyze the following resume text and extract the key details as a JSON object.
@@ -88,7 +81,7 @@ async function testResumeAnalysis() {
 
   try {
     const completion = await openai.chat.completions.create({
-      model: 'deepseek-ai/deepseek-v4-flash',
+      model: GENERATION_MODEL,
       messages: [
         { role: 'system', content: 'You are a professional technical recruiter and resume analyzer. You only respond with JSON matching the specified schema.' },
         { role: 'user', content: prompt }
@@ -98,7 +91,7 @@ async function testResumeAnalysis() {
     })
 
     const resultText = completion.choices[0]?.message?.content || '{}'
-    console.log('Received raw response from DeepSeek!')
+    console.log('Received raw response from OpenAI!')
     
     let content = resultText.trim()
     if (content.startsWith('```json')) {
@@ -108,27 +101,13 @@ async function testResumeAnalysis() {
     }
     
     const analysis = JSON.parse(content)
-    console.log('\n--- SUCCESS: DEEPSEEK EXTRACTED DATA ---')
+    console.log('\n--- SUCCESS: EXTRACTED DATA ---')
     console.log(JSON.stringify(analysis, null, 2))
-    console.log('----------------------------------------\n')
+    console.log('--------------------------------\n')
 
-    // Create Markdown format and verify
-    console.log('5. Formatted Markdown representation preview:')
-    const structuredResumeMarkdown = `# ${analysis.name || 'Resume Profile'}
-**Target Role / Position:** ${analysis.position || 'N/A'}
-**Experience Level:** ${analysis.experience_level || 'N/A'}
-
-## Professional Overview
-${analysis.overview_summarized || 'N/A'}
-
-## Key Skills & Technologies
-${analysis.key_skills && Array.isArray(analysis.key_skills) ? analysis.key_skills.map((skill: string) => `- ${skill}`).join('\n') : 'N/A'}
-`
-    console.log(structuredResumeMarkdown)
     console.log('--- TEST COMPLETED SUCCESSFULLY ---')
-
   } catch (err: any) {
-    console.error('Failed to analyze with DeepSeek:', err.message)
+    console.error('Failed to analyze with OpenAI:', err.message)
   }
 }
 

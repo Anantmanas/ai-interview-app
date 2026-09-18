@@ -7,10 +7,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { CheckCircle2, Loader2 } from 'lucide-react'
+import { toast } from 'sonner'
 
 export default function ProfilePage() {
   const [profile, setProfile] = useState<any>(null)
+  const [fullName, setFullName] = useState('')
+  const [targetRole, setTargetRole] = useState('')
+  const [targetCompanies, setTargetCompanies] = useState('')
+  const [experienceLevel, setExperienceLevel] = useState('mid')
   const [isLoading, setIsLoading] = useState(true)
+  const [isSaving, setIsSaving] = useState(false)
   const supabase = createClient()
 
   useEffect(() => {
@@ -22,12 +28,65 @@ export default function ProfilePage() {
           .select('*')
           .eq('id', user.id)
           .single()
-        setProfile(data)
+
+        if (data) {
+          setProfile(data)
+          setFullName(data.full_name || '')
+          setTargetRole(data.target_role || '')
+          setTargetCompanies(Array.isArray(data.target_companies) ? data.target_companies.join(', ') : '')
+          setExperienceLevel(data.experience_level || 'mid')
+        }
       }
       setIsLoading(false)
     }
     fetchProfile()
   }, [supabase])
+
+  const handleSave = async () => {
+    setIsSaving(true)
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        toast.error('You must be logged in to save profile')
+        return
+      }
+
+      const companiesList = targetCompanies
+        .split(',')
+        .map((c) => c.trim())
+        .filter(Boolean)
+
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          full_name: fullName.trim() || null,
+          target_role: targetRole.trim() || null,
+          target_companies: companiesList.length > 0 ? companiesList : null,
+          experience_level: experienceLevel || 'mid',
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', user.id)
+
+      if (error) {
+        toast.error(`Failed to save: ${error.message}`)
+        return
+      }
+
+      setProfile((prev: any) => ({
+        ...prev,
+        full_name: fullName.trim() || null,
+        target_role: targetRole.trim() || null,
+        target_companies: companiesList,
+        experience_level: experienceLevel,
+      }))
+
+      toast.success('Profile saved successfully')
+    } catch (err: any) {
+      toast.error(err?.message || 'Failed to save profile')
+    } finally {
+      setIsSaving(false)
+    }
+  }
 
   if (isLoading) {
     return (
@@ -60,22 +119,55 @@ export default function ProfilePage() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="fullName">Full Name</Label>
-                  <Input id="fullName" defaultValue={profile?.full_name || ''} placeholder="John Doe" />
+                  <Input
+                    id="fullName"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    placeholder="John Doe"
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
-                  <Input id="email" defaultValue={profile?.email || ''} readOnly className="bg-muted" />
+                  <Input
+                    id="email"
+                    value={profile?.email || ''}
+                    readOnly
+                    className="bg-muted"
+                  />
                 </div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="targetRole">Target Role</Label>
-                <Input id="targetRole" defaultValue={profile?.target_role || ''} placeholder="Senior Frontend Engineer" />
+                <Input
+                  id="targetRole"
+                  value={targetRole}
+                  onChange={(e) => setTargetRole(e.target.value)}
+                  placeholder="Senior Frontend Engineer"
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="targetCompanies">Target Companies (comma separated)</Label>
-                <Input id="targetCompanies" defaultValue={profile?.target_companies?.join(', ') || ''} placeholder="Google, Meta, Amazon" />
+                <Input
+                  id="targetCompanies"
+                  value={targetCompanies}
+                  onChange={(e) => setTargetCompanies(e.target.value)}
+                  placeholder="Google, Meta, Amazon"
+                />
               </div>
-              <Button className="w-full">Save Profile</Button>
+              <Button
+                onClick={handleSave}
+                disabled={isSaving}
+                className="w-full"
+              >
+                {isSaving ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  'Save Profile'
+                )}
+              </Button>
             </CardContent>
           </Card>
         </div>
@@ -89,7 +181,7 @@ export default function ProfilePage() {
               <div className="space-y-4">
                 <div className="flex justify-between items-center text-sm">
                   <span>Full Name</span>
-                  {profile?.full_name ? (
+                  {fullName ? (
                     <CheckCircle2 className="h-4 w-4 text-green-500" />
                   ) : (
                     <span className="text-xs text-amber-500">Missing</span>
@@ -97,16 +189,18 @@ export default function ProfilePage() {
                 </div>
                 <div className="flex justify-between items-center text-sm">
                   <span>Target Role Set</span>
-                  {profile?.target_role ? (
+                  {targetRole ? (
                     <CheckCircle2 className="h-4 w-4 text-green-500" />
                   ) : (
                     <span className="text-xs text-amber-500">Not set</span>
                   )}
                 </div>
                 <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
-                  <div 
-                    className="h-full bg-primary" 
-                    style={{ width: `${(profile?.full_name ? 50 : 0) + (profile?.target_role ? 50 : 0)}%` }}
+                  <div
+                    className="h-full bg-primary transition-all duration-300"
+                    style={{
+                      width: `${(fullName ? 50 : 0) + (targetRole ? 50 : 0)}%`,
+                    }}
                   />
                 </div>
               </div>
