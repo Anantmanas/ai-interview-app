@@ -1,29 +1,103 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# ────────────────────────────────────────────────────────────────
+# InterviewAI — .gitignore
+# ────────────────────────────────────────────────────────────────
 
-# dependencies
-/node_modules
+# ── Dependencies ─────────────────────────────────────────────────
+node_modules/
+.pnp
+.pnp.js
 
-# next.js
-/.next/
-/out/
+# ── Next.js build output ─────────────────────────────────────────
+.next/
+out/
+build/
 
-# production
-/build
+# ── Environment variables ─────────────────────────────────────────
+# .env.example is SAFE to commit — it has no real values
+.env
+.env.local
+.env.development
+.env.development.local
+.env.test
+.env.test.local
+.env.production
+.env.production.local
 
-# debug
+# ── TypeScript ────────────────────────────────────────────────────
+*.tsbuildinfo
+next-env.d.ts
+tsc-output
+tsc-output.txt
+
+# ── Package manager ───────────────────────────────────────────────
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
 
-# env files
-.env*
-
-# vercel
+# ── Vercel deployment ─────────────────────────────────────────────
 .vercel
 
-# md files
-*.md
-# typescript
-*.tsbuildinfo
-next-env.d.ts
+# ── OS generated ──────────────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ── Editor / IDE ──────────────────────────────────────────────────
+.idea/
+.vscode/settings.json
+.vscode/launch.json
+*.swp
+*.swo
+*~
+
+# ── AI agent instruction files (not app code) ─────────────────────
+a2a_blueprint
+agent_instructions
+agent_instructions.md
+Claude
+codex_instructions_v3
+gemini_cli_prompt_v2
+gemini_fix_prompt
+implementation_plan
+implementation_plan.md
+interview-room-ui-ux-patch
+cursor_agent_instructions.md
+cursor_execution_prompt.md
+
+# ── Debug / test artifacts ────────────────────────────────────────
+RUNTIME_ERROR_LOG
+runtime-test-results
+app-components-tree
+data.sql
+test-resume
+tsc-output
+Progress_Report.md
+
+# ── Personal / sensitive files ────────────────────────────────────
+# IMPORTANT: Never commit resumes, CVs or personal documents
+Anant_Manas_Resume*
+*.resume.pdf
+*_Resume.*
+*_CV.*
+
+# ── Supabase local dev ────────────────────────────────────────────
+supabase/.branches/
+supabase/.temp/
+
+# ── Misc ──────────────────────────────────────────────────────────
+*.log
+*.pid
+*.seed
+*.pid.lock
+.cache/
+.turbo/
