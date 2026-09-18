@@ -3,10 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "next dev --webpack",
+    "dev:turbo": "next dev",
+    "build": "next build --webpack",
     "start": "next start",
-    "lint": "eslint ."
+    "lint": "next lint"
+  },
+  "engines": {
+    "node": "24.x"
   },
   "dependencies": {
     "@ai-sdk/openai": "^3.0.63",
@@ -83,6 +87,7 @@
     "@types/pdf-parse": "^1.1.4",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
+    "cross-env": "^10.1.0",
     "postcss": "^8.5",
     "shadcn": "^4.10.0",
     "tailwindcss": "^4.2.0",
