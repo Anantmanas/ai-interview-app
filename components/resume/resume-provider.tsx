@@ -103,7 +103,27 @@ export function ResumeProvider({ children }: { children: ReactNode }) {
     let cancelled = false
 
     const hydrate = async () => {
-      // 1. Fetch from server/DB as source of truth
+      // 1. Load local cache immediately for instant UI responsiveness
+      let localData = loadResumePersistent()
+      let localMeta = loadResumeMetaPersistent()
+
+      if (localData && (isCorruptedResumeData(localData) || isStaleResumeData(localData))) {
+        clearResumePersistent()
+        localData = null
+        localMeta = null
+      }
+
+      if (localData && !cancelled) {
+        setResumeData(localData)
+        if (localMeta) setResumeMeta(localMeta)
+      }
+
+      // 2. Skip server hydration on public/landing routes to prevent unauth API calls and middleware locks
+      const pathname = typeof window !== 'undefined' ? window.location.pathname : ''
+      const isPublicRoute = pathname === '/' || pathname.startsWith('/auth')
+      if (isPublicRoute) return
+
+      // 3. Fetch from server/DB as source of truth for dashboard/protected routes
       try {
         const res = await fetch('/api/resume')
         if (res.ok && !cancelled) {
@@ -120,28 +140,11 @@ export function ResumeProvider({ children }: { children: ReactNode }) {
               setResumeData(serverData)
               setResumeMeta(serverMeta)
               saveResumePersistent(serverData, serverMeta) // Sync cache
-              return
             }
           }
         }
       } catch (err) {
-        console.warn('[ResumeProvider] Server hydration failed, falling back to localStorage:', err)
-      }
-
-      // 2. Fall back to localStorage only if server fetch didn't load data
-      if (cancelled) return
-      let localData = loadResumePersistent()
-      let localMeta = loadResumeMetaPersistent()
-
-      if (localData && (isCorruptedResumeData(localData) || isStaleResumeData(localData))) {
-        clearResumePersistent()
-        localData = null
-        localMeta = null
-      }
-
-      if (localData) {
-        setResumeData(localData)
-        if (localMeta) setResumeMeta(localMeta)
+        console.warn('[ResumeProvider] Server hydration failed, using cached state:', err)
       }
     }
 

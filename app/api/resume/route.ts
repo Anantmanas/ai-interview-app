@@ -1,4 +1,5 @@
-﻿import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
+import pdfParse from 'pdf-parse'
 import { createClient } from '@/lib/supabase/server'
 import { formatResumeMarkdown, parseResumeMarkdown, structuredToDashboardResume } from '@/lib/resume/format'
 import { ResumeParsingService } from '@/lib/resume/parser-service'
@@ -107,12 +108,13 @@ async function extractRawText(file: File): Promise<string> {
   if (name.endsWith('.pdf') || file.type === 'application/pdf') {
     const ab = await file.arrayBuffer()
     const buf = Buffer.from(ab)
-    const mod = await import('pdf-parse')
-    const PDFParse = (mod as any).PDFParse
-    const parser = new PDFParse({ data: buf })
-    const parsed = await parser.getText()
-    await parser.destroy()
-    return parsed?.text || ''
+    try {
+      const result = await pdfParse(buf)
+      return result?.text || ''
+    } catch (e) {
+      console.warn('[resume] pdf-parse failed:', e instanceof Error ? e.message : e)
+      return ''
+    }
   }
 
   return await file.text()
@@ -125,6 +127,20 @@ export async function POST(req: NextRequest) {
 
     if (!file) return NextResponse.json({ error: 'No file provided' }, { status: 400 })
 
+    // File type allowlist — reject non-PDF/text before processing
+    const ALLOWED_TYPES = ['application/pdf', 'text/plain']
+    const ALLOWED_EXTENSIONS = ['.pdf', '.txt', '.md']
+    const ext = '.' + (file.name.split('.').pop() ?? '').toLowerCase()
+
+    if (!ALLOWED_TYPES.includes(file.type) && !ALLOWED_EXTENSIONS.includes(ext)) {
+      return NextResponse.json({ error: 'Only PDF and text files are supported' }, { status: 415 })
+    }
+
+    // Size cap — 10MB hard limit
+    if (file.size > 10 * 1024 * 1024) {
+      return NextResponse.json({ error: 'File must be under 10MB' }, { status: 413 })
+    }
+
     let resumeText = ''
     try {
       resumeText = await extractRawText(file)
@@ -134,15 +150,8 @@ export async function POST(req: NextRequest) {
 
     const normalized = normalizeText(resumeText)
 
-    // #region agent log
-    fetch('http://127.0.0.1:7657/ingest/ebbc3a05-84d1-4f07-893b-01831b601aad',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'bd394d'},body:JSON.stringify({sessionId:'bd394d',runId:'pre-fix',hypothesisId:'C',location:'app/api/resume/route.ts:POST:afterExtract',message:'PDF/text extraction result',data:{fileName:file.name,fileType:file.type,normalizedLen:normalized.length,textPreview:normalized.slice(0,120)},timestamp:Date.now()})}).catch(()=>{});
-    // #endregion
-
     if (normalized.length < 20) {
       const fallback = buildFallbackResumeData(normalized, file.name)
-      // #region agent log
-      fetch('http://127.0.0.1:7657/ingest/ebbc3a05-84d1-4f07-893b-01831b601aad',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'bd394d'},body:JSON.stringify({sessionId:'bd394d',runId:'pre-fix',hypothesisId:'C',location:'app/api/resume/route.ts:POST:shortTextFallback',message:'Using short-text fallback path',data:{skillsCount:fallback.skills.length,name:fallback.name},timestamp:Date.now()})}).catch(()=>{});
-      // #endregion
       return NextResponse.json(fallback)
     }
 
@@ -151,9 +160,6 @@ export async function POST(req: NextRequest) {
       const parsed = await parsingService.parseFromText(normalized)
       const resumeData = mapStructuredToResumeData(parsed.structuredData, normalized, file.name)
       await persistResumeProfile(resumeData, parsed.markdown)
-      // #region agent log
-      fetch('http://127.0.0.1:7657/ingest/ebbc3a05-84d1-4f07-893b-01831b601aad',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'bd394d'},body:JSON.stringify({sessionId:'bd394d',runId:'post-fix',hypothesisId:'B',location:'app/api/resume/route.ts:POST:deepseekSuccess',message:'DeepSeek parse success',data:{skillsCount:resumeData.skills.length,keySkillsCount:parsed.structuredData.key_skills?.length??0,name:resumeData.name||null},timestamp:Date.now()})}).catch(()=>{});
-      // #endregion
       return NextResponse.json(resumeData)
     } catch (modelError) {
       console.warn('[api/resume] model parse failed, fallback:', modelError)
@@ -167,9 +173,6 @@ export async function POST(req: NextRequest) {
         raw_text: normalized,
       })
       await persistResumeProfile(fallback, markdown)
-      // #region agent log
-      fetch('http://127.0.0.1:7657/ingest/ebbc3a05-84d1-4f07-893b-01831b601aad',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'bd394d'},body:JSON.stringify({sessionId:'bd394d',runId:'post-fix',hypothesisId:'B',location:'app/api/resume/route.ts:POST:modelFallback',message:'DeepSeek parse failed, using regex fallback',data:{error:String(modelError),skillsCount:fallback.skills.length,name:fallback.name},timestamp:Date.now()})}).catch(()=>{});
-      // #endregion
       return NextResponse.json(fallback)
     }
   } catch (err) {

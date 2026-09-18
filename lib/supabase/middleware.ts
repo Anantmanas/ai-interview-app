@@ -66,6 +66,21 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
+  // Handle top-level dashboard shortcuts
+  const redirectMap: Record<string, string> = {
+    '/history': '/dashboard/history',
+    '/roadmap': '/dashboard/roadmap',
+    '/profile': '/dashboard/profile',
+    '/settings': '/dashboard/settings',
+    '/resume': '/dashboard/resume',
+  }
+
+  if (redirectMap[request.nextUrl.pathname]) {
+    const url = request.nextUrl.clone()
+    url.pathname = redirectMap[request.nextUrl.pathname]
+    return NextResponse.redirect(url)
+  }
+
   // IMPORTANT: You *must* return the supabaseResponse object as it is.
   // If you're creating a new response object with NextResponse.next() make sure to:
   // 1. Pass the request in it, like so:

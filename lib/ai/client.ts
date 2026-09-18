@@ -1,7 +1,7 @@
 import OpenAI from 'openai'
 
 const rawKey = process.env.GEMINI_API_KEY || process.env.OPENAI_API_KEY || ''
-const apiKey = rawKey.trim().replace(/^[\"']|[\"']$/g, '')
+const apiKey = rawKey.trim().replace(/^["']|["']$/g, '')
 
 // Detect provider from key prefix
 const isOpenRouter = apiKey.startsWith('sk-or-')
@@ -18,7 +18,7 @@ const baseURL = isOpenRouter
     : undefined
 
 export const openai = new OpenAI({
-  apiKey,
+  apiKey: apiKey || 'dummy-key',
   baseURL,
   defaultHeaders: isOpenRouter
     ? {
@@ -29,24 +29,23 @@ export const openai = new OpenAI({
 })
 
 // Model names per provider
-// OpenRouter uses namespaced model IDs: google/gemini-*
+// OpenRouter defaults to 'openrouter/auto' to dynamically select the best available model
 export const GENERATION_MODEL = isOpenRouter
-  ? (process.env.OPENROUTER_MODEL || 'google/gemini-2.5-flash')
+  ? (process.env.OPENROUTER_MODEL || 'openrouter/auto')
   : isGemini
-    ? 'gemini-3.6-flash'
-    : 'gpt-4o-mini'
+    ? (process.env.GEMINI_MODEL || 'gemini-1.5-flash')
+    : (process.env.OPENAI_MODEL || 'gpt-4o-mini')
 
 export const EVALUATION_MODEL = isOpenRouter
-  ? (process.env.OPENROUTER_EVAL_MODEL || 'google/gemini-2.5-flash')
+  ? (process.env.OPENROUTER_EVAL_MODEL || 'openrouter/auto')
   : isGemini
-    ? 'gemini-3.6-flash'
-    : 'gpt-4o'
+    ? (process.env.GEMINI_MODEL || 'gemini-1.5-flash')
+    : (process.env.OPENAI_EVAL_MODEL || 'gpt-4o')
 
 console.log(`[AI Client] Provider: ${isOpenRouter ? 'OpenRouter' : isGemini ? 'Gemini' : 'OpenAI'} | Model: ${GENERATION_MODEL}`)
 
 /**
- * Universal completion helper.
- * Tries the configured provider first; falls back to direct Gemini REST only for Gemini keys.
+ * Universal completion helper with automatic model fallback.
  */
 export async function createChatCompletion({
   messages,
@@ -61,13 +60,17 @@ export async function createChatCompletion({
   responseFormat?: { type: 'json_object' }
   maxTokens?: number
 }): Promise<string> {
+  if (!apiKey) {
+    throw new Error('AI API key is missing. Please configure GEMINI_API_KEY or OPENAI_API_KEY in your environment variables.')
+  }
+
   const chosenModel = model || (responseFormat ? EVALUATION_MODEL : GENERATION_MODEL)
 
   const allMessages = system
     ? [{ role: 'system' as const, content: system }, ...messages]
     : messages
 
-  // Primary: use the configured client (OpenRouter / Gemini compat / OpenAI)
+  // Primary: use the configured client with openrouter/auto
   try {
     const res = await openai.chat.completions.create({
       model: chosenModel,
@@ -77,12 +80,38 @@ export async function createChatCompletion({
     })
     return res.choices[0]?.message?.content || ''
   } catch (err: any) {
+    // If OpenRouter error (e.g. credits required for auto-routed paid model), fallback through free models
+    if (isOpenRouter) {
+      console.warn(`[AI Client] OpenRouter model ${chosenModel} error (${err?.status}):`, err?.message)
+      const freeModels = [
+        'meta-llama/llama-3.3-70b-instruct:free',
+        'qwen/qwen-2.5-coder-32b-instruct:free',
+        'mistralai/mistral-7b-instruct:free',
+      ]
+
+      for (const fallbackModel of freeModels) {
+        if (fallbackModel === chosenModel) continue
+        try {
+          console.log(`[AI Client] Retrying with OpenRouter free model: ${fallbackModel}`)
+          const fallbackRes = await openai.chat.completions.create({
+            model: fallbackModel,
+            messages: allMessages,
+            response_format: responseFormat,
+            max_tokens: 800,
+          })
+          return fallbackRes.choices[0]?.message?.content || ''
+        } catch (fbErr: any) {
+          console.warn(`[AI Client] Fallback ${fallbackModel} failed:`, fbErr?.message)
+        }
+      }
+    }
+
     // Only attempt Gemini direct REST fallback for native Gemini keys
     if (!isGemini) throw err
 
-    console.warn('[AI Client] OpenAI-compat Gemini endpoint failed, trying direct REST:', err?.message)
+    console.warn('[AI Client] OpenAI-compat Gemini endpoint failed, trying direct REST fallback:', err?.message)
 
-    const geminiModel = chosenModel.startsWith('gemini') ? chosenModel : 'gemini-3.6-flash'
+    const geminiModel = chosenModel.startsWith('gemini') ? chosenModel : 'gemini-1.5-flash'
     const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent`
 
     const systemInstruction = allMessages.find((m) => m.role === 'system')?.content
@@ -114,6 +143,21 @@ export async function createChatCompletion({
 
     if (!response.ok) {
       const errText = await response.text()
+      if (geminiModel !== 'gemini-1.5-flash') {
+        const fallbackEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent`
+        const fallbackRes = await fetch(fallbackEndpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-goog-api-key': apiKey,
+          },
+          body: JSON.stringify(body),
+        })
+        if (fallbackRes.ok) {
+          const fallbackData = await fallbackRes.json()
+          return fallbackData?.candidates?.[0]?.content?.parts?.[0]?.text || ''
+        }
+      }
       throw new Error(`Gemini API error ${response.status}: ${errText}`)
     }
 

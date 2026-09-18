@@ -51,6 +51,17 @@ const URGENT_THRESHOLD_MS = 5 * 60 * 1000; // 5 minutes
 
 function buildResumeContext(profile?: any): string {
   if (profile?.resume_text) return profile.resume_text;
+  if (typeof window !== 'undefined') {
+    try {
+      const local = localStorage.getItem('interviewai_resume_data');
+      if (local) {
+        const parsed = JSON.parse(local);
+        if (parsed?.skills?.length || parsed?.summary) {
+          return `Candidate: ${parsed.name || 'Candidate'}\nTarget Role: ${parsed.targetRole || 'Software Engineer'}\nSkills: ${(parsed.skills || []).join(', ')}\nSummary: ${parsed.summary || ''}`;
+        }
+      }
+    } catch {}
+  }
   return 'Software Engineer with experience in full-stack development, React, Node.js, TypeScript';
 }
 
@@ -159,6 +170,11 @@ function VoiceWaveform({ isActive }: { isActive: boolean }) {
 function CountdownTimer({ startTime, onTimeUp }: { startTime: number; onTimeUp: () => void }) {
   const [timeLeft, setTimeLeft] = useState(INTERVIEW_DURATION_MS);
   const isUrgent = timeLeft <= URGENT_THRESHOLD_MS;
+  const onTimeUpRef = useRef(onTimeUp);
+
+  useEffect(() => {
+    onTimeUpRef.current = onTimeUp;
+  }, [onTimeUp]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -168,12 +184,12 @@ function CountdownTimer({ startTime, onTimeUp }: { startTime: number; onTimeUp: 
 
       if (remaining === 0) {
         clearInterval(interval);
-        onTimeUp();
+        onTimeUpRef.current();
       }
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [startTime, onTimeUp]);
+  }, [startTime]);
 
   const minutes = Math.floor(timeLeft / 60000);
   const seconds = Math.floor((timeLeft % 60000) / 1000);
@@ -208,9 +224,7 @@ function VoiceRecorder({
   const isRecordingRef = useRef(false);
   const transcriptRef = useRef(transcript);
 
-  useEffect(() => {
-    transcriptRef.current = transcript;
-  }, [transcript]);
+
 
   useEffect(() => {
     const SpeechRecognition =
@@ -662,16 +676,16 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
           {/* Action CTAs */}
           <div className="flex flex-col sm:flex-row items-center justify-end gap-3 pt-4 border-t border-[#303236]">
             <button
-              onClick={() => router.push('/dashboard/interviews/new')}
+              onClick={() => router.push('/dashboard')}
               className="w-full sm:w-auto rounded-full border border-[#303236] hover:border-[#797D86] text-[#C9CBCF] hover:text-[#FFFFFF] text-xs font-mono uppercase tracking-wider px-6 py-2.5 transition-colors"
             >
-              Start New Session
+              Go to Dashboard
             </button>
             <button
-              onClick={() => router.push(`/dashboard/history/${interviewId}`)}
+              onClick={() => router.push(interviewId ? `/dashboard/history/${interviewId}` : '/dashboard/history')}
               className="w-full sm:w-auto rounded-full bg-[#FFFFFF] hover:bg-[#C9CBCF] text-[#151617] text-xs font-mono font-bold uppercase tracking-wider px-6 py-2.5 transition-colors shadow-sm"
             >
-              View Full History →
+              See History →
             </button>
           </div>
         </div>
@@ -1135,3 +1149,5 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
     </div>
   );
 }
+
+

@@ -1,0 +1,84 @@
+{
+  "timestamp": "2026-06-01T17:01:07.476Z",
+  "results": [
+    {
+      "test": "GET /",
+      "status": 200,
+      "location": null
+    },
+    {
+      "test": "GET /auth/login",
+      "status": 200,
+      "location": null
+    },
+    {
+      "test": "GET /auth/sign-up",
+      "status": 200,
+      "location": null
+    },
+    {
+      "test": "GET /dashboard",
+      "status": 307,
+      "location": "/auth/login"
+    },
+    {
+      "test": "GET /auth/onboarding/welcome",
+      "status": 200,
+      "location": null
+    },
+    {
+      "test": "POST /api/interview/chat mode=interview",
+      "status": 500,
+      "body": {
+        "error": "Interview chat failed",
+        "detail": "RapidAPI error 429: {\"message\":\"You have exceeded the MONTHLY quota for Requests on your current plan, BASIC. Upgrade your plan at https:\\/\\/rapidapi.com\\/smileysoftwares\\/api\\/claude-haiku-4-5-fastest-ai-text-generator-by-anthropic\"}"
+      }
+    },
+    {
+      "test": "POST /api/interview/chat mode=chat",
+      "status": 500,
+      "body": {
+        "error": "Interview chat failed",
+        "detail": "RapidAPI error 429: {\"message\":\"You have exceeded the MONTHLY quota for Requests on your current plan, BASIC. Upgrade your plan at https:\\/\\/rapidapi.com\\/smileysoftwares\\/api\\/claude-haiku-4-5-fastest-ai-text-generator-by-anthropic\"}"
+      }
+    },
+    {
+      "test": "POST /api/resume PDF",
+      "status": 200,
+      "body": {
+        "name": "Anant Manas",
+        "skills": [],
+        "experience": [
+          {
+            "role": "Professional",
+            "company": "Various",
+            "years": 3
+          }
+        ],
+        "education": [
+          "B.Tech in Computer Science",
+          "Babasaheb Bhimrao Ambedkar University, Lucknow"
+        ],
+        "summary": "Anant Manas\nanantmanas101@gmail.com | +91 7905134232 | Kanpur, India\nlinkedin.com/in/anant-manas | github.com/Anantmanas\nSummary\nFull Stack Developer with 3+ years of experience building scalable web applications using the MERN stack. Proven track record of\nimproving performance, user engagement, and system efficiency through optimized frontend architecture and seamless backend\nintegrations.\nExperience\nFreelance Web Developer\nSelf-Employed | Feb 2024 – Present\n• Architected and delivered 5+ MERN"
+      }
+    }
+  ],
+  "bugs": [
+    {
+      "test": "POST /api/interview/chat mode=interview",
+      "status": 500,
+      "body": {
+        "error": "Interview chat failed",
+        "detail": "RapidAPI error 429: {\"message\":\"You have exceeded the MONTHLY quota for Requests on your current plan, BASIC. Upgrade your plan at https:\\/\\/rapidapi.com\\/smileysoftwares\\/api\\/claude-haiku-4-5-fastest-ai-text-generator-by-anthropic\"}"
+      }
+    },
+    {
+      "test": "POST /api/interview/chat mode=chat",
+      "status": 500,
+      "body": {
+        "error": "Interview chat failed",
+        "detail": "RapidAPI error 429: {\"message\":\"You have exceeded the MONTHLY quota for Requests on your current plan, BASIC. Upgrade your plan at https:\\/\\/rapidapi.com\\/smileysoftwares\\/api\\/claude-haiku-4-5-fastest-ai-text-generator-by-anthropic\"}"
+      }
+    }
+  ]
+}
