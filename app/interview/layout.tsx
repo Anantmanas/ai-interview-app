@@ -14,10 +14,8 @@ export default async function InterviewLayout({
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <main className="container mx-auto px-4 py-6">
-        {children}
-      </main>
+    <div className="w-full h-full min-h-screen max-h-screen overflow-hidden bg-[#000000] text-white p-0 m-0">
+      {children}
     </div>
   )
 }

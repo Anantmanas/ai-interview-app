@@ -17,14 +17,16 @@ export default async function NewInterviewPage() {
     .single()
 
   return (
-    <div className="container mx-auto max-w-4xl py-8 px-4">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Start New Interview</h1>
-        <p className="text-muted-foreground">
-          Configure your practice session and begin your AI-powered interview.
-        </p>
+    <div className="w-full h-full min-h-screen overflow-y-auto bg-[#000000] text-white py-8 px-4">
+      <div className="container mx-auto max-w-4xl">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold mb-2">Start New Interview</h1>
+          <p className="text-[#94979E]">
+            Configure your practice session and begin your AI-powered interview.
+          </p>
+        </div>
+        <InterviewSetup profile={profile} />
       </div>
-      <InterviewSetup profile={profile} />
     </div>
   )
 }
