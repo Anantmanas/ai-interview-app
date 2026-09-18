@@ -161,9 +161,9 @@ Return ONLY valid JSON:
       system: `You are a technical interviewer. Resume context: ${resumeContext || 'none'}`,
       messages: Array.isArray(messages) && messages.length > 0
         ? messages.map((m: ChatMessage) => ({
-            role: (m.role === 'assistant' ? 'assistant' : 'user') as 'assistant' | 'user',
-            content: m.content,
-          }))
+          role: (m.role === 'assistant' ? 'assistant' : 'user') as 'assistant' | 'user',
+          content: m.content,
+        }))
         : [{ role: 'user' as const, content: 'Hello' }],
       model: GENERATION_MODEL,
     })

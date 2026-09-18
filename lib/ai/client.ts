@@ -14,17 +14,17 @@ const isOpenAI = apiKey.startsWith('sk-') && !isOpenRouter
 const baseURL = isOpenRouter
   ? 'https://openrouter.ai/api/v1'
   : isGemini
-  ? 'https://generativelanguage.googleapis.com/v1beta/openai/'
-  : undefined
+    ? 'https://generativelanguage.googleapis.com/v1beta/openai/'
+    : undefined
 
 export const openai = new OpenAI({
   apiKey,
   baseURL,
   defaultHeaders: isOpenRouter
     ? {
-        'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
-        'X-Title': 'InterviewAI',
-      }
+      'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
+      'X-Title': 'InterviewAI',
+    }
     : undefined,
 })
 
@@ -33,14 +33,14 @@ export const openai = new OpenAI({
 export const GENERATION_MODEL = isOpenRouter
   ? (process.env.OPENROUTER_MODEL || 'google/gemini-2.5-flash')
   : isGemini
-  ? 'gemini-3.6-flash'
-  : 'gpt-4o-mini'
+    ? 'gemini-3.6-flash'
+    : 'gpt-4o-mini'
 
 export const EVALUATION_MODEL = isOpenRouter
   ? (process.env.OPENROUTER_EVAL_MODEL || 'google/gemini-2.5-flash')
   : isGemini
-  ? 'gemini-3.6-flash'
-  : 'gpt-4o'
+    ? 'gemini-3.6-flash'
+    : 'gpt-4o'
 
 console.log(`[AI Client] Provider: ${isOpenRouter ? 'OpenRouter' : isGemini ? 'Gemini' : 'OpenAI'} | Model: ${GENERATION_MODEL}`)
 
