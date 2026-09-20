@@ -101,3 +101,4 @@ supabase/.temp/
 *.pid.lock
 .cache/
 .turbo/
+.env*

@@ -12,3 +12,8 @@ export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
     autoRefreshToken: false,
   },
 })
+
+export function createAdminClient() {
+  return supabaseAdmin
+}
+
