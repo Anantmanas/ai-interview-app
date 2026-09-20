@@ -14,7 +14,7 @@ export default async function InterviewLayout({
   }
 
   return (
-    <div className="w-full h-full min-h-screen max-h-screen overflow-hidden bg-[#000000] text-white p-0 m-0">
+    <div className="w-full min-h-screen bg-[var(--color-carbon)] text-[var(--color-ash)] p-0 m-0">
       {children}
     </div>
   )

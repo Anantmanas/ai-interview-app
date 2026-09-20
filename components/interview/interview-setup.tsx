@@ -7,7 +7,7 @@ import type { Profile, InterviewType, Difficulty } from '@/lib/types'
 import { useResume } from '@/components/resume/resume-provider'
 import { SkillIcon } from '@/components/resume/skill-icon'
 import { ResumeDropzone } from '@/components/resume/resume-dropzone'
-import { Code, Users, Network, Zap, Shield, Sparkles } from 'lucide-react'
+import { Code, Users, Network, Sparkles, ArrowRight, ArrowLeft } from 'lucide-react'
 
 interface InterviewSetupProps {
   profile: Profile | null
@@ -60,7 +60,6 @@ export function InterviewSetup({ profile, existingCount = 0 }: InterviewSetupPro
   const router = useRouter()
   const { resumeData, isResumeReady } = useResume()
 
-  // Auto-generate session name: Mock_Test 01, Mock_Test 02, etc.
   const defaultSessionName = `Mock_Test ${String(existingCount + 1).padStart(2, '0')}`
 
   const [title, setTitle] = useState(defaultSessionName)
@@ -69,7 +68,6 @@ export function InterviewSetup({ profile, existingCount = 0 }: InterviewSetupPro
   const [loading, setLoading] = useState(false)
   const [showCustomTitle, setShowCustomTitle] = useState(false)
 
-  // Keep title updated if existingCount changes or initializes
   useEffect(() => {
     if (!showCustomTitle) {
       setTitle(`Mock_Test ${String(existingCount + 1).padStart(2, '0')}`)
@@ -105,44 +103,44 @@ export function InterviewSetup({ profile, existingCount = 0 }: InterviewSetupPro
   return (
     <div className="space-y-6">
       {/* Cockpit Card Container */}
-      <div className="bg-[#0A0A0B] border border-[#303236] rounded-[4px] p-6 sm:p-8 shadow-2xl space-y-8">
+      <div className="card-console-glow p-6 sm:p-8 space-y-8">
         {/* Header Briefing */}
-        <div className="border-b border-[#303236] pb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="border-b border-[#291a45] pb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-mono uppercase tracking-widest text-[#34D59A] font-semibold">
+              <span className="text-[10px] font-mono uppercase tracking-widest text-[#c084fc] font-semibold">
                 ASSESSMENT SETUP
               </span>
-              <span className="text-[#797D86] text-xs">/</span>
-              <span className="text-[10px] font-mono text-[#94979E] uppercase">
+              <span className="text-[#50446b] text-xs">/</span>
+              <span className="text-[10px] font-mono text-[#948bb0] uppercase">
                 ADAPTIVE ENGINE
               </span>
             </div>
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#FFFFFF]">
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#fdfcff] font-display">
               Configure Interview Session
             </h1>
-            <p className="text-xs text-[#797D86]">
+            <p className="text-xs text-[#948bb0]">
               AI interviewer will adapt live questions and code evaluations to your profile.
             </p>
           </div>
 
           {/* Session Tag Pill */}
-          <div className="bg-[#151617] border border-[#303236] rounded-[4px] px-3 py-1.5 flex items-center gap-2 shrink-0">
-            <span className="text-[10px] text-[#797D86] font-mono uppercase">ID</span>
-            <span className="text-xs font-mono font-bold text-[#34D59A]">{title}</span>
+          <div className="bg-[#140e24] border border-[#3b1d66] rounded-[6px] px-3 py-1.5 flex items-center gap-2 shrink-0">
+            <span className="text-[10px] text-[#948bb0] font-mono uppercase">ID</span>
+            <span className="text-xs font-mono font-bold text-[#c084fc]">{title}</span>
           </div>
         </div>
 
         {/* 1. Session Naming Section */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <label className="text-xs font-mono font-semibold uppercase tracking-wider text-[#FFFFFF] flex items-center gap-2">
-              <span className="text-[#34D59A]">01.</span> SESSION NAME
+            <label className="text-xs font-mono font-semibold uppercase tracking-wider text-[#fdfcff] flex items-center gap-2">
+              <span className="text-[#a855f7]">01.</span> SESSION NAME
             </label>
             <button
               type="button"
               onClick={() => setShowCustomTitle(!showCustomTitle)}
-              className="text-[11px] font-mono text-[#797D86] hover:text-[#34D59A] transition-colors uppercase underline underline-offset-4"
+              className="text-[11px] font-mono text-[#948bb0] hover:text-[#c084fc] transition-colors uppercase underline underline-offset-4 cursor-pointer"
             >
               {showCustomTitle ? 'Reset to Auto-Generated' : 'Edit Custom Name'}
             </button>
@@ -154,12 +152,12 @@ export function InterviewSetup({ profile, existingCount = 0 }: InterviewSetupPro
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g. Mock_Test 01"
-              className="w-full bg-[#151617] border border-[#303236] focus:border-[#34D59A] focus:outline-none rounded-[4px] px-4 py-3 text-sm font-mono text-[#FFFFFF] transition-colors"
+              className="w-full bg-[#140e24] border border-[#291a45] focus:border-[#a855f7] focus:ring-1 focus:ring-[#a855f7]/40 focus:outline-none rounded-[6px] px-4 py-3 text-sm font-mono text-[#fdfcff] transition-colors"
             />
           ) : (
-            <div className="w-full bg-[#151617] border border-[#303236] rounded-[4px] px-4 py-3 flex items-center justify-between">
-              <span className="font-mono text-sm font-bold text-[#FFFFFF]">{title}</span>
-              <span className="text-[10px] font-mono text-[#797D86] uppercase tracking-wider bg-[#242628] px-2 py-0.5 rounded-full">
+            <div className="w-full bg-[#140e24] border border-[#291a45] rounded-[6px] px-4 py-3 flex items-center justify-between">
+              <span className="font-mono text-sm font-bold text-[#fdfcff]">{title}</span>
+              <span className="text-[10px] font-mono text-[#c084fc] uppercase tracking-wider bg-[#201138] border border-[#4c1d95] px-2.5 py-0.5 rounded-full">
                 AUTO-INCREMENTED
               </span>
             </div>
@@ -167,19 +165,19 @@ export function InterviewSetup({ profile, existingCount = 0 }: InterviewSetupPro
         </div>
 
         {/* 2. Resume / Source of Truth Context Status */}
-        <div className="bg-[#151617] border border-[#303236] rounded-[4px] p-4 space-y-3">
+        <div className="bg-[#140e24] border border-[#291a45] rounded-[6px] p-4 space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-[#34D59A]" />
-              <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#FFFFFF]">
+              <Sparkles className="w-4 h-4 text-[#a855f7]" />
+              <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#fdfcff]">
                 RESUME GROUNDING CONTEXT
               </span>
             </div>
             <span
-              className={`text-[10px] font-mono uppercase px-2 py-0.5 rounded-full border ${
+              className={`text-[10px] font-mono uppercase px-2.5 py-0.5 rounded-full border ${
                 isResumeReady || profile?.resume_text
-                  ? 'bg-[#34D59A]/10 text-[#34D59A] border-[#34D59A]/30'
-                  : 'bg-[#FF3621]/10 text-[#FF3621] border-[#FF3621]/30'
+                  ? 'bg-[#201138] text-[#c084fc] border-[#4c1d95]'
+                  : 'bg-[#2a0e15] text-[#f87171] border-[#5c1d28]'
               }`}
             >
               {isResumeReady || profile?.resume_text ? 'ACTIVE SYNC' : 'NO RESUME LINKED'}
@@ -188,23 +186,23 @@ export function InterviewSetup({ profile, existingCount = 0 }: InterviewSetupPro
 
           {isResumeReady && resumeData ? (
             <div className="space-y-2">
-              <p className="text-xs text-[#C9CBCF]">
-                Questions will be tailored to <strong className="text-[#FFFFFF]">{resumeData.name || 'your profile'}</strong> ({resumeData.targetRole || 'Software Engineer'}).
+              <p className="text-xs text-[#c8c0e0]">
+                Questions will be tailored to <strong className="text-[#fdfcff]">{resumeData.name || 'your profile'}</strong> ({resumeData.targetRole || 'Software Engineer'}).
               </p>
               {resumeData.skills && resumeData.skills.length > 0 && (
                 <div className="flex flex-wrap gap-1.5 pt-1">
-                  {resumeData.skills.slice(0, 8).map((skill) => (
+                  {resumeData.skills.slice(0, 10).map((skill) => (
                     <span
                       key={skill}
-                      className="inline-flex items-center gap-1.5 text-[11px] font-mono bg-[#0A0A0B] border border-[#303236] rounded-[3px] px-2 py-0.5 text-[#C9CBCF]"
+                      className="inline-flex items-center gap-1.5 text-[11px] font-mono bg-[#0d0918] border border-[#291a45] rounded-[4px] px-2.5 py-1 text-[#f5f3ff] hover:border-[#4c1d95] transition-colors"
                     >
-                      <SkillIcon skill={skill} className="w-3 h-3" size={12} />
+                      <SkillIcon skill={skill} className="w-3.5 h-3.5" size={14} />
                       {skill}
                     </span>
                   ))}
-                  {resumeData.skills.length > 8 && (
-                    <span className="text-[10px] font-mono text-[#797D86] self-center">
-                      +{resumeData.skills.length - 8} more
+                  {resumeData.skills.length > 10 && (
+                    <span className="text-[10px] font-mono text-[#948bb0] self-center">
+                      +{resumeData.skills.length - 10} more
                     </span>
                   )}
                 </div>
@@ -212,7 +210,7 @@ export function InterviewSetup({ profile, existingCount = 0 }: InterviewSetupPro
             </div>
           ) : (
             <div className="space-y-3 pt-1">
-              <p className="text-xs text-[#94979E]">
+              <p className="text-xs text-[#948bb0]">
                 Upload your resume to generate hyper-personalized questions matching your exact stack.
               </p>
               <ResumeDropzone source="interview-setup" />
@@ -222,8 +220,8 @@ export function InterviewSetup({ profile, existingCount = 0 }: InterviewSetupPro
 
         {/* 3. Interview Track Selection */}
         <div className="space-y-3">
-          <label className="text-xs font-mono font-semibold uppercase tracking-wider text-[#FFFFFF] flex items-center gap-2">
-            <span className="text-[#34D59A]">02.</span> SELECT INTERVIEW TRACK
+          <label className="text-xs font-mono font-semibold uppercase tracking-wider text-[#fdfcff] flex items-center gap-2">
+            <span className="text-[#a855f7]">02.</span> SELECT INTERVIEW TRACK
           </label>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -235,29 +233,29 @@ export function InterviewSetup({ profile, existingCount = 0 }: InterviewSetupPro
                   key={opt.id}
                   type="button"
                   onClick={() => setType(opt.id)}
-                  className={`p-4 rounded-[4px] text-left transition-all border flex flex-col justify-between space-y-3 ${
+                  className={`p-4 rounded-[6px] text-left transition-all border flex flex-col justify-between space-y-3 cursor-pointer ${
                     isSelected
-                      ? 'bg-[#151617] border-[#34D59A] shadow-md shadow-[#34D59A]/10'
-                      : 'bg-[#151617]/50 border-[#303236] hover:border-[#797D86] hover:bg-[#151617]'
+                      ? 'bg-[#201138] border-[#a855f7] shadow-[0_0_20px_rgba(168,85,247,0.25)]'
+                      : 'bg-[#140e24]/70 border-[#291a45] hover:border-[#4c1d95] hover:bg-[#140e24]'
                   }`}
                 >
                   <div className="flex items-center justify-between">
                     <div
-                      className={`p-2 rounded-[4px] ${
-                        isSelected ? 'bg-[#34D59A] text-[#151617]' : 'bg-[#242628] text-[#94979E]'
+                      className={`p-2 rounded-[6px] ${
+                        isSelected ? 'bg-gradient-to-r from-[#9333ea] to-[#7c3aed] text-white shadow-[0_0_12px_rgba(168,85,247,0.5)]' : 'bg-[#1b1330] text-[#948bb0]'
                       }`}
                     >
                       <Icon className="w-4 h-4" />
                     </div>
                     {isSelected && (
-                      <span className="w-2 h-2 rounded-full bg-[#34D59A] shadow-sm shadow-[#34D59A]" />
+                      <span className="w-2 h-2 rounded-full bg-[#c084fc] led-pulse" />
                     )}
                   </div>
                   <div>
-                    <h3 className="font-mono text-xs font-bold uppercase tracking-wider text-[#FFFFFF]">
+                    <h3 className="font-mono text-xs font-bold uppercase tracking-wider text-[#fdfcff]">
                       {opt.label}
                     </h3>
-                    <p className="text-[11px] text-[#797D86] mt-1 leading-relaxed">
+                    <p className="text-[11px] text-[#948bb0] mt-1 leading-relaxed">
                       {opt.desc}
                     </p>
                   </div>
@@ -269,8 +267,8 @@ export function InterviewSetup({ profile, existingCount = 0 }: InterviewSetupPro
 
         {/* 4. Target Seniority / Difficulty Level */}
         <div className="space-y-3">
-          <label className="text-xs font-mono font-semibold uppercase tracking-wider text-[#FFFFFF] flex items-center gap-2">
-            <span className="text-[#34D59A]">03.</span> TARGET SENIORITY LEVEL
+          <label className="text-xs font-mono font-semibold uppercase tracking-wider text-[#fdfcff] flex items-center gap-2">
+            <span className="text-[#a855f7]">03.</span> TARGET SENIORITY LEVEL
           </label>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -281,25 +279,25 @@ export function InterviewSetup({ profile, existingCount = 0 }: InterviewSetupPro
                   key={opt.id}
                   type="button"
                   onClick={() => setDifficulty(opt.id)}
-                  className={`p-4 rounded-[4px] text-left transition-all border flex flex-col justify-between space-y-2 ${
+                  className={`p-4 rounded-[6px] text-left transition-all border flex flex-col justify-between space-y-2 cursor-pointer ${
                     isSelected
-                      ? 'bg-[#151617] border-[#34D59A] shadow-md shadow-[#34D59A]/10'
-                      : 'bg-[#151617]/50 border-[#303236] hover:border-[#797D86] hover:bg-[#151617]'
+                      ? 'bg-[#201138] border-[#a855f7] shadow-[0_0_20px_rgba(168,85,247,0.25)]'
+                      : 'bg-[#140e24]/70 border-[#291a45] hover:border-[#4c1d95] hover:bg-[#140e24]'
                   }`}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-mono text-[#34D59A] uppercase tracking-wider font-semibold">
+                    <span className="text-[10px] font-mono text-[#c084fc] uppercase tracking-wider font-semibold">
                       {opt.level}
                     </span>
                     {isSelected && (
-                      <span className="w-2 h-2 rounded-full bg-[#34D59A]" />
+                      <span className="w-2 h-2 rounded-full bg-[#c084fc] led-pulse" />
                     )}
                   </div>
                   <div>
-                    <h3 className="font-mono text-xs font-bold text-[#FFFFFF]">
+                    <h3 className="font-mono text-xs font-bold text-[#fdfcff]">
                       {opt.label}
                     </h3>
-                    <p className="text-[11px] text-[#797D86] mt-0.5 leading-relaxed">
+                    <p className="text-[11px] text-[#948bb0] mt-0.5 leading-relaxed">
                       {opt.desc}
                     </p>
                   </div>
@@ -310,28 +308,32 @@ export function InterviewSetup({ profile, existingCount = 0 }: InterviewSetupPro
         </div>
 
         {/* Action Controls & Launch CTA */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-[#303236]">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-[#291a45]">
           <button
             type="button"
             onClick={() => router.push('/dashboard')}
-            className="w-full sm:w-auto rounded-full border border-[#303236] hover:border-[#797D86] text-[#C9CBCF] hover:text-[#FFFFFF] text-xs font-mono uppercase tracking-wider px-6 py-3 transition-colors"
+            className="w-full sm:w-auto rounded-[6px] border border-[#291a45] hover:border-[#4c1d95] bg-[#140e24] text-[#c8c0e0] hover:text-[#fdfcff] text-xs font-mono uppercase tracking-wider px-6 py-3 transition-colors cursor-pointer inline-flex items-center justify-center gap-2"
           >
-            ← Cancel & Return
+            <ArrowLeft className="w-3.5 h-3.5" />
+            Cancel & Return
           </button>
 
           <button
             type="button"
             onClick={handleStartInterview}
             disabled={loading}
-            className="w-full sm:w-auto rounded-full bg-[#34D59A] hover:bg-[#285D49] hover:text-[#FFFFFF] text-[#151617] font-mono text-xs font-bold uppercase tracking-wider px-8 py-3.5 transition-all shadow-md shadow-[#34D59A]/20 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="w-full sm:w-auto rounded-[6px] btn-neo-violet font-mono text-xs font-bold uppercase tracking-wider px-8 py-3.5 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {loading ? (
               <>
-                <span className="w-3.5 h-3.5 border-2 border-[#151617] border-t-transparent rounded-full animate-spin" />
+                <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                 <span>INITIALIZING COCKPIT...</span>
               </>
             ) : (
-              <span>LAUNCH SESSION →</span>
+              <>
+                <span>LAUNCH SESSION</span>
+                <ArrowRight className="w-4 h-4" />
+              </>
             )}
           </button>
         </div>

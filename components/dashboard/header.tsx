@@ -3,7 +3,6 @@
 import type { User } from '@supabase/supabase-js'
 import type { Profile } from '@/lib/types'
 import { SidebarTrigger } from '@/components/ui/sidebar'
-import { Separator } from '@/components/ui/separator'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -13,8 +12,8 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
 import { usePathname } from 'next/navigation'
-
 import { Fragment } from 'react'
+import { NotificationBell } from '@/components/dashboard/notification-bell'
 
 interface DashboardHeaderProps {
   user: User
@@ -26,29 +25,20 @@ const pathNames: Record<string, string> = {
   '/dashboard/weaknesses': 'Weaknesses',
   '/interview': 'Interview',
   '/interview/new': 'New Interview',
-  '/history': 'Interview History',
-  '/roadmap': 'Learning Roadmap',
-  '/profile': 'Profile',
-  '/profile/resume': 'Resume',
-  '/settings': 'Settings',
+  '/dashboard/history': 'Interview History',
+  '/dashboard/roadmap': 'Learning Roadmap',
+  '/dashboard/profile': 'Profile',
+  '/dashboard/resume': 'Resume',
+  '/dashboard/settings': 'Settings',
+  '/dashboard/billing': 'Billing',
+  '/dashboard/analytics': 'Analytics',
+  '/dashboard/referrals': 'Referrals',
+  '/dashboard/activity': 'Activity',
+  '/dashboard/api-keys': 'API Keys',
 }
 
 export function DashboardHeader({ user, profile }: DashboardHeaderProps) {
   const pathname = usePathname()
-
-  const getPageTitle = () => {
-    // Check for exact match first
-    if (pathNames[pathname]) {
-      return pathNames[pathname]
-    }
-    // Check for partial matches (for dynamic routes)
-    for (const [path, name] of Object.entries(pathNames)) {
-      if (pathname.startsWith(path) && path !== '/dashboard') {
-        return name
-      }
-    }
-    return 'Dashboard'
-  }
 
   const getBreadcrumbs = () => {
     const segments = pathname.split('/').filter(Boolean)
@@ -67,25 +57,30 @@ export function DashboardHeader({ user, profile }: DashboardHeaderProps) {
   const breadcrumbs = getBreadcrumbs()
 
   return (
-    <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
-      <SidebarTrigger className="-ml-1" />
-      <Separator orientation="vertical" className="mr-2 h-4" />
+    <header className="flex h-12 shrink-0 items-center gap-2 border-b border-[#2b292d] bg-[#121113] px-5">
+      <SidebarTrigger className="-ml-1 text-[#7c7a85] hover:text-[#71d083] hover:bg-[#1a191b]" />
+      <div className="h-3.5 w-px bg-[#2b292d] mx-2" />
       <Breadcrumb>
-        <BreadcrumbList>
+        <BreadcrumbList className="font-mono text-[11px] text-[#7c7a85]">
           {breadcrumbs.map((crumb, index) => (
             <Fragment key={crumb.href}>
               <BreadcrumbItem>
                 {index === breadcrumbs.length - 1 ? (
-                  <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
+                  <BreadcrumbPage className="text-[#e5e5e5] font-semibold">{crumb.label}</BreadcrumbPage>
                 ) : (
-                  <BreadcrumbLink href={crumb.href}>{crumb.label}</BreadcrumbLink>
+                  <BreadcrumbLink href={crumb.href} className="text-[#7c7a85] hover:text-[#71d083] transition-colors">
+                    {crumb.label}
+                  </BreadcrumbLink>
                 )}
               </BreadcrumbItem>
-              {index < breadcrumbs.length - 1 && <BreadcrumbSeparator />}
+              {index < breadcrumbs.length - 1 && <BreadcrumbSeparator className="text-[#49474e]" />}
             </Fragment>
           ))}
         </BreadcrumbList>
       </Breadcrumb>
+      <div className="ml-auto">
+        <NotificationBell />
+      </div>
     </header>
   )
 }

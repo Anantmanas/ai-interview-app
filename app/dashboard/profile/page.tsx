@@ -2,11 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { CheckCircle2, Loader2 } from 'lucide-react'
+import { CheckCircle2, Loader2, Save } from 'lucide-react'
 import { toast } from 'sonner'
 
 export default function ProfilePage() {
@@ -91,121 +87,142 @@ export default function ProfilePage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-[60vh]">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <Loader2 className="h-6 w-6 animate-spin text-[#a855f7]" />
       </div>
     )
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <div className="max-w-4xl mx-auto space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Profile</h1>
-        <p className="text-muted-foreground mt-2">
-          Manage your personal information and target career goals.
+        <p className="font-mono text-[11px] text-[#c084fc] uppercase tracking-[0.15em] mb-1 font-semibold">// CANDIDATE CONFIG</p>
+        <h1 className="font-display text-[32px] font-bold text-[#fdfcff] leading-[1.1] tracking-[-0.02em]">Profile</h1>
+        <p className="font-body text-[14px] text-[#c8c0e0] mt-1">
+          Manage your target engineering goals and personal details for AI customization.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div className="md:col-span-2 space-y-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="md:col-span-2 space-y-6">
           {/* Profile Form */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Personal Details</CardTitle>
-              <CardDescription>
+          <div className="card-console">
+            <div className="p-5 border-b border-[#291a45]">
+              <p className="font-mono text-[11px] text-[#fdfcff] uppercase tracking-[0.08em] font-semibold">Personal Details</p>
+              <p className="font-body text-[13px] text-[#948bb0] mt-1">
                 Your target role and companies help the AI generate relevant interview questions.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="fullName">Full Name</Label>
-                  <Input
+              </p>
+            </div>
+            <div className="p-5 space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="fullName" className="font-mono text-[10px] text-[#c8c0e0] uppercase tracking-[0.08em] block mb-1.5 font-semibold">
+                    Full Name
+                  </label>
+                  <input
                     id="fullName"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     placeholder="John Doe"
+                    className="bg-[#140e24] border border-[#291a45] rounded-[6px] px-3.5 py-2.5 text-[14px] text-[#f5f3ff] placeholder:text-[#50446b] focus:outline-none focus:border-[#a855f7] focus:ring-1 focus:ring-[#a855f7]/40 transition-colors w-full font-body"
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
+                <div>
+                  <label htmlFor="email" className="font-mono text-[10px] text-[#c8c0e0] uppercase tracking-[0.08em] block mb-1.5 font-semibold">
+                    Email Address
+                  </label>
+                  <input
                     id="email"
                     value={profile?.email || ''}
                     readOnly
-                    className="bg-muted"
+                    className="bg-[#0d0918] border border-[#291a45] rounded-[6px] px-3.5 py-2.5 text-[14px] text-[#50446b] cursor-not-allowed w-full font-body"
                   />
                 </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="targetRole">Target Role</Label>
-                <Input
+              <div>
+                <label htmlFor="targetRole" className="font-mono text-[10px] text-[#c8c0e0] uppercase tracking-[0.08em] block mb-1.5 font-semibold">
+                  Target Role
+                </label>
+                <input
                   id="targetRole"
                   value={targetRole}
                   onChange={(e) => setTargetRole(e.target.value)}
                   placeholder="Senior Frontend Engineer"
+                  className="bg-[#140e24] border border-[#291a45] rounded-[6px] px-3.5 py-2.5 text-[14px] text-[#f5f3ff] placeholder:text-[#50446b] focus:outline-none focus:border-[#a855f7] focus:ring-1 focus:ring-[#a855f7]/40 transition-colors w-full font-body"
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="targetCompanies">Target Companies (comma separated)</Label>
-                <Input
+              <div>
+                <label htmlFor="targetCompanies" className="font-mono text-[10px] text-[#c8c0e0] uppercase tracking-[0.08em] block mb-1.5 font-semibold">
+                  Target Companies (comma separated)
+                </label>
+                <input
                   id="targetCompanies"
                   value={targetCompanies}
                   onChange={(e) => setTargetCompanies(e.target.value)}
-                  placeholder="Google, Meta, Amazon"
+                  placeholder="Google, Meta, Amazon, Stripe"
+                  className="bg-[#140e24] border border-[#291a45] rounded-[6px] px-3.5 py-2.5 text-[14px] text-[#f5f3ff] placeholder:text-[#50446b] focus:outline-none focus:border-[#a855f7] focus:ring-1 focus:ring-[#a855f7]/40 transition-colors w-full font-body"
                 />
               </div>
-              <Button
-                onClick={handleSave}
-                disabled={isSaving}
-                className="w-full"
-              >
-                {isSaving ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Saving...
-                  </>
-                ) : (
-                  'Save Profile'
-                )}
-              </Button>
-            </CardContent>
-          </Card>
+              <div className="pt-2">
+                <button
+                  onClick={handleSave}
+                  disabled={isSaving}
+                  className="btn-neo-violet font-mono text-[12px] font-bold uppercase tracking-[0.05em] px-8 py-2.5 rounded-[6px] cursor-pointer disabled:opacity-50 inline-flex items-center gap-2"
+                >
+                  {isSaving ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <span>Saving Profile...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Save className="h-4 w-4" />
+                      <span>Save Profile</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div className="space-y-8">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-sm font-medium">Profile Completion</CardTitle>
-            </CardHeader>
-            <CardContent>
+        <div className="space-y-6">
+          <div className="card-console">
+            <div className="p-5 border-b border-[#291a45]">
+              <p className="font-mono text-[11px] text-[#fdfcff] uppercase tracking-[0.08em] font-semibold">Profile Completion</p>
+            </div>
+            <div className="p-5">
               <div className="space-y-4">
-                <div className="flex justify-between items-center text-sm">
-                  <span>Full Name</span>
+                <div className="flex justify-between items-center text-[13px] font-body">
+                  <span className="text-[#c8c0e0]">Full Name</span>
                   {fullName ? (
-                    <CheckCircle2 className="h-4 w-4 text-green-500" />
+                    <span className="flex items-center gap-1 font-mono text-[11px] text-[#c084fc]">
+                      <CheckCircle2 className="h-3.5 w-3.5" /> Done
+                    </span>
                   ) : (
-                    <span className="text-xs text-amber-500">Missing</span>
+                    <span className="font-mono text-[11px] text-[#f87171]">Missing</span>
                   )}
                 </div>
-                <div className="flex justify-between items-center text-sm">
-                  <span>Target Role Set</span>
+                <div className="flex justify-between items-center text-[13px] font-body">
+                  <span className="text-[#c8c0e0]">Target Role Set</span>
                   {targetRole ? (
-                    <CheckCircle2 className="h-4 w-4 text-green-500" />
+                    <span className="flex items-center gap-1 font-mono text-[11px] text-[#c084fc]">
+                      <CheckCircle2 className="h-3.5 w-3.5" /> Done
+                    </span>
                   ) : (
-                    <span className="text-xs text-amber-500">Not set</span>
+                    <span className="font-mono text-[11px] text-[#948bb0]">Not set</span>
                   )}
                 </div>
-                <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
+                <div className="h-2 w-full bg-[#140e24] rounded-full overflow-hidden border border-[#291a45]">
                   <div
-                    className="h-full bg-primary transition-all duration-300"
+                    className="h-full bg-gradient-to-r from-[#9333ea] to-[#c084fc] transition-all duration-300"
                     style={{
                       width: `${(fullName ? 50 : 0) + (targetRole ? 50 : 0)}%`,
                     }}
                   />
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
       </div>
     </div>

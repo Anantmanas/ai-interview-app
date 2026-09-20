@@ -1,22 +1,17 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Progress } from '@/components/ui/progress'
-import { Badge } from '@/components/ui/badge'
 import {
-  Mic,
+  Calendar,
+  TrendingUp,
   Clock,
   Target,
-  TrendingUp,
-  ArrowRight,
-  Calendar,
-  CheckCircle2,
   AlertTriangle,
+  ArrowRight,
+  Mic,
 } from 'lucide-react'
 import { ResumeUploadCard } from '@/components/dashboard/resume-upload-card'
-
+import { StatsCards } from '@/components/dashboard/stats-cards'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -51,241 +46,172 @@ export default async function DashboardPage() {
   const roadmapProgress = totalRoadmapItems > 0 ? Math.round((completedRoadmapItems / totalRoadmapItems) * 100) : 0
 
   const recentInterviews = interviews?.slice(0, 5) ?? []
+  const name = profile?.full_name?.split(' ')[0] || user.email?.split('@')[0] || 'Engineer'
 
   return (
-    <div className="space-y-6">
-      {/* Welcome Section */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+    <div className="p-6 md:p-8 max-w-[1400px] space-y-6">
+      {/* ── Header row ── */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold">
-            Welcome back{profile?.full_name ? `, ${profile.full_name.split(' ')[0]}` : ''}!
+          <p className="font-mono text-[11px] text-[#71d083] uppercase tracking-[0.15em] mb-1 font-semibold">// DASHBOARD CONSOLE</p>
+          <h1 className="font-display text-[32px] sm:text-[36px] font-bold text-[#eeeef0] leading-[1.1] tracking-[-0.02em]">
+            Welcome back, <span className="bg-gradient-to-r from-[#71d083] to-[#82dba2] bg-clip-text text-transparent">{name}</span>
           </h1>
-          <p className="text-muted-foreground">
-            Ready to practice? Start a new interview session or review your progress.
-          </p>
+          <p className="font-body text-[14px] text-[#b5b2bc] mt-1">Ready to practice? Start a new interview or review your progress.</p>
         </div>
-        <Button size="lg" asChild>
-          <Link href="/interview/new">
-            <Mic className="mr-2 h-5 w-5" />
-            Start Interview
-          </Link>
-        </Button>
+        {/* Start Interview CTA */}
+        <Link 
+          href="/interview/new" 
+          className="inline-flex items-center gap-2 btn-neo-violet font-mono text-[12px] font-bold uppercase tracking-[0.05em] px-6 py-3 rounded-[6px]"
+        >
+          <Mic className="h-4 w-4" />
+          Start Interview
+        </Link>
       </div>
 
-      {/* AI Resume Upload & Insights */}
+      {/* ── AI Resume Upload & Insights with Original Brand Icons ── */}
       <ResumeUploadCard />
 
-      {/* Stats Grid */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Total Interviews</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{interviews?.length ?? 0}</div>
-            <p className="text-xs text-muted-foreground">
-              {completedInterviews.length} completed
-            </p>
-          </CardContent>
-        </Card>
+      {/* ── Stats cards row — animated count-up (client component) ── */}
+      <StatsCards
+        totalInterviews={interviews?.length ?? 0}
+        completedCount={completedInterviews.length}
+        averageScore={averageScore}
+        practiceHours={practiceHours}
+        weaknessCount={weaknesses?.length ?? 0}
+      />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Average Score</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{averageScore}%</div>
-            <Progress value={averageScore} className="mt-2 h-2" />
-          </CardContent>
-        </Card>
+      {/* ── Two-column lower section ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        {/* Recent Interviews Panel (2/3 width) */}
+        <div className="lg:col-span-2 card-console">
+          <div className="flex items-center justify-between p-5 border-b border-[#291a45]">
+            <p className="font-mono text-[11px] text-[#fdfcff] uppercase tracking-[0.08em] font-semibold">Recent Interviews</p>
+            <Link href="/dashboard/history" className="font-mono text-[10px] text-[#c084fc] uppercase tracking-[0.05em] hover:text-[#fdfcff] transition-colors">
+              View all →
+            </Link>
+          </div>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Practice Time</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{practiceHours}h</div>
-            <p className="text-xs text-muted-foreground">
-              Total time spent practicing
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Active Weaknesses</CardTitle>
-            <Target className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{weaknesses?.length ?? 0}</div>
-            <p className="text-xs text-muted-foreground">
-              Areas to improve
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Main Content Grid */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Recent Interviews */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle>Recent Interviews</CardTitle>
-                <CardDescription>Your latest practice sessions</CardDescription>
-              </div>
-              <Button variant="ghost" size="sm" asChild>
-                <Link href="/dashboard/history">
-                  View all
-                  <ArrowRight className="ml-1 h-4 w-4" />
+          {recentInterviews.length > 0 ? (
+            <div className="divide-y divide-[#140e24]">
+              {recentInterviews.map((interview) => (
+                <Link
+                  key={interview.id}
+                  href={`/interview/${interview.id}`}
+                  className="flex items-center justify-between px-5 py-4 hover:bg-[#1a191b] hover:translate-x-1 transition-all duration-150 cursor-pointer group"
+                >
+                  <div className="flex items-center gap-3.5">
+                    <div className="w-8 h-8 rounded-[6px] bg-[#1a191b] border border-[#2b292d] group-hover:border-[#366740] flex items-center justify-center flex-shrink-0 transition-colors">
+                      <Clock className="h-4 w-4 text-[#71d083]" />
+                    </div>
+                    <div>
+                      <p className="font-display text-[14px] font-semibold text-[#eeeef0] group-hover:text-[#71d083] transition-colors">{interview.title}</p>
+                      <p className="font-mono text-[11px] text-[#7c7a85]">{new Date(interview.created_at).toLocaleDateString()}</p>
+                    </div>
+                  </div>
+                  {/* Status badge */}
+                  {interview.status === 'completed' ? (
+                    <span className="font-mono text-[10px] text-[#71d083] bg-[#1d3a24] border border-[#366740] rounded-[4px] px-2.5 py-1 uppercase tracking-[0.05em] shadow-[0_0_10px_rgba(113,208,131,0.2)]">
+                      {interview.overall_score !== null ? `${interview.overall_score}% score` : 'completed'}
+                    </span>
+                  ) : (
+                    <span className="font-mono text-[10px] text-[#7c7a85] bg-[#1a191b] border border-[#2b292d] rounded-[4px] px-2.5 py-1 uppercase tracking-[0.05em]">
+                      in progress
+                    </span>
+                  )}
                 </Link>
-              </Button>
+              ))}
             </div>
-          </CardHeader>
-          <CardContent>
-            {recentInterviews.length > 0 ? (
-              <div className="space-y-4">
-                {recentInterviews.map((interview) => (
-                  <Link
-                    key={interview.id}
-                    href={`/interview/${interview.id}`}
-                    className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50 transition-colors"
+          ) : (
+            <div className="p-10 text-center">
+              <p className="font-mono text-[12px] text-[#50446b] uppercase tracking-[0.05em]">// NO SESSIONS FOUND</p>
+              <p className="font-body text-[14px] text-[#948bb0] mt-2 mb-4">No interviews yet — start your first practice session!</p>
+              <Link
+                href="/interview/new"
+                className="inline-flex items-center gap-2 btn-neo-violet font-mono text-[11px] uppercase tracking-wider px-4 py-2 rounded-[6px]"
+              >
+                Launch Interview
+              </Link>
+            </div>
+          )}
+        </div>
+
+        {/* Right panels (1/3 width) */}
+        <div className="lg:col-span-1 space-y-5">
+          {/* Top Weaknesses */}
+          <div className="card-console">
+            <div className="flex items-center justify-between p-5 border-b border-[#291a45]">
+              <p className="font-mono text-[11px] text-[#fdfcff] uppercase tracking-[0.08em] font-semibold">Top Weaknesses</p>
+              <Link href="/dashboard/roadmap" className="font-mono text-[10px] text-[#c084fc] uppercase tracking-[0.05em] hover:text-[#fdfcff] transition-colors">
+                View all →
+              </Link>
+            </div>
+            {weaknesses && weaknesses.length > 0 ? (
+              <div className="divide-y divide-[#140e24]">
+                {weaknesses.slice(0, 4).map((weakness) => (
+                  <div
+                    key={weakness.id}
+                    className="flex items-center justify-between px-5 py-3.5 hover:bg-[#140e24] transition-colors"
                   >
                     <div className="flex items-center gap-3">
-                      <div className={`p-2 rounded-full ${
-                        interview.status === 'completed' 
-                          ? 'bg-primary/10 text-primary' 
-                          : 'bg-muted text-muted-foreground'
-                      }`}>
-                        {interview.status === 'completed' ? (
-                          <CheckCircle2 className="h-4 w-4" />
-                        ) : (
-                          <Clock className="h-4 w-4" />
-                        )}
-                      </div>
+                      <AlertTriangle className={`h-4 w-4 shrink-0 ${
+                        weakness.weakness_score > 70 
+                          ? 'text-[#f87171]' 
+                          : weakness.weakness_score > 40
+                          ? 'text-[#c084fc]'
+                          : 'text-[#948bb0]'
+                      }`} />
                       <div>
-                        <p className="font-medium text-sm">{interview.title}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {new Date(interview.created_at).toLocaleDateString()}
-                        </p>
+                        <p className="font-display text-[13px] font-semibold text-[#f5f3ff]">{weakness.topic}</p>
+                        <p className="font-mono text-[10px] text-[#50446b]">{weakness.subtopic}</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant={interview.status === 'completed' ? 'default' : 'secondary'}>
-                        {interview.status === 'completed' && interview.overall_score !== null
-                          ? `${interview.overall_score}%`
-                          : interview.status}
-                      </Badge>
-                    </div>
-                  </Link>
+                    <span className={`font-mono text-[10px] rounded-[4px] px-2 py-0.5 uppercase tracking-[0.05em] ${
+                      weakness.weakness_score > 70
+                        ? 'text-[#f87171] bg-[#2a0e15] border border-[#5c1d28]'
+                        : weakness.weakness_score > 40
+                        ? 'text-[#c084fc] bg-[#201138] border border-[#4c1d95]'
+                        : 'text-[#948bb0] bg-[#140e24] border border-[#291a45]'
+                    }`}>
+                      {weakness.weakness_score > 70 ? 'Critical' : weakness.weakness_score > 40 ? 'Moderate' : 'Low'}
+                    </span>
+                  </div>
                 ))}
               </div>
             ) : (
-              <div className="text-center py-8 text-muted-foreground">
-                <Mic className="h-12 w-12 mx-auto mb-4 opacity-20" />
-                <p>No interviews yet</p>
-                <p className="text-sm">Start your first practice session!</p>
+              <div className="p-8 text-center">
+                <p className="font-mono text-[12px] text-[#50446b] uppercase tracking-[0.05em]">// NO DATA</p>
+                <p className="font-body text-[13px] text-[#948bb0] mt-2">No weaknesses identified yet — complete an interview to begin tracking.</p>
               </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
 
-        {/* Weaknesses & Roadmap */}
-        <div className="space-y-6">
-          {/* Top Weaknesses */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle>Top Weaknesses</CardTitle>
-                  <CardDescription>Areas that need attention</CardDescription>
-                </div>
-                <Button variant="ghost" size="sm" asChild>
-                  <Link href="/dashboard/roadmap">
-                    View all
-                    <ArrowRight className="ml-1 h-4 w-4" />
-                  </Link>
-                </Button>
+          {/* Learning Progress */}
+          <div className="card-console">
+            <div className="flex items-center justify-between p-5 border-b border-[#291a45]">
+              <p className="font-mono text-[11px] text-[#fdfcff] uppercase tracking-[0.08em] font-semibold">Learning Progress</p>
+              <Link href="/dashboard/roadmap" className="font-mono text-[10px] text-[#c084fc] uppercase tracking-[0.05em] hover:text-[#fdfcff] transition-colors">
+                View roadmap →
+              </Link>
+            </div>
+            <div className="p-5 space-y-4">
+              <div className="flex items-center justify-between font-mono text-[12px]">
+                <span className="text-[#948bb0] uppercase">Overall Progress</span>
+                <span className="font-semibold text-[#c084fc]">{roadmapProgress}%</span>
               </div>
-            </CardHeader>
-            <CardContent>
-              {weaknesses && weaknesses.length > 0 ? (
-                <div className="space-y-3">
-                  {weaknesses.slice(0, 4).map((weakness) => (
-                    <div
-                      key={weakness.id}
-                      className="flex items-center justify-between p-3 rounded-lg border"
-                    >
-                      <div className="flex items-center gap-3">
-                        <AlertTriangle className={`h-4 w-4 ${
-                          weakness.weakness_score > 70 
-                            ? 'text-destructive' 
-                            : weakness.weakness_score > 40
-                            ? 'text-orange-500'
-                            : 'text-muted-foreground'
-                        }`} />
-                        <div>
-                          <p className="font-medium text-sm">{weakness.topic}</p>
-                          <p className="text-xs text-muted-foreground">{weakness.subtopic}</p>
-                        </div>
-                      </div>
-                      <Badge variant={
-                        weakness.weakness_score > 70 
-                          ? 'destructive' 
-                          : weakness.weakness_score > 40
-                          ? 'secondary'
-                          : 'outline'
-                      }>
-                        {weakness.weakness_score > 70 ? 'Critical' : weakness.weakness_score > 40 ? 'Moderate' : 'Low'}
-                      </Badge>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-6 text-muted-foreground">
-                  <Target className="h-10 w-10 mx-auto mb-3 opacity-20" />
-                  <p className="text-sm">No weaknesses identified yet</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Roadmap Progress */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle>Learning Progress</CardTitle>
-                  <CardDescription>Your personalized roadmap</CardDescription>
-                </div>
-                <Button variant="ghost" size="sm" asChild>
-                  <Link href="/dashboard/roadmap">
-                    View roadmap
-                    <ArrowRight className="ml-1 h-4 w-4" />
-                  </Link>
-                </Button>
+              <div className="h-2 w-full bg-[#140e24] rounded-full overflow-hidden border border-[#291a45]">
+                <div
+                  className="h-full bg-gradient-to-r from-[#9333ea] to-[#c084fc] transition-all duration-300"
+                  style={{ width: `${roadmapProgress}%` }}
+                />
               </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Overall Progress</span>
-                  <span className="font-medium">{roadmapProgress}%</span>
-                </div>
-                <Progress value={roadmapProgress} className="h-3" />
-                <p className="text-xs text-muted-foreground">
-                  {completedRoadmapItems} of {totalRoadmapItems} items completed
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+              <p className="font-mono text-[10px] text-[#50446b]">
+                {completedRoadmapItems} of {totalRoadmapItems} items completed
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   )
 }
-

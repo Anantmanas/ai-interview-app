@@ -3,10 +3,8 @@
 import { useRef } from 'react'
 import { useResume } from '@/components/resume/resume-provider'
 import { ResumeSummary } from './resume-summary'
-import { Button } from '@/components/ui/button'
-import { Upload, RefreshCw, AlertCircle } from 'lucide-react'
+import { Upload, RefreshCw, AlertCircle, Sparkles } from 'lucide-react'
 import { Spinner } from '@/components/ui/spinner'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
 export function ResumeUploadCard() {
   const { isResumeReady, isExtracting, handleResumeUpload, extractionError } = useResume()
@@ -18,9 +16,9 @@ export function ResumeUploadCard() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="mb-6">
       {isResumeReady ? (
-        <div className="space-y-4">
+        <div className="space-y-3">
           <ResumeSummary />
           <div className="flex items-center justify-end px-1">
             <input
@@ -30,36 +28,35 @@ export function ResumeUploadCard() {
               className="hidden"
               onChange={(e) => void onPickFile(e.target.files?.[0])}
             />
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="text-xs gap-2"
+            <button
               onClick={() => inputRef.current?.click()}
               disabled={isExtracting}
+              className="inline-flex items-center gap-2 font-mono text-[11px] text-[#7c7a85] hover:text-[#71d083] transition-colors py-1.5 px-3 rounded-[6px] hover:bg-[#1a191b] border border-transparent hover:border-[#2b292d] cursor-pointer"
             >
               {isExtracting ? (
-                <Spinner className="h-3 w-3" />
+                <Spinner className="h-3.5 w-3.5" />
               ) : (
-                <RefreshCw className="h-3 w-3" />
+                <RefreshCw className="h-3.5 w-3.5 text-[#71d083]" />
               )}
-              {isExtracting ? 'Analyzing...' : 'Re-upload Resume'}
-            </Button>
+              {isExtracting ? 'Analyzing Resume...' : 'Re-upload Resume'}
+            </button>
           </div>
         </div>
       ) : (
-        <Card className="border-dashed border-primary/40 bg-primary/5">
-          <CardHeader className="text-center pb-2">
-            <div className="mx-auto p-3 rounded-full bg-primary/10 w-fit mb-2 text-primary">
-              <Upload className="h-6 w-6" />
-            </div>
-            <CardTitle>Enhance Your Experience</CardTitle>
-            <CardDescription>
-              Upload your resume to get personalized interview questions and roadmap.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-col items-center pb-6">
+        <div className="card-console p-7 text-center border-dashed border-[#2d5736] hover:border-[#71d083] transition-all bg-gradient-to-b from-[#1a191b]/40 to-[#121113]">
+          <div className="mx-auto p-3 rounded-[8px] bg-[#1a191b] border border-[#2d5736] w-fit mb-3.5 text-[#71d083] shadow-[0_0_15px_rgba(113,208,131,0.2)]">
+            <Upload className="h-5 w-5" />
+          </div>
+          <h3 className="font-display text-[17px] font-semibold text-[#fdfcff] mb-1.5">
+            Enhance Your Mock Interviews with Resume Grounding
+          </h3>
+          <p className="font-body text-[13px] text-[#948bb0] max-w-md mx-auto mb-6 leading-relaxed">
+            Upload your resume to extract your tech stack and generate personalized questions tailored to your experience.
+          </p>
+          
+          <div className="flex flex-col items-center">
             {extractionError && (
-              <p className="text-destructive text-sm mb-4 flex items-center gap-2">
+              <p className="text-[#f87171] text-[11px] mb-3.5 flex items-center gap-1.5 font-mono">
                 <AlertCircle className="h-4 w-4" />
                 {extractionError}
               </p>
@@ -71,28 +68,28 @@ export function ResumeUploadCard() {
               className="hidden"
               onChange={(e) => void onPickFile(e.target.files?.[0])}
             />
-            <Button 
+            <button
               onClick={() => inputRef.current?.click()}
               disabled={isExtracting}
-              className="px-8"
+              className="btn-neo-violet font-mono text-[12px] font-bold uppercase tracking-[0.05em] px-7 py-3 rounded-[6px] inline-flex items-center gap-2 cursor-pointer disabled:opacity-50"
             >
               {isExtracting ? (
                 <>
-                  <Spinner className="mr-2 h-4 w-4" />
-                  Analyzing...
+                  <Spinner className="h-4 w-4" />
+                  <span>Analyzing Resume Stack...</span>
                 </>
               ) : (
                 <>
-                  <Upload className="mr-2 h-4 w-4" />
-                  Upload Resume
+                  <Sparkles className="h-4 w-4" />
+                  <span>Upload Resume</span>
                 </>
               )}
-            </Button>
-            <p className="text-[10px] text-muted-foreground mt-3">
+            </button>
+            <p className="font-mono text-[10px] text-[#50446b] mt-3">
               Supports PDF, DOCX, TXT (Max 5MB)
             </p>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       )}
     </div>
   )

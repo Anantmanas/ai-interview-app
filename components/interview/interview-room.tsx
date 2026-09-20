@@ -83,7 +83,7 @@ function ScoreRing({ score }: { score: number }) {
           cy={38}
           r={r}
           fill="none"
-          stroke="#242628"
+          stroke="var(--color-slate)"
           strokeWidth={4}
         />
         <circle
@@ -91,7 +91,7 @@ function ScoreRing({ score }: { score: number }) {
           cy={38}
           r={r}
           fill="none"
-          stroke="#34D59A"
+          stroke="var(--color-signal-green)"
           strokeWidth={4}
           strokeLinecap="round"
           strokeDasharray={circ}
@@ -100,8 +100,8 @@ function ScoreRing({ score }: { score: number }) {
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-[#FFFFFF] font-mono font-bold text-base leading-none tracking-tight">{clampedScore}</span>
-        <span className="text-[8px] text-[#797D86] font-mono mt-0.5 uppercase tracking-widest">/ 100</span>
+        <span className="text-[var(--color-chalk)] font-mono font-bold text-base leading-none tracking-tight">{clampedScore}</span>
+        <span className="text-[8px] text-[var(--color-fog)] font-mono mt-0.5 uppercase tracking-widest">/ 100</span>
       </div>
     </div>
   );
@@ -115,12 +115,12 @@ function MiniBar({ label, value }: { label: string; value: number }) {
   return (
     <div className="space-y-1">
       <div className="flex justify-between text-[10px] font-mono">
-        <span className="text-[#797D86] uppercase tracking-wider">{label}</span>
-        <span className="text-[#34D59A] font-semibold">{clamped}%</span>
+        <span className="text-[var(--color-fog)] uppercase tracking-wider">{label}</span>
+        <span className="text-[var(--color-signal-green)] font-semibold">{clamped}%</span>
       </div>
-      <div className="h-1 bg-[#242628] rounded-full overflow-hidden">
+      <div className="h-1 bg-[var(--color-slate)] rounded-full overflow-hidden">
         <div
-          className="h-full rounded-full bg-[#34D59A] transition-all duration-500"
+          className="h-full rounded-full bg-[var(--color-signal-green)] transition-all duration-500"
           style={{ width: `${clamped}%` }}
         />
       </div>
@@ -129,18 +129,18 @@ function MiniBar({ label, value }: { label: string; value: number }) {
 }
 
 /**
- * Voice Waveform — 20-bar Electric Green / Graphite Visualizer
+ * Voice Waveform — Visualizer
  */
 function VoiceWaveform({ isActive }: { isActive: boolean }) {
   const heights = [10, 22, 14, 30, 18, 26, 12, 28, 20, 16, 24, 32, 14, 26, 18, 12, 24, 28, 16, 10];
 
   return (
-    <div className="flex items-center justify-center gap-1.5 h-10 px-4 bg-[#151617] border border-[#303236] rounded-[4px] w-full max-w-xs mx-auto">
+    <div className="flex items-center justify-center gap-1.5 h-10 px-4 bg-[var(--color-obsidian)] border border-[var(--color-basalt)] rounded-[4px] w-full max-w-xs mx-auto">
       {heights.map((h, i) => (
         <span
           key={i}
           className={`w-[2.5px] rounded-full transition-all duration-150 ${
-            isActive ? 'bg-[#34D59A]' : 'bg-[#303236]'
+            isActive ? 'bg-[var(--color-signal-green)]' : 'bg-[var(--color-basalt)]'
           }`}
           style={{
             height: isActive ? `${Math.max(6, Math.min(28, (h * ((i % 3) + 1.2)) % 28 + 6))}px` : '6px',
@@ -199,11 +199,11 @@ function CountdownTimer({ startTime, onTimeUp }: { startTime: number; onTimeUp: 
     <div
       className={`rounded-full px-3 py-1 font-mono text-xs flex items-center gap-2 transition-colors ${
         isUrgent
-          ? 'bg-[#FF3621]/10 border border-[#FF3621]/40 text-[#FF3621] animate-pulse'
-          : 'bg-[#151617] border border-[#303236] text-[#C9CBCF]'
+          ? 'bg-[#ef4444]/10 border border-[#ef4444]/40 text-[#ef4444] animate-pulse'
+          : 'bg-[var(--color-obsidian)] border border-[var(--color-basalt)] text-[var(--color-ash)]'
       }`}
     >
-      <span className={`w-1.5 h-1.5 rounded-full ${isUrgent ? 'bg-[#FF3621]' : 'bg-[#34D59A]'}`} />
+      <span className={`w-1.5 h-1.5 rounded-full ${isUrgent ? 'bg-[#ef4444]' : 'bg-[var(--color-signal-green)]'}`} />
       <span className="tracking-widest">{displayTime}</span>
     </div>
   );
@@ -224,8 +224,6 @@ function VoiceRecorder({
   const isRecordingRef = useRef(false);
   const transcriptRef = useRef(transcript);
 
-
-
   useEffect(() => {
     const SpeechRecognition =
       (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -239,7 +237,7 @@ function VoiceRecorder({
     recognitionRef.current = recognition;
     recognition.continuous = true;
     recognition.interimResults = true;
-    recognition.lang = 'en-IN'; // Indian English accents
+    recognition.lang = 'en-IN';
     recognition.maxAlternatives = 3;
 
     recognition.onstart = () => {
@@ -337,13 +335,13 @@ function VoiceRecorder({
           onClick={toggleRecording}
           className={`px-5 py-2 rounded-full font-mono text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 ${
             isRecording
-              ? 'bg-[#FF3621] text-white shadow-md shadow-[#FF3621]/20 animate-pulse'
-              : 'bg-[#FFFFFF] hover:bg-[#C9CBCF] text-[#151617] shadow-sm active:scale-95'
+              ? 'bg-[#ef4444] text-[var(--color-ash)] shadow-md animate-pulse'
+              : 'bg-[var(--color-signal-green)] hover:bg-[var(--color-led-green)] text-[var(--color-carbon)] shadow-sm active:scale-95'
           }`}
         >
           {isRecording ? (
             <>
-              <span className="w-2 h-2 rounded-full bg-white animate-ping" />
+              <span className="w-2 h-2 rounded-full bg-[var(--color-ash)] animate-ping" />
               <span>STOP RECORDING</span>
             </>
           ) : (
@@ -356,14 +354,14 @@ function VoiceRecorder({
         {transcript && (
           <button
             onClick={clearTranscript}
-            className="text-xs font-mono text-[#797D86] hover:text-[#FFFFFF] transition-colors rounded-full border border-[#303236] px-3 py-1.5"
+            className="text-xs font-mono text-[var(--color-fog)] hover:text-[var(--color-ash)] transition-colors rounded-full border border-[var(--color-basalt)] px-3 py-1.5"
           >
             CLEAR
           </button>
         )}
       </div>
 
-      <p className="text-[10px] text-[#797D86] font-mono uppercase tracking-wider">
+      <p className="text-[10px] text-[var(--color-fog)] font-mono uppercase tracking-wider">
         Optimized for Indian English accents (en-IN)
       </p>
     </div>
@@ -530,27 +528,6 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
     }
   };
 
-  const handleChatSend = async (content: string) => {
-    const userMsg: ChatMessage = { role: 'user', content };
-    const newHistory = [...chatHistory, userMsg];
-    setChatHistory(newHistory);
-    setIsChatting(true);
-
-    try {
-      const response = await fetchInterviewApi({
-        mode: 'chat',
-        messages: newHistory,
-        resumeContext,
-      });
-
-      setChatHistory([...newHistory, { role: 'assistant', content: response.content }]);
-    } catch (error) {
-      console.error('Failed to get coaching response:', error);
-    } finally {
-      setIsChatting(false);
-    }
-  };
-
   const currentQuestion = questions[currentQIndex];
   const progressPercent = questions.length > 0
     ? Math.round(((currentQIndex + (evaluation ? 1 : 0)) / questions.length) * 100)
@@ -570,63 +547,63 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
     const secs = totalElapsedSeconds % 60;
 
     return (
-      <div className="relative min-h-screen bg-[#000000] text-[#FFFFFF] flex flex-col items-center justify-center p-6 overflow-y-auto select-none font-sans">
-        <div className="relative z-10 w-full max-w-3xl bg-[#0A0A0B] border border-[#303236] rounded-[4px] p-8 sm:p-10 shadow-2xl space-y-8 my-8">
+      <div className="relative min-h-screen bg-[var(--color-carbon)] text-[var(--color-ash)] flex flex-col items-center justify-center p-6 overflow-y-auto select-none font-sans">
+        <div className="relative z-10 w-full max-w-3xl bg-[var(--color-graphite)] border border-[var(--color-basalt)] rounded-[4px] p-8 sm:p-10 shadow-2xl space-y-8 my-8">
           {/* Header */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-6 border-b border-[#303236] pb-6">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-6 border-b border-[var(--color-basalt)] pb-6">
             <div className="text-center sm:text-left space-y-1.5">
-              <span className="text-[11px] font-mono font-semibold text-[#34D59A] uppercase tracking-widest block">
+              <span className="text-[11px] font-mono font-semibold text-[var(--color-signal-green)] uppercase tracking-widest block">
                 SESSION_COMPLETE
               </span>
-              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#FFFFFF]">
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--color-chalk)]">
                 {interview?.title || 'Technical Assessment'} Summary
               </h1>
-              <p className="text-xs text-[#797D86] font-mono uppercase">
+              <p className="text-xs text-[var(--color-fog)] font-mono uppercase">
                 {interview?.target_role || 'SOFTWARE ENGINEER'} · {interviewType.toUpperCase()} · {difficulty.toUpperCase()}
               </p>
             </div>
 
             {/* Score Ring Display */}
-            <div className="flex items-center gap-4 bg-[#151617] border border-[#303236] rounded-[4px] p-4 px-6">
+            <div className="flex items-center gap-4 bg-[var(--color-obsidian)] border border-[var(--color-basalt)] rounded-[4px] p-4 px-6">
               <ScoreRing score={avgScore} />
               <div className="space-y-0.5">
-                <span className="text-[10px] text-[#797D86] uppercase tracking-wider font-mono block">FINAL SCORE</span>
-                <p className="text-xl font-bold font-mono text-[#FFFFFF]">
+                <span className="text-[10px] text-[var(--color-fog)] uppercase tracking-wider font-mono block">FINAL SCORE</span>
+                <p className="text-xl font-bold font-mono text-[var(--color-chalk)]">
                   {avgScore >= 80 ? 'EXCEPTIONAL' : avgScore >= 65 ? 'PASS / STRONG' : 'NEEDS PRACTICE'}
                 </p>
-                <span className="text-xs text-[#34D59A] font-mono">{answersCount} OF {questions.length || 5} COMPLETED</span>
+                <span className="text-xs text-[var(--color-signal-green)] font-mono">{answersCount} OF {questions.length || 5} COMPLETED</span>
               </div>
             </div>
           </div>
 
           {/* 4-Column Technical Metrics Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div className="bg-[#151617] border border-[#303236] rounded-[4px] p-3">
-              <span className="text-[10px] text-[#797D86] font-mono uppercase tracking-wider">QUESTIONS</span>
-              <p className="text-base font-bold text-[#FFFFFF] font-mono mt-0.5">{questions.length || 5}</p>
+            <div className="bg-[var(--color-obsidian)] border border-[var(--color-basalt)] rounded-[4px] p-3">
+              <span className="text-[10px] text-[var(--color-fog)] font-mono uppercase tracking-wider">QUESTIONS</span>
+              <p className="text-base font-bold text-[var(--color-chalk)] font-mono mt-0.5">{questions.length || 5}</p>
             </div>
-            <div className="bg-[#151617] border border-[#303236] rounded-[4px] p-3">
-              <span className="text-[10px] text-[#797D86] font-mono uppercase tracking-wider">COMPLETED</span>
-              <p className="text-base font-bold text-[#34D59A] font-mono mt-0.5">{answersCount}</p>
+            <div className="bg-[var(--color-obsidian)] border border-[var(--color-basalt)] rounded-[4px] p-3">
+              <span className="text-[10px] text-[var(--color-fog)] font-mono uppercase tracking-wider">COMPLETED</span>
+              <p className="text-base font-bold text-[var(--color-signal-green)] font-mono mt-0.5">{answersCount}</p>
             </div>
-            <div className="bg-[#151617] border border-[#303236] rounded-[4px] p-3">
-              <span className="text-[10px] text-[#797D86] font-mono uppercase tracking-wider">DURATION</span>
-              <p className="text-base font-bold text-[#FFFFFF] font-mono mt-0.5">{mins}m {secs}s</p>
+            <div className="bg-[var(--color-obsidian)] border border-[var(--color-basalt)] rounded-[4px] p-3">
+              <span className="text-[10px] text-[var(--color-fog)] font-mono uppercase tracking-wider">DURATION</span>
+              <p className="text-base font-bold text-[var(--color-chalk)] font-mono mt-0.5">{mins}m {secs}s</p>
             </div>
-            <div className="bg-[#151617] border border-[#303236] rounded-[4px] p-3">
-              <span className="text-[10px] text-[#797D86] font-mono uppercase tracking-wider">ACCURACY</span>
-              <p className="text-base font-bold text-[#FFFFFF] font-mono mt-0.5">{avgScore}%</p>
+            <div className="bg-[var(--color-obsidian)] border border-[var(--color-basalt)] rounded-[4px] p-3">
+              <span className="text-[10px] text-[var(--color-fog)] font-mono uppercase tracking-wider">ACCURACY</span>
+              <p className="text-base font-bold text-[var(--color-chalk)] font-mono mt-0.5">{avgScore}%</p>
             </div>
           </div>
 
           {/* Question Breakdown List */}
           <div className="space-y-3">
-            <h2 className="text-xs font-mono font-semibold uppercase tracking-wider text-[#797D86]">
+            <h2 className="text-xs font-mono font-semibold uppercase tracking-wider text-[var(--color-fog)]">
               QUESTION BREAKDOWN ({recordedHistory.length})
             </h2>
 
             {recordedHistory.length === 0 ? (
-              <div className="text-center py-6 border border-dashed border-[#303236] rounded-[4px] text-[#797D86] text-xs font-mono">
+              <div className="text-center py-6 border border-dashed border-[var(--color-basalt)] rounded-[4px] text-[var(--color-fog)] text-xs font-mono">
                 NO ANSWERS EVALUATED IN THIS SESSION
               </div>
             ) : (
@@ -634,35 +611,35 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
                 {recordedHistory.map((item, idx) => (
                   <div
                     key={idx}
-                    className="bg-[#151617] border border-[#303236] rounded-[4px] p-4 space-y-3"
+                    className="bg-[var(--color-obsidian)] border border-[var(--color-basalt)] rounded-[4px] p-4 space-y-3"
                   >
-                    <div className="flex items-start justify-between gap-3 border-b border-[#303236]/50 pb-2.5">
+                    <div className="flex items-start justify-between gap-3 border-b border-[var(--color-basalt)]/50 pb-2.5">
                       <div className="space-y-0.5">
                         <div className="flex items-center gap-2">
-                          <span className="text-xs font-mono text-[#34D59A] font-semibold">
+                          <span className="text-xs font-mono text-[var(--color-signal-green)] font-semibold">
                             {String(idx + 1).padStart(2, '0')}
                           </span>
-                          <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#242628] text-[#94979E] border border-[#303236] uppercase">
+                          <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[var(--color-slate)] text-[var(--color-silver)] border border-[var(--color-basalt)] uppercase">
                             {item.question.topic || item.question.type}
                           </span>
                         </div>
-                        <p className="text-sm font-medium text-[#FFFFFF] leading-relaxed mt-1">
+                        <p className="text-sm font-medium text-[var(--color-chalk)] leading-relaxed mt-1">
                           {item.question.text}
                         </p>
                       </div>
-                      <span className="text-base font-bold font-mono text-[#34D59A] shrink-0">
+                      <span className="text-base font-bold font-mono text-[var(--color-signal-green)] shrink-0">
                         {item.evaluation.score}%
                       </span>
                     </div>
 
                     <div className="space-y-2 text-xs">
-                      <p className="text-[#C9CBCF] leading-relaxed">
-                        <strong className="text-[#FFFFFF] font-mono text-[11px] uppercase tracking-wider">Feedback: </strong>
+                      <p className="text-[var(--color-ash)] leading-relaxed">
+                        <strong className="text-[var(--color-chalk)] font-mono text-[11px] uppercase tracking-wider">Feedback: </strong>
                         {item.evaluation.feedback}
                       </p>
                       {(item.evaluation.improvements || item.evaluation.improvement) && (
-                        <p className="text-[#C9CBCF] leading-relaxed">
-                          <strong className="text-[#34D59A] font-mono text-[11px] uppercase tracking-wider">Suggestion: </strong>
+                        <p className="text-[var(--color-ash)] leading-relaxed">
+                          <strong className="text-[var(--color-signal-green)] font-mono text-[11px] uppercase tracking-wider">Suggestion: </strong>
                           {item.evaluation.improvements || item.evaluation.improvement}
                         </p>
                       )}
@@ -674,16 +651,16 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
           </div>
 
           {/* Action CTAs */}
-          <div className="flex flex-col sm:flex-row items-center justify-end gap-3 pt-4 border-t border-[#303236]">
+          <div className="flex flex-col sm:flex-row items-center justify-end gap-3 pt-4 border-t border-[var(--color-basalt)]">
             <button
               onClick={() => router.push('/dashboard')}
-              className="w-full sm:w-auto rounded-full border border-[#303236] hover:border-[#797D86] text-[#C9CBCF] hover:text-[#FFFFFF] text-xs font-mono uppercase tracking-wider px-6 py-2.5 transition-colors"
+              className="w-full sm:w-auto rounded-full border border-[var(--color-basalt)] hover:border-[var(--color-steel)] text-[var(--color-ash)] hover:text-[var(--color-chalk)] text-xs font-mono uppercase tracking-wider px-6 py-2.5 transition-colors"
             >
               Go to Dashboard
             </button>
             <button
               onClick={() => router.push(interviewId ? `/dashboard/history/${interviewId}` : '/dashboard/history')}
-              className="w-full sm:w-auto rounded-full bg-[#FFFFFF] hover:bg-[#C9CBCF] text-[#151617] text-xs font-mono font-bold uppercase tracking-wider px-6 py-2.5 transition-colors shadow-sm"
+              className="w-full sm:w-auto rounded-full bg-[var(--color-signal-green)] hover:bg-[#5dbd6e] text-[var(--color-carbon)] text-xs font-mono font-bold uppercase tracking-wider px-6 py-2.5 transition-colors shadow-sm"
             >
               See History →
             </button>
@@ -697,30 +674,30 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
   // MAIN DEVELOPER COCKPIT (100vh overflow-hidden)
   // -------------------------------------------------------------
   return (
-    <div className="relative h-screen max-h-screen w-full bg-[#000000] text-[#FFFFFF] flex flex-col overflow-hidden select-none font-sans">
-      {/* HEADER (h-12, border-b border-[#303236]) */}
-      <header className="h-12 shrink-0 border-b border-[#303236] bg-[#0A0A0B] px-5 flex items-center justify-between z-20">
+    <div className="relative h-screen max-h-screen w-full bg-[var(--color-carbon)] text-[var(--color-ash)] flex flex-col overflow-hidden select-none font-sans">
+      {/* HEADER */}
+      <header className="h-12 shrink-0 border-b border-[var(--color-basalt)] bg-[var(--color-graphite)] px-5 flex items-center justify-between z-20">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-[#34D59A]" />
-            <span className="font-mono text-xs font-bold tracking-wider text-[#FFFFFF]">
+            <span className="w-2 h-2 rounded-full bg-[var(--color-signal-green)]" />
+            <span className="font-mono text-xs font-bold tracking-wider text-[var(--color-chalk)]">
               INTERVIEW_AI
             </span>
           </div>
 
-          <div className="h-3.5 w-[1px] bg-[#303236]" />
+          <div className="h-3.5 w-[1px] bg-[var(--color-basalt)]" />
 
           {/* Question Index Pill */}
-          <span className="text-[11px] font-mono text-[#94979E]">
+          <span className="text-[11px] font-mono text-[var(--color-silver)]">
             QUESTION {String(currentQIndex + 1).padStart(2, '0')} / {String(questions.length || 5).padStart(2, '0')}
           </span>
 
           {/* Difficulty Badge */}
-          <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full border border-[#303236] bg-[#151617] text-[#C9CBCF]">
+          <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full border border-[var(--color-basalt)] bg-[var(--color-obsidian)] text-[var(--color-ash)]">
             {difficulty}
           </span>
 
-          <span className="hidden sm:inline-block text-[10px] font-mono text-[#797D86] px-1.5 py-0.5 uppercase">
+          <span className="hidden sm:inline-block text-[10px] font-mono text-[var(--color-fog)] px-1.5 py-0.5 uppercase">
             {interviewType.replace('-', ' ')}
           </span>
         </div>
@@ -731,7 +708,7 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
 
           <button
             onClick={() => setShowEndModal(true)}
-            className="text-[11px] font-mono rounded-full border border-[#303236] bg-transparent text-[#94979E] hover:text-[#FF3621] hover:border-[#FF3621]/40 px-3 py-1 transition-colors uppercase tracking-wider"
+            className="text-[11px] font-mono rounded-full border border-[var(--color-basalt)] bg-transparent text-[var(--color-silver)] hover:text-[#ef4444] hover:border-[#ef4444]/40 px-3 py-1 transition-colors uppercase tracking-wider"
           >
             END SESSION
           </button>
@@ -739,9 +716,9 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
       </header>
 
       {/* 2px Terminal Progress Bar */}
-      <div className="h-[2px] w-full bg-[#151617] shrink-0">
+      <div className="h-[2px] w-full bg-[var(--color-obsidian)] shrink-0">
         <div
-          className="h-full bg-[#34D59A] transition-all duration-300 ease-out"
+          className="h-full bg-[var(--color-signal-green)] transition-all duration-300 ease-out"
           style={{ width: `${progressPercent}%` }}
         />
       </div>
@@ -751,15 +728,15 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
         {/* ========================================================= */}
         {/* LEFT PANEL: Technical Briefing Rail (w-[320px]) */}
         {/* ========================================================= */}
-        <aside className="w-[320px] border-r border-[#303236] bg-[#0A0A0B] p-5 flex flex-col justify-between overflow-y-auto select-text">
+        <aside className="w-[320px] border-r border-[var(--color-basalt)] bg-[var(--color-graphite)] p-5 flex flex-col justify-between overflow-y-auto select-text">
           <div className="space-y-5">
             {/* Meta Header */}
             <div className="space-y-1">
-              <span className="text-[10px] font-mono uppercase tracking-widest text-[#797D86] block">
+              <span className="text-[10px] font-mono uppercase tracking-widest text-[var(--color-fog)] block">
                 QUESTION {String(currentQIndex + 1).padStart(2, '0')} OF {String(questions.length || 5).padStart(2, '0')}
               </span>
               {currentQuestion?.topic && (
-                <span className="text-xs font-mono font-semibold text-[#34D59A] block uppercase tracking-wide">
+                <span className="text-xs font-mono font-semibold text-[var(--color-signal-green)] block uppercase tracking-wide">
                   {currentQuestion.topic}
                 </span>
               )}
@@ -769,14 +746,14 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
             <div className="space-y-3">
               {isGenerating ? (
                 <div className="space-y-2.5 animate-pulse">
-                  <div className="h-4 bg-[#151617] rounded-[4px] w-3/4" />
-                  <div className="h-3.5 bg-[#151617] rounded-[4px] w-full" />
-                  <div className="h-3.5 bg-[#151617] rounded-[4px] w-5/6" />
-                  <div className="h-3.5 bg-[#151617] rounded-[4px] w-2/3" />
-                  <p className="text-[11px] text-[#34D59A] font-mono mt-3">► GENERATING_QUESTIONS...</p>
+                  <div className="h-4 bg-[var(--color-obsidian)] rounded-[4px] w-3/4" />
+                  <div className="h-3.5 bg-[var(--color-obsidian)] rounded-[4px] w-full" />
+                  <div className="h-3.5 bg-[var(--color-obsidian)] rounded-[4px] w-5/6" />
+                  <div className="h-3.5 bg-[var(--color-obsidian)] rounded-[4px] w-2/3" />
+                  <p className="text-[11px] text-[var(--color-signal-green)] font-mono mt-3">► GENERATING_QUESTIONS...</p>
                 </div>
               ) : (
-                <h2 className="text-[18px] text-[#FFFFFF] font-normal leading-relaxed tracking-normal font-sans">
+                <h2 className="text-[18px] text-[var(--color-chalk)] font-normal leading-relaxed tracking-normal font-sans">
                   {currentQuestion?.text || 'Loading technical question...'}
                 </h2>
               )}
@@ -786,17 +763,17 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
             <div className="pt-1">
               <button
                 onClick={() => setShowHint(!showHint)}
-                className="text-xs font-mono text-[#797D86] hover:text-[#34D59A] flex items-center gap-1.5 transition-colors uppercase tracking-wider"
+                className="text-xs font-mono text-[var(--color-fog)] hover:text-[var(--color-signal-green)] flex items-center gap-1.5 transition-colors uppercase tracking-wider"
               >
                 <span>{showHint ? '- HIDE STRATEGY HINT' : '+ STRATEGY HINT'}</span>
               </button>
 
               {showHint && (
-                <div className="mt-2.5 p-3 bg-[#151617] border border-[#303236] rounded-[4px] text-xs text-[#C9CBCF] leading-relaxed space-y-1 animate-in fade-in duration-150">
-                  <p className="font-mono text-[10px] font-semibold text-[#34D59A] uppercase tracking-wider">
+                <div className="mt-2.5 p-3 bg-[var(--color-obsidian)] border border-[var(--color-basalt)] rounded-[4px] text-xs text-[var(--color-ash)] leading-relaxed space-y-1 animate-in fade-in duration-150">
+                  <p className="font-mono text-[10px] font-semibold text-[var(--color-signal-green)] uppercase tracking-wider">
                     ┌ STRATEGY HINT ────────────────
                   </p>
-                  <p className="font-sans pl-2 border-l border-[#303236] text-[#C9CBCF]">
+                  <p className="font-sans pl-2 border-l border-[var(--color-basalt)] text-[var(--color-ash)]">
                     {currentQuestion?.topic
                       ? `Focus on core principles of ${currentQuestion.topic}. Outline assumptions, time/space complexity, and practical trade-offs.`
                       : 'State your high-level approach first before diving into details. Outline constraints and edge cases.'}
@@ -806,21 +783,21 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
             </div>
           </div>
 
-          {/* Session Metrics (Bottom of Left Column) */}
-          <div className="pt-4 border-t border-[#303236] space-y-2">
-            <span className="text-[10px] text-[#797D86] font-mono uppercase tracking-widest block">
+          {/* Session Metrics */}
+          <div className="pt-4 border-t border-[var(--color-basalt)] space-y-2">
+            <span className="text-[10px] text-[var(--color-fog)] font-mono uppercase tracking-widest block">
               SESSION METRICS
             </span>
             <div className="grid grid-cols-2 gap-2">
-              <div className="bg-[#151617] border border-[#303236] rounded-[4px] p-2.5">
-                <span className="text-[9px] text-[#797D86] uppercase font-mono tracking-wider">COMPLETED</span>
-                <p className="text-sm font-bold text-[#FFFFFF] font-mono mt-0.5">
+              <div className="bg-[var(--color-obsidian)] border border-[var(--color-basalt)] rounded-[4px] p-2.5">
+                <span className="text-[9px] text-[var(--color-fog)] uppercase font-mono tracking-wider">COMPLETED</span>
+                <p className="text-sm font-bold text-[var(--color-chalk)] font-mono mt-0.5">
                   {String(answersCount).padStart(2, '0')} / {String(questions.length || 5).padStart(2, '0')}
                 </p>
               </div>
-              <div className="bg-[#151617] border border-[#303236] rounded-[4px] p-2.5">
-                <span className="text-[9px] text-[#797D86] uppercase font-mono tracking-wider">ACCURACY</span>
-                <p className="text-sm font-bold text-[#34D59A] font-mono mt-0.5">
+              <div className="bg-[var(--color-obsidian)] border border-[var(--color-basalt)] rounded-[4px] p-2.5">
+                <span className="text-[9px] text-[var(--color-fog)] uppercase font-mono tracking-wider">ACCURACY</span>
+                <p className="text-sm font-bold text-[var(--color-signal-green)] font-mono mt-0.5">
                   {answersCount > 0 ? `${Math.round(totalScore / answersCount)}%` : '--'}
                 </p>
               </div>
@@ -831,9 +808,9 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
         {/* ========================================================= */}
         {/* CENTER PANEL: IDE / Editor Workspace (flex-1) */}
         {/* ========================================================= */}
-        <main className="flex-1 min-w-0 flex flex-col overflow-hidden bg-[#000000]">
+        <main className="flex-1 min-w-0 flex flex-col overflow-hidden bg-[var(--color-carbon)]">
           {/* Mode Switcher Strip */}
-          <div className="h-11 shrink-0 border-b border-[#303236] px-5 flex items-center justify-between bg-[#0A0A0B]">
+          <div className="h-11 shrink-0 border-b border-[var(--color-basalt)] px-5 flex items-center justify-between bg-[var(--color-graphite)]">
             <div className="flex items-center gap-1.5">
               {(['text', 'code', 'voice'] as const).map((mode) => {
                 const isActive = answerMode === mode;
@@ -843,11 +820,11 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
                     onClick={() => setAnswerMode(mode)}
                     className={`rounded-full px-3.5 py-1 text-xs font-mono font-medium transition-all flex items-center gap-1.5 uppercase tracking-wider ${
                       isActive
-                        ? 'bg-[#151617] border border-[#303236] text-[#FFFFFF]'
-                        : 'text-[#797D86] hover:text-[#C9CBCF]'
+                        ? 'bg-[var(--color-obsidian)] border border-[var(--color-basalt)] text-[var(--color-chalk)]'
+                        : 'text-[var(--color-fog)] hover:text-[var(--color-ash)]'
                     }`}
                   >
-                    {isActive && <span className="w-1.5 h-1.5 rounded-full bg-[#34D59A]" />}
+                    {isActive && <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-signal-green)]" />}
                     <span>{mode === 'text' ? 'TEXT' : mode === 'code' ? 'CODE' : 'VOICE'}</span>
                   </button>
                 );
@@ -857,12 +834,12 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
             {/* Language Select (Code Mode Only) */}
             {answerMode === 'code' && (
               <div className="flex items-center gap-2">
-                <span className="text-[10px] text-[#797D86] font-mono uppercase">LANG:</span>
+                <span className="text-[10px] text-[var(--color-fog)] font-mono uppercase">LANG:</span>
                 <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
-                  <SelectTrigger className="h-7 w-[120px] rounded-full bg-[#151617] border-[#303236] text-xs font-mono text-[#C9CBCF] focus:ring-0">
+                  <SelectTrigger className="h-7 w-[120px] rounded-full bg-[var(--color-obsidian)] border-[var(--color-basalt)] text-xs font-mono text-[var(--color-ash)] focus:ring-0">
                     <SelectValue placeholder="Language" />
                   </SelectTrigger>
-                  <SelectContent className="bg-[#0A0A0B] border-[#303236] text-[#FFFFFF] font-mono text-xs rounded-[4px]">
+                  <SelectContent className="bg-[var(--color-graphite)] border-[var(--color-basalt)] text-[var(--color-chalk)] font-mono text-xs rounded-[4px]">
                     <SelectItem value="javascript">JavaScript</SelectItem>
                     <SelectItem value="typescript">TypeScript</SelectItem>
                     <SelectItem value="python">Python</SelectItem>
@@ -880,24 +857,24 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
           {/* Active Workspace Canvas */}
           <div className="flex-1 min-h-0 p-5 overflow-y-auto flex flex-col select-text">
             {answerMode === 'text' && (
-              <div className="flex-1 min-h-[300px] flex flex-col bg-[#0A0A0B] border border-[#303236] focus-within:border-[#34D59A]/60 rounded-[4px] p-4 transition-colors">
-                <div className="flex items-center justify-between pb-2 mb-2 border-b border-[#303236]/40">
-                  <span className="text-[10px] font-mono uppercase tracking-widest text-[#797D86]">ANSWER_BUFFER</span>
+              <div className="flex-1 min-h-[300px] flex flex-col bg-[var(--color-graphite)] border border-[var(--color-basalt)] focus-within:border-[var(--color-moss-border)] rounded-[4px] p-4 transition-colors">
+                <div className="flex items-center justify-between pb-2 mb-2 border-b border-[var(--color-basalt)]/40">
+                  <span className="text-[10px] font-mono uppercase tracking-widest text-[var(--color-fog)]">ANSWER_BUFFER</span>
                 </div>
                 <textarea
                   value={textAnswer}
                   onChange={(e) => setTextAnswer(e.target.value)}
                   placeholder="Type your structured solution, architectural trade-offs, or explanations..."
-                  className="flex-1 w-full bg-transparent text-[#FFFFFF] font-mono text-sm leading-relaxed placeholder:text-[#797D86]/40 resize-none focus:outline-none"
+                  className="flex-1 w-full bg-transparent text-[var(--color-ash)] font-mono text-sm leading-relaxed placeholder:text-[var(--color-fog)]/40 resize-none focus:outline-none"
                 />
               </div>
             )}
 
             {answerMode === 'code' && (
-              <div className="flex-1 min-h-[340px] rounded-[4px] border border-[#303236] overflow-hidden bg-[#0A0A0B] flex flex-col">
-                <div className="h-7 shrink-0 bg-[#0A0A0B] border-b border-[#303236] px-3 flex items-center justify-between">
-                  <span className="text-[10px] font-mono uppercase tracking-widest text-[#797D86]">ANSWER_BUFFER</span>
-                  <span className="text-[10px] font-mono uppercase text-[#34D59A]">{selectedLanguage}</span>
+              <div className="flex-1 min-h-[340px] rounded-[4px] border border-[var(--color-basalt)] overflow-hidden bg-[var(--color-graphite)] flex flex-col">
+                <div className="h-7 shrink-0 bg-[var(--color-graphite)] border-b border-[var(--color-basalt)] px-3 flex items-center justify-between">
+                  <span className="text-[10px] font-mono uppercase tracking-widest text-[var(--color-fog)]">ANSWER_BUFFER</span>
+                  <span className="text-[10px] font-mono uppercase text-[var(--color-signal-green)]">{selectedLanguage}</span>
                 </div>
                 <div className="flex-1 min-h-0">
                   <Editor
@@ -919,7 +896,7 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
                       padding: { top: 12, bottom: 12 },
                     }}
                     loading={
-                      <div className="flex items-center justify-center h-full text-xs text-[#797D86] font-mono animate-pulse">
+                      <div className="flex items-center justify-center h-full text-xs text-[var(--color-fog)] font-mono animate-pulse">
                         LOADING_MONACO_EDITOR...
                       </div>
                     }
@@ -930,32 +907,32 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
 
             {answerMode === 'voice' && (
               <div className="flex-1 min-h-[300px] flex flex-col space-y-3.5">
-                <div className="bg-[#0A0A0B] border border-[#303236] rounded-[4px] p-4 text-center">
-                  <span className="text-[10px] font-mono uppercase tracking-widest text-[#797D86] block mb-3">VOICE_INPUT</span>
+                <div className="bg-[var(--color-graphite)] border border-[var(--color-basalt)] rounded-[4px] p-4 text-center">
+                  <span className="text-[10px] font-mono uppercase tracking-widest text-[var(--color-fog)] block mb-3">VOICE_INPUT</span>
                   <VoiceRecorder
                     transcript={textAnswer}
                     onTranscript={(text) => setTextAnswer(text)}
                   />
                 </div>
 
-                <div className="flex-1 flex flex-col bg-[#0A0A0B] border border-[#303236] rounded-[4px] p-4">
-                  <span className="text-[10px] text-[#797D86] font-mono uppercase tracking-widest mb-2 block">
+                <div className="flex-1 flex flex-col bg-[var(--color-graphite)] border border-[var(--color-basalt)] rounded-[4px] p-4">
+                  <span className="text-[10px] text-[var(--color-fog)] font-mono uppercase tracking-widest mb-2 block">
                     TRANSCRIPT_BUFFER (EDITABLE)
                   </span>
                   <textarea
                     value={textAnswer}
                     onChange={(e) => setTextAnswer(e.target.value)}
                     placeholder="Your spoken words will transcribe here in real-time. You can edit before submitting..."
-                    className="flex-1 w-full bg-transparent text-[#FFFFFF] font-mono text-sm leading-relaxed placeholder:text-[#797D86]/40 resize-none focus:outline-none"
+                    className="flex-1 w-full bg-transparent text-[var(--color-ash)] font-mono text-sm leading-relaxed placeholder:text-[var(--color-fog)]/40 resize-none focus:outline-none"
                   />
                 </div>
               </div>
             )}
           </div>
 
-          {/* Action Bar (Bottom of Center Workspace) */}
-          <div className="h-13 shrink-0 border-t border-[#303236] bg-[#000000] px-5 flex items-center justify-between">
-            <div className="text-xs text-[#797D86] font-mono">
+          {/* Action Bar */}
+          <div className="h-13 shrink-0 border-t border-[var(--color-basalt)] bg-[var(--color-carbon)] px-5 flex items-center justify-between">
+            <div className="text-xs text-[var(--color-fog)] font-mono">
               {wordCount} WORDS · {charCount} CHARS
             </div>
 
@@ -964,11 +941,11 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
                 <button
                   onClick={handleSubmitAnswer}
                   disabled={isEvaluating || (!textAnswer.trim() && !codeAnswer.trim())}
-                  className="rounded-full bg-[#FFFFFF] hover:bg-[#C9CBCF] text-[#151617] font-mono text-xs font-bold uppercase tracking-wider px-6 py-2.5 disabled:opacity-30 disabled:cursor-not-allowed transition-colors shadow-sm active:scale-[0.98]"
+                  className="rounded-full bg-[var(--color-signal-green)] hover:bg-[#5dbd6e] text-[var(--color-carbon)] font-mono text-xs font-bold uppercase tracking-wider px-6 py-2.5 disabled:opacity-30 disabled:cursor-not-allowed transition-colors shadow-sm active:scale-[0.98]"
                 >
                   {isEvaluating ? (
                     <span className="flex items-center gap-2">
-                      <span className="w-3 h-3 border-2 border-[#151617] border-t-transparent rounded-full animate-spin" />
+                      <span className="w-3 h-3 border-2 border-[var(--color-carbon)] border-t-transparent rounded-full animate-spin" />
                       EVALUATING...
                     </span>
                   ) : (
@@ -980,14 +957,14 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
                   {currentQIndex < questions.length - 1 ? (
                     <button
                       onClick={handleNextQuestion}
-                      className="rounded-full bg-[#FFFFFF] hover:bg-[#C9CBCF] text-[#151617] font-mono text-xs font-bold uppercase tracking-wider px-6 py-2.5 transition-colors shadow-sm active:scale-[0.98]"
+                      className="rounded-full bg-[var(--color-signal-green)] hover:bg-[#5dbd6e] text-[var(--color-carbon)] font-mono text-xs font-bold uppercase tracking-wider px-6 py-2.5 transition-colors shadow-sm active:scale-[0.98]"
                     >
                       NEXT QUESTION →
                     </button>
                   ) : (
                     <button
                       onClick={handleEndInterview}
-                      className="rounded-full bg-[#34D59A] hover:bg-[#285D49] hover:text-[#FFFFFF] text-[#151617] font-mono text-xs font-bold uppercase tracking-wider px-6 py-2.5 transition-colors shadow-sm active:scale-[0.98]"
+                      className="rounded-full bg-[var(--color-signal-green)] hover:bg-[var(--color-led-green)] hover:text-[var(--color-chalk)] text-[var(--color-carbon)] font-mono text-xs font-bold uppercase tracking-wider px-6 py-2.5 transition-colors shadow-sm active:scale-[0.98]"
                     >
                       FINISH INTERVIEW →
                     </button>
@@ -1001,15 +978,15 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
         {/* ========================================================= */}
         {/* RIGHT PANEL: AI Coach Live Evaluation Console (w-[280px]) */}
         {/* ========================================================= */}
-        <aside className="w-[280px] border-l border-[#303236] bg-[#0A0A0B] p-5 flex flex-col justify-between overflow-y-auto select-text">
+        <aside className="w-[280px] border-l border-[var(--color-basalt)] bg-[var(--color-graphite)] p-5 flex flex-col justify-between overflow-y-auto select-text">
           <div className="space-y-5">
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-[#303236] pb-2.5">
-              <span className="font-mono text-xs font-bold uppercase tracking-wider text-[#FFFFFF]">
+            <div className="flex items-center justify-between border-b border-[var(--color-basalt)] pb-2.5">
+              <span className="font-mono text-xs font-bold uppercase tracking-wider text-[var(--color-chalk)]">
                 AI COACH
               </span>
-              <div className="flex items-center gap-1.5 font-mono text-[10px] text-[#34D59A]">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#34D59A]" />
+              <div className="flex items-center gap-1.5 font-mono text-[10px] text-[var(--color-signal-green)]">
+                <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-signal-green)]" />
                 <span>LIVE</span>
               </div>
             </div>
@@ -1017,27 +994,27 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
             {/* Content Area */}
             {isEvaluating ? (
               <div className="py-12 flex flex-col items-center justify-center text-center space-y-3">
-                <div className="w-8 h-8 rounded-full border-2 border-[#303236] border-t-[#34D59A] animate-spin" />
+                <div className="w-8 h-8 rounded-full border-2 border-[var(--color-basalt)] border-t-[var(--color-signal-green)] animate-spin" />
                 <div className="space-y-1">
-                  <p className="text-xs font-mono font-medium text-[#FFFFFF] uppercase tracking-wider">ANALYZING_BUFFER...</p>
-                  <p className="text-[10px] text-[#797D86] font-mono uppercase">SCORING TECHNICAL ACCURACY</p>
+                  <p className="text-xs font-mono font-medium text-[var(--color-chalk)] uppercase tracking-wider">ANALYZING_BUFFER...</p>
+                  <p className="text-[10px] text-[var(--color-fog)] font-mono uppercase">SCORING TECHNICAL ACCURACY</p>
                 </div>
               </div>
             ) : evaluation ? (
               <div className="space-y-5 animate-in fade-in duration-200">
                 {/* Score Ring Header */}
-                <div className="flex items-center justify-between bg-[#151617] border border-[#303236] rounded-[4px] p-3.5">
+                <div className="flex items-center justify-between bg-[var(--color-obsidian)] border border-[var(--color-basalt)] rounded-[4px] p-3.5">
                   <div>
-                    <span className="text-[10px] font-mono uppercase tracking-wider text-[#797D86] block">SCORE</span>
-                    <p className="text-2xl font-bold font-mono text-[#FFFFFF] leading-none mt-1">
-                      {evaluation.score} <span className="text-xs text-[#797D86]">/ 100</span>
+                    <span className="text-[10px] font-mono uppercase tracking-wider text-[var(--color-fog)] block">SCORE</span>
+                    <p className="text-2xl font-bold font-mono text-[var(--color-chalk)] leading-none mt-1">
+                      {evaluation.score} <span className="text-xs text-[var(--color-fog)]">/ 100</span>
                     </p>
                   </div>
                   <ScoreRing score={evaluation.score} />
                 </div>
 
                 {/* Sub-Score Progress Bars */}
-                <div className="space-y-2.5 bg-[#151617] border border-[#303236] rounded-[4px] p-3">
+                <div className="space-y-2.5 bg-[var(--color-obsidian)] border border-[var(--color-basalt)] rounded-[4px] p-3">
                   <MiniBar
                     label="TECHNICAL ACCURACY"
                     value={Math.min(100, Math.round(evaluation.score * 1.02))}
@@ -1054,10 +1031,10 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
 
                 {/* Feedback Analysis */}
                 <div className="space-y-1">
-                  <span className="text-[10px] text-[#797D86] font-mono uppercase tracking-wider block">
+                  <span className="text-[10px] text-[var(--color-fog)] font-mono uppercase tracking-wider block">
                     ANALYSIS
                   </span>
-                  <p className="text-xs text-[#C9CBCF] leading-relaxed font-sans bg-[#151617] border border-[#303236] rounded-[4px] p-3">
+                  <p className="text-xs text-[var(--color-ash)] leading-relaxed font-sans bg-[var(--color-obsidian)] border border-[var(--color-basalt)] rounded-[4px] p-3">
                     {evaluation.feedback}
                   </p>
                 </div>
@@ -1065,10 +1042,10 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
                 {/* Improvements */}
                 {(evaluation.improvements || evaluation.improvement) && (
                   <div className="space-y-1">
-                    <span className="text-[10px] text-[#34D59A] font-mono uppercase tracking-wider block">
+                    <span className="text-[10px] text-[var(--color-signal-green)] font-mono uppercase tracking-wider block">
                       IMPROVEMENTS
                     </span>
-                    <p className="text-xs text-[#C9CBCF] leading-relaxed font-sans bg-[#151617] border border-[#303236] rounded-[4px] p-3">
+                    <p className="text-xs text-[var(--color-ash)] leading-relaxed font-sans bg-[var(--color-obsidian)] border border-[var(--color-basalt)] rounded-[4px] p-3">
                       {evaluation.improvements || evaluation.improvement}
                     </p>
                   </div>
@@ -1077,19 +1054,19 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
             ) : (
               /* Idle State */
               <div className="py-8 flex flex-col items-center justify-center text-center space-y-3.5">
-                <div className="w-9 h-9 rounded-[4px] bg-[#151617] border border-[#303236] flex items-center justify-center text-sm text-[#797D86] font-mono">
+                <div className="w-9 h-9 rounded-[4px] bg-[var(--color-obsidian)] border border-[var(--color-basalt)] flex items-center justify-center text-sm text-[var(--color-fog)] font-mono">
                   [►]
                 </div>
                 <div className="space-y-1">
-                  <p className="text-xs font-mono font-semibold text-[#FFFFFF] uppercase tracking-wider">AWAITING_RESPONSE</p>
-                  <p className="text-[11px] text-[#797D86] leading-relaxed font-sans">
+                  <p className="text-xs font-mono font-semibold text-[var(--color-chalk)] uppercase tracking-wider">AWAITING_RESPONSE</p>
+                  <p className="text-[11px] text-[var(--color-fog)] leading-relaxed font-sans">
                     Submit your answer to begin live evaluation.
                   </p>
                 </div>
 
-                <div className="w-full bg-[#151617] border border-[#303236] rounded-[4px] p-3 text-left space-y-1.5 text-[11px]">
-                  <p className="font-semibold text-[#FFFFFF] font-mono text-[10px] uppercase tracking-wider">INTERVIEW TIPS:</p>
-                  <ul className="space-y-1 list-disc list-inside text-[#94979E] font-sans">
+                <div className="w-full bg-[var(--color-obsidian)] border border-[var(--color-basalt)] rounded-[4px] p-3 text-left space-y-1.5 text-[11px]">
+                  <p className="font-semibold text-[var(--color-chalk)] font-mono text-[10px] uppercase tracking-wider">INTERVIEW TIPS:</p>
+                  <ul className="space-y-1 list-disc list-inside text-[var(--color-silver)] font-sans">
                     <li>State assumptions clearly</li>
                     <li>Discuss design trade-offs</li>
                     <li>Account for edge cases</li>
@@ -1100,36 +1077,34 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
           </div>
 
           {/* Footer note */}
-          <div className="pt-3 border-t border-[#303236] text-center">
-            <span className="text-[9px] text-[#797D86] font-mono uppercase tracking-wider">
+          <div className="pt-3 border-t border-[var(--color-basalt)] text-center">
+            <span className="text-[9px] text-[var(--color-fog)] font-mono uppercase tracking-wider">
               Gemini & LLM Evaluation Engine
             </span>
           </div>
         </aside>
       </div>
 
-      {/* ========================================================= */}
-      {/* END CONFIRM MODAL (Sharp 4px Container & Pill Actions) */}
-      {/* ========================================================= */}
+      {/* END CONFIRM MODAL */}
       {showEndModal && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#0A0A0B] border border-[#303236] rounded-[4px] p-6 w-[360px] shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-150 font-sans">
-            <div className="flex items-center gap-2.5 text-[#FF3621]">
-              <span className="w-2 h-2 rounded-full bg-[#FF3621]" />
-              <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-[#FFFFFF]">
+        <div className="fixed inset-0 z-50 bg-[var(--color-carbon)]/85 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[var(--color-graphite)] border border-[var(--color-basalt)] rounded-[4px] p-6 w-[360px] shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-150 font-sans">
+            <div className="flex items-center gap-2.5 text-[#ef4444]">
+              <span className="w-2 h-2 rounded-full bg-[#ef4444]" />
+              <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-[var(--color-chalk)]">
                 END_SESSION_CONFIRMATION
               </h3>
             </div>
 
-            <p className="text-xs text-[#94979E] leading-relaxed">
-              You have completed <span className="text-[#34D59A] font-mono font-semibold">{answersCount}</span> of{' '}
-              <span className="text-[#FFFFFF] font-mono">{questions.length || 5}</span> questions. End now to view your score report or continue the session.
+            <p className="text-xs text-[var(--color-silver)] leading-relaxed">
+              You have completed <span className="text-[var(--color-signal-green)] font-mono font-semibold">{answersCount}</span> of{' '}
+              <span className="text-[var(--color-chalk)] font-mono">{questions.length || 5}</span> questions. End now to view your score report or continue the session.
             </p>
 
             <div className="flex items-center justify-end gap-2.5 pt-2">
               <button
                 onClick={() => setShowEndModal(false)}
-                className="rounded-full border border-[#303236] hover:border-[#797D86] text-[#C9CBCF] hover:text-[#FFFFFF] text-xs font-mono uppercase px-4 py-1.5 transition-colors"
+                className="rounded-full border border-[var(--color-basalt)] hover:border-[var(--color-steel)] text-[var(--color-ash)] hover:text-[var(--color-chalk)] text-xs font-mono uppercase px-4 py-1.5 transition-colors"
               >
                 CONTINUE
               </button>
@@ -1138,7 +1113,7 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
                   setShowEndModal(false);
                   handleEndInterview();
                 }}
-                className="rounded-full bg-[#FF3621] hover:bg-[#d62d1c] text-white text-xs font-mono font-bold uppercase px-4 py-1.5 transition-colors shadow-sm"
+                className="rounded-full bg-[#ef4444] hover:bg-[#dc2626] text-[var(--color-ash)] text-xs font-mono font-bold uppercase px-4 py-1.5 transition-colors shadow-sm"
               >
                 END & SEE RESULTS
               </button>
@@ -1149,5 +1124,3 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
     </div>
   );
 }
-
-
