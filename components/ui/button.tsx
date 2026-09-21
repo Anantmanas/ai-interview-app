@@ -5,24 +5,24 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap font-mono uppercase tracking-[0.06em] rounded-[6px] transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#71d083] focus-visible:ring-offset-2 focus-visible:ring-offset-[#04040b] disabled:pointer-events-none disabled:opacity-40 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium tracking-[0.02em] rounded-md transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5] focus-visible:ring-offset-2 focus-visible:ring-offset-[#000000] disabled:pointer-events-none disabled:opacity-40 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
         default:
-          "bg-[#71d083] text-[#04040b] border border-[#366740] font-bold shadow-[inset_0_1px_0_rgba(255,255,255,0.22)] hover:bg-[#82dba2] hover:scale-[1.02] active:scale-[0.98] active:bg-[#366740]",
+          "bg-[#4f46e5] text-white border border-[#6366f1]/40 shadow-[0_0_20px_rgba(79,70,229,0.35)] hover:bg-[#5865f2] hover:shadow-[0_0_28px_rgba(79,70,229,0.5)] active:bg-[#3730a3]",
         destructive:
           "bg-[#2a1215] text-[#f87171] border border-[#4a1a1e] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] hover:bg-[#3a1820] hover:text-[#fca5a5]",
         outline:
-          "bg-[#1a191b] text-[#eeeef0] border border-[#2b292d] shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] hover:bg-[#232225] hover:border-[#3c393f]",
+          "bg-[#09090e] text-[#f8fafc] border border-[#1e1e2f] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] hover:bg-[#12121c] hover:border-[#2e2e46] hover:text-white",
         secondary:
-          "bg-[#121113] text-[#b5b2bc] border border-[#2b292d] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] hover:bg-[#1a191b] hover:text-[#eeeef0]",
+          "bg-[#0f0f18] text-[#9ca3af] border border-[#1e1e2f] shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] hover:bg-[#161624] hover:text-[#f8fafc] hover:border-[#3730a3]/50",
         ghost:
-          "bg-transparent text-[#7c7a85] border border-transparent hover:bg-[#1a191b] hover:text-[#eeeef0] hover:border-[#2b292d]",
+          "bg-transparent text-[#9ca3af] border border-transparent hover:bg-[#14142b]/60 hover:text-white hover:border-[#1e1e2f]",
         link:
-          "bg-transparent text-[#70b8ff] border-none shadow-none underline-offset-4 hover:underline hover:text-[#eeeef0] h-auto p-0",
+          "bg-transparent text-[#818cf8] border-none shadow-none underline-offset-4 hover:underline hover:text-white h-auto p-0",
         violetGlow:
-          "bg-[#1d3a24] text-[#71d083] border border-[#366740] shadow-[0_0_15px_rgba(113,208,131,0.2)] hover:bg-[#254d2f] hover:border-[#71d083] hover:shadow-[0_0_25px_rgba(113,208,131,0.4)]",
+          "bg-[#14142b] text-[#818cf8] border border-[#4f46e5]/40 shadow-[0_0_20px_rgba(79,70,229,0.25)] hover:bg-[#1c1c38] hover:border-[#6366f1] hover:shadow-[0_0_30px_rgba(79,70,229,0.45)] hover:text-white",
       },
       size: {
         default: "h-9 px-4 py-2 text-[12px]",

@@ -105,42 +105,42 @@ export function InterviewSetup({ profile, existingCount = 0 }: InterviewSetupPro
       {/* Cockpit Card Container */}
       <div className="card-console-glow p-6 sm:p-8 space-y-8">
         {/* Header Briefing */}
-        <div className="border-b border-[#291a45] pb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="border-b border-[#1e1e2f] pb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-mono uppercase tracking-widest text-[#c084fc] font-semibold">
+              <span className="text-[10px] font-mono uppercase tracking-widest text-[#818cf8] font-semibold">
                 ASSESSMENT SETUP
               </span>
-              <span className="text-[#50446b] text-xs">/</span>
-              <span className="text-[10px] font-mono text-[#948bb0] uppercase">
+              <span className="text-[#64748b] text-xs">/</span>
+              <span className="text-[10px] font-mono text-[#9ca3af] uppercase">
                 ADAPTIVE ENGINE
               </span>
             </div>
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#fdfcff] font-display">
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#ffffff] font-display">
               Configure Interview Session
             </h1>
-            <p className="text-xs text-[#948bb0]">
+            <p className="text-xs text-[#9ca3af]">
               AI interviewer will adapt live questions and code evaluations to your profile.
             </p>
           </div>
 
           {/* Session Tag Pill */}
-          <div className="bg-[#140e24] border border-[#3b1d66] rounded-[6px] px-3 py-1.5 flex items-center gap-2 shrink-0">
-            <span className="text-[10px] text-[#948bb0] font-mono uppercase">ID</span>
-            <span className="text-xs font-mono font-bold text-[#c084fc]">{title}</span>
+          <div className="bg-[#14142b] border border-[#3730a3] rounded-md px-3 py-1.5 flex items-center gap-2 shrink-0">
+            <span className="text-[10px] text-[#64748b] font-mono uppercase">ID</span>
+            <span className="text-xs font-mono font-bold text-[#818cf8]">{title}</span>
           </div>
         </div>
 
         {/* 1. Session Naming Section */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <label className="text-xs font-mono font-semibold uppercase tracking-wider text-[#fdfcff] flex items-center gap-2">
-              <span className="text-[#a855f7]">01.</span> SESSION NAME
+            <label className="text-xs font-mono font-semibold uppercase tracking-wider text-[#ffffff] flex items-center gap-2">
+              <span className="text-[#6366f1]">01.</span> SESSION NAME
             </label>
             <button
               type="button"
               onClick={() => setShowCustomTitle(!showCustomTitle)}
-              className="text-[11px] font-mono text-[#948bb0] hover:text-[#c084fc] transition-colors uppercase underline underline-offset-4 cursor-pointer"
+              className="text-[11px] font-mono text-[#64748b] hover:text-[#818cf8] transition-colors uppercase underline underline-offset-4 cursor-pointer"
             >
               {showCustomTitle ? 'Reset to Auto-Generated' : 'Edit Custom Name'}
             </button>
@@ -152,12 +152,12 @@ export function InterviewSetup({ profile, existingCount = 0 }: InterviewSetupPro
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g. Mock_Test 01"
-              className="w-full bg-[#140e24] border border-[#291a45] focus:border-[#a855f7] focus:ring-1 focus:ring-[#a855f7]/40 focus:outline-none rounded-[6px] px-4 py-3 text-sm font-mono text-[#fdfcff] transition-colors"
+              className="w-full bg-[#09090e] border border-[#1e1e2f] focus:border-[#6366f1] focus:ring-1 focus:ring-[#6366f1]/40 focus:outline-none rounded-md px-4 py-3 text-sm font-mono text-[#f8fafc] transition-colors"
             />
           ) : (
-            <div className="w-full bg-[#140e24] border border-[#291a45] rounded-[6px] px-4 py-3 flex items-center justify-between">
-              <span className="font-mono text-sm font-bold text-[#fdfcff]">{title}</span>
-              <span className="text-[10px] font-mono text-[#c084fc] uppercase tracking-wider bg-[#201138] border border-[#4c1d95] px-2.5 py-0.5 rounded-full">
+            <div className="w-full bg-[#09090e] border border-[#1e1e2f] rounded-md px-4 py-3 flex items-center justify-between">
+              <span className="font-mono text-sm font-bold text-[#ffffff]">{title}</span>
+              <span className="text-[10px] font-mono text-[#818cf8] uppercase tracking-wider bg-[#14142b] border border-[#3730a3] px-2.5 py-0.5 rounded-full">
                 AUTO-INCREMENTED
               </span>
             </div>
@@ -165,18 +165,18 @@ export function InterviewSetup({ profile, existingCount = 0 }: InterviewSetupPro
         </div>
 
         {/* 2. Resume / Source of Truth Context Status */}
-        <div className="bg-[#140e24] border border-[#291a45] rounded-[6px] p-4 space-y-3">
+        <div className="bg-[#09090e] border border-[#1e1e2f] rounded-lg p-4 space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-[#a855f7]" />
-              <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#fdfcff]">
+              <Sparkles className="w-4 h-4 text-[#6366f1]" />
+              <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#ffffff]">
                 RESUME GROUNDING CONTEXT
               </span>
             </div>
             <span
               className={`text-[10px] font-mono uppercase px-2.5 py-0.5 rounded-full border ${
                 isResumeReady || profile?.resume_text
-                  ? 'bg-[#201138] text-[#c084fc] border-[#4c1d95]'
+                  ? 'bg-[#14142b] text-[#818cf8] border-[#3730a3]'
                   : 'bg-[#2a0e15] text-[#f87171] border-[#5c1d28]'
               }`}
             >
@@ -186,22 +186,22 @@ export function InterviewSetup({ profile, existingCount = 0 }: InterviewSetupPro
 
           {isResumeReady && resumeData ? (
             <div className="space-y-2">
-              <p className="text-xs text-[#c8c0e0]">
-                Questions will be tailored to <strong className="text-[#fdfcff]">{resumeData.name || 'your profile'}</strong> ({resumeData.targetRole || 'Software Engineer'}).
+              <p className="text-xs text-[#9ca3af]">
+                Questions will be tailored to <strong className="text-[#ffffff]">{resumeData.name || 'your profile'}</strong> ({resumeData.targetRole || 'Software Engineer'}).
               </p>
               {resumeData.skills && resumeData.skills.length > 0 && (
                 <div className="flex flex-wrap gap-1.5 pt-1">
                   {resumeData.skills.slice(0, 10).map((skill) => (
                     <span
                       key={skill}
-                      className="inline-flex items-center gap-1.5 text-[11px] font-mono bg-[#0d0918] border border-[#291a45] rounded-[4px] px-2.5 py-1 text-[#f5f3ff] hover:border-[#4c1d95] transition-colors"
+                      className="inline-flex items-center gap-1.5 text-[11px] font-mono bg-[#14142b] border border-[#1e1e2f] rounded-[4px] px-2.5 py-1 text-[#f8fafc] hover:border-[#3730a3] transition-colors"
                     >
                       <SkillIcon skill={skill} className="w-3.5 h-3.5" size={14} />
                       {skill}
                     </span>
                   ))}
                   {resumeData.skills.length > 10 && (
-                    <span className="text-[10px] font-mono text-[#948bb0] self-center">
+                    <span className="text-[10px] font-mono text-[#64748b] self-center">
                       +{resumeData.skills.length - 10} more
                     </span>
                   )}
@@ -210,7 +210,7 @@ export function InterviewSetup({ profile, existingCount = 0 }: InterviewSetupPro
             </div>
           ) : (
             <div className="space-y-3 pt-1">
-              <p className="text-xs text-[#948bb0]">
+              <p className="text-xs text-[#9ca3af]">
                 Upload your resume to generate hyper-personalized questions matching your exact stack.
               </p>
               <ResumeDropzone source="interview-setup" />
@@ -220,8 +220,8 @@ export function InterviewSetup({ profile, existingCount = 0 }: InterviewSetupPro
 
         {/* 3. Interview Track Selection */}
         <div className="space-y-3">
-          <label className="text-xs font-mono font-semibold uppercase tracking-wider text-[#fdfcff] flex items-center gap-2">
-            <span className="text-[#a855f7]">02.</span> SELECT INTERVIEW TRACK
+          <label className="text-xs font-mono font-semibold uppercase tracking-wider text-[#ffffff] flex items-center gap-2">
+            <span className="text-[#6366f1]">02.</span> SELECT INTERVIEW TRACK
           </label>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -233,29 +233,29 @@ export function InterviewSetup({ profile, existingCount = 0 }: InterviewSetupPro
                   key={opt.id}
                   type="button"
                   onClick={() => setType(opt.id)}
-                  className={`p-4 rounded-[6px] text-left transition-all border flex flex-col justify-between space-y-3 cursor-pointer ${
+                  className={`p-4 rounded-lg text-left transition-all border flex flex-col justify-between space-y-3 cursor-pointer ${
                     isSelected
-                      ? 'bg-[#201138] border-[#a855f7] shadow-[0_0_20px_rgba(168,85,247,0.25)]'
-                      : 'bg-[#140e24]/70 border-[#291a45] hover:border-[#4c1d95] hover:bg-[#140e24]'
+                      ? 'bg-[#14142b] border-[#4f46e5] shadow-[0_0_20px_rgba(79,70,229,0.25)]'
+                      : 'bg-[#09090e] border-[#1e1e2f] hover:border-[#3730a3] hover:bg-[#0f0f18]'
                   }`}
                 >
                   <div className="flex items-center justify-between">
                     <div
-                      className={`p-2 rounded-[6px] ${
-                        isSelected ? 'bg-gradient-to-r from-[#9333ea] to-[#7c3aed] text-white shadow-[0_0_12px_rgba(168,85,247,0.5)]' : 'bg-[#1b1330] text-[#948bb0]'
+                      className={`p-2 rounded-md ${
+                        isSelected ? 'bg-gradient-to-r from-[#4f46e5] to-[#6366f1] text-white shadow-[0_0_12px_rgba(79,70,229,0.5)]' : 'bg-[#14142b] text-[#9ca3af]'
                       }`}
                     >
                       <Icon className="w-4 h-4" />
                     </div>
                     {isSelected && (
-                      <span className="w-2 h-2 rounded-full bg-[#c084fc] led-pulse" />
+                      <span className="w-2 h-2 rounded-full bg-[#6366f1] led-pulse" />
                     )}
                   </div>
                   <div>
-                    <h3 className="font-mono text-xs font-bold uppercase tracking-wider text-[#fdfcff]">
+                    <h3 className="font-mono text-xs font-bold uppercase tracking-wider text-[#ffffff]">
                       {opt.label}
                     </h3>
-                    <p className="text-[11px] text-[#948bb0] mt-1 leading-relaxed">
+                    <p className="text-[11px] text-[#9ca3af] mt-1 leading-relaxed">
                       {opt.desc}
                     </p>
                   </div>
@@ -267,8 +267,8 @@ export function InterviewSetup({ profile, existingCount = 0 }: InterviewSetupPro
 
         {/* 4. Target Seniority / Difficulty Level */}
         <div className="space-y-3">
-          <label className="text-xs font-mono font-semibold uppercase tracking-wider text-[#fdfcff] flex items-center gap-2">
-            <span className="text-[#a855f7]">03.</span> TARGET SENIORITY LEVEL
+          <label className="text-xs font-mono font-semibold uppercase tracking-wider text-[#ffffff] flex items-center gap-2">
+            <span className="text-[#6366f1]">03.</span> TARGET SENIORITY LEVEL
           </label>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -279,25 +279,25 @@ export function InterviewSetup({ profile, existingCount = 0 }: InterviewSetupPro
                   key={opt.id}
                   type="button"
                   onClick={() => setDifficulty(opt.id)}
-                  className={`p-4 rounded-[6px] text-left transition-all border flex flex-col justify-between space-y-2 cursor-pointer ${
+                  className={`p-4 rounded-lg text-left transition-all border flex flex-col justify-between space-y-2 cursor-pointer ${
                     isSelected
-                      ? 'bg-[#201138] border-[#a855f7] shadow-[0_0_20px_rgba(168,85,247,0.25)]'
-                      : 'bg-[#140e24]/70 border-[#291a45] hover:border-[#4c1d95] hover:bg-[#140e24]'
+                      ? 'bg-[#14142b] border-[#4f46e5] shadow-[0_0_20px_rgba(79,70,229,0.25)]'
+                      : 'bg-[#09090e] border-[#1e1e2f] hover:border-[#3730a3] hover:bg-[#0f0f18]'
                   }`}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-mono text-[#c084fc] uppercase tracking-wider font-semibold">
+                    <span className="text-[10px] font-mono text-[#818cf8] uppercase tracking-wider font-semibold">
                       {opt.level}
                     </span>
                     {isSelected && (
-                      <span className="w-2 h-2 rounded-full bg-[#c084fc] led-pulse" />
+                      <span className="w-2 h-2 rounded-full bg-[#6366f1] led-pulse" />
                     )}
                   </div>
                   <div>
-                    <h3 className="font-mono text-xs font-bold text-[#fdfcff]">
+                    <h3 className="font-mono text-xs font-bold text-[#ffffff]">
                       {opt.label}
                     </h3>
-                    <p className="text-[11px] text-[#948bb0] mt-0.5 leading-relaxed">
+                    <p className="text-[11px] text-[#9ca3af] mt-0.5 leading-relaxed">
                       {opt.desc}
                     </p>
                   </div>
@@ -308,11 +308,11 @@ export function InterviewSetup({ profile, existingCount = 0 }: InterviewSetupPro
         </div>
 
         {/* Action Controls & Launch CTA */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-[#291a45]">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-[#1e1e2f]">
           <button
             type="button"
             onClick={() => router.push('/dashboard')}
-            className="w-full sm:w-auto rounded-[6px] border border-[#291a45] hover:border-[#4c1d95] bg-[#140e24] text-[#c8c0e0] hover:text-[#fdfcff] text-xs font-mono uppercase tracking-wider px-6 py-3 transition-colors cursor-pointer inline-flex items-center justify-center gap-2"
+            className="w-full sm:w-auto rounded-md border border-[#27272a] hover:border-[#3f3f46] bg-[#000000] text-[#9ca3af] hover:text-white text-xs font-mono uppercase tracking-wider px-6 py-3 transition-colors cursor-pointer inline-flex items-center justify-center gap-2"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             Cancel & Return

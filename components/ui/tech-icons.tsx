@@ -69,7 +69,7 @@ export const TECH_DEFINITIONS: Record<string, TechDefinition> = {
     viewBox: '0 0 24 24',
     path: (
       <g>
-        <circle cx="12" cy="12" r="11" fill="#000000" stroke="#4c1d95" strokeWidth="1" />
+        <circle cx="12" cy="12" r="11" fill="#000000" stroke="#3730a3" strokeWidth="1" />
         <path
           d="M17.8 17.7L10.3 8.2h-1.6v7.6h1.4v-5.7l6.5 8.2c.4-.2.8-.4 1.2-.6zM14.5 8.2h1.4v4.5l-1.4-1.8V8.2z"
           fill="#FFFFFF"
@@ -436,7 +436,7 @@ export function TechIcon({
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
-        className={`text-[#a855f7] ${className}`}
+        className={`text-[#818cf8] ${className}`}
         {...rest}
       >
         <polyline points="16 18 22 12 16 6" />

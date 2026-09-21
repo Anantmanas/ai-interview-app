@@ -57,23 +57,23 @@ export function DashboardHeader({ user, profile }: DashboardHeaderProps) {
   const breadcrumbs = getBreadcrumbs()
 
   return (
-    <header className="flex h-12 shrink-0 items-center gap-2 border-b border-[#2b292d] bg-[#121113] px-5">
-      <SidebarTrigger className="-ml-1 text-[#7c7a85] hover:text-[#71d083] hover:bg-[#1a191b]" />
-      <div className="h-3.5 w-px bg-[#2b292d] mx-2" />
+    <header className="sticky top-0 z-20 flex h-12 shrink-0 items-center gap-2 border-b border-[#1e1e2f] bg-[#000000]/90 backdrop-blur-md px-5">
+      <SidebarTrigger className="-ml-1 text-[#9ca3af] hover:text-[#818cf8] hover:bg-[#14142b]" />
+      <div className="h-3.5 w-px bg-[#1e1e2f] mx-2" />
       <Breadcrumb>
-        <BreadcrumbList className="font-mono text-[11px] text-[#7c7a85]">
+        <BreadcrumbList className="font-mono text-[11px] text-[#9ca3af]">
           {breadcrumbs.map((crumb, index) => (
             <Fragment key={crumb.href}>
               <BreadcrumbItem>
                 {index === breadcrumbs.length - 1 ? (
-                  <BreadcrumbPage className="text-[#e5e5e5] font-semibold">{crumb.label}</BreadcrumbPage>
+                  <BreadcrumbPage className="text-[#f8fafc] font-semibold">{crumb.label}</BreadcrumbPage>
                 ) : (
-                  <BreadcrumbLink href={crumb.href} className="text-[#7c7a85] hover:text-[#71d083] transition-colors">
+                  <BreadcrumbLink href={crumb.href} className="text-[#9ca3af] hover:text-[#818cf8] transition-colors">
                     {crumb.label}
                   </BreadcrumbLink>
                 )}
               </BreadcrumbItem>
-              {index < breadcrumbs.length - 1 && <BreadcrumbSeparator className="text-[#49474e]" />}
+              {index < breadcrumbs.length - 1 && <BreadcrumbSeparator className="text-[#64748b]" />}
             </Fragment>
           ))}
         </BreadcrumbList>

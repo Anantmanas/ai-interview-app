@@ -30,11 +30,11 @@ interface BillingClientProps {
 
 function StatusBadge({ status }: { status: string }) {
   const config: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
-    active: { label: 'Active', color: 'text-[#71d083] bg-[#71d083]/10 border-[#71d083]/20', icon: <CheckCircle className="h-3 w-3" /> },
+    active: { label: 'Active', color: 'text-[#818cf8] bg-[#4f46e5]/15 border-[#4f46e5]/30', icon: <CheckCircle className="h-3 w-3" /> },
     canceling: { label: 'Canceling', color: 'text-[#f59e0b] bg-[#f59e0b]/10 border-[#f59e0b]/20', icon: <AlertTriangle className="h-3 w-3" /> },
     canceled: { label: 'Canceled', color: 'text-[#f87171] bg-[#f87171]/10 border-[#f87171]/20', icon: <XCircle className="h-3 w-3" /> },
     past_due: { label: 'Past Due', color: 'text-[#f87171] bg-[#f87171]/10 border-[#f87171]/20', icon: <AlertTriangle className="h-3 w-3" /> },
-    inactive: { label: 'Free', color: 'text-[#7c7a85] bg-[#7c7a85]/10 border-[#7c7a85]/20', icon: null },
+    inactive: { label: 'Free', color: 'text-[#9ca3af] bg-[#1e1e2f]/40 border-[#1e1e2f]', icon: null },
   }
   const c = config[status] ?? config.inactive
   return (
@@ -83,7 +83,7 @@ export function BillingClient({ profile, subscriptions }: BillingClientProps) {
         subscription_id: data.subscription_id,
         name: 'InterviewAI',
         description: 'Pro Plan',
-        theme: { color: '#71d083' },
+        theme: { color: '#4f46e5' },
         handler: () => { window.location.reload() },
       })
       rzp.open()
@@ -96,10 +96,10 @@ export function BillingClient({ profile, subscriptions }: BillingClientProps) {
     <div className="p-6 max-w-[800px] mx-auto">
       {/* Header */}
       <div className="mb-8">
-        <p className="font-mono text-[10px] text-[#71d083] uppercase tracking-[0.2em] mb-1">
+        <p className="font-mono text-[10px] text-[#818cf8] uppercase tracking-[0.2em] mb-1">
           // BILLING
         </p>
-        <h1 className="font-display text-[28px] font-bold text-[#e5e5e5] tracking-[-0.02em]">
+        <h1 className="font-display text-[28px] font-bold text-white tracking-[-0.02em]">
           Billing & Plan
         </h1>
       </div>
@@ -111,47 +111,47 @@ export function BillingClient({ profile, subscriptions }: BillingClientProps) {
           animate={{ opacity: 1, y: 0 }}
           className={`p-6 rounded-[8px] border ${
             isPro
-              ? 'border-[#71d083]/40 bg-[#0a1a0e] shadow-[0_0_40px_rgba(113,208,131,0.06)]'
-              : 'border-[#2b292d] bg-[#0c0c10]'
+              ? 'border-[#4f46e5]/40 bg-[#09090e] shadow-[0_0_40px_rgba(79,70,229,0.12)]'
+              : 'border-[#1e1e2f] bg-[#09090e]'
           }`}
         >
           <div className="flex items-start justify-between mb-5">
             <div>
               <div className="flex items-center gap-3 mb-1">
-                <CreditCard className={`h-4 w-4 ${isPro ? 'text-[#71d083]' : 'text-[#7c7a85]'}`} />
-                <h2 className="font-mono text-[14px] font-bold text-[#e5e5e5] uppercase tracking-[0.06em]">
+                <CreditCard className={`h-4 w-4 ${isPro ? 'text-[#818cf8]' : 'text-[#9ca3af]'}`} />
+                <h2 className="font-mono text-[14px] font-bold text-white uppercase tracking-[0.06em]">
                   {isPro ? 'Pro Plan' : 'Free Plan'}
                 </h2>
                 <StatusBadge status={status} />
               </div>
               {isPro && profile?.plan_expires_at && (
-                <p className="font-mono text-[11px] text-[#49474e] mt-1">
+                <p className="font-mono text-[11px] text-[#9ca3af] mt-1">
                   Renews {new Date(profile.plan_expires_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}
                 </p>
               )}
             </div>
             <div className="text-right">
-              <p className="font-display text-[28px] font-bold text-[#e5e5e5]">
+              <p className="font-display text-[28px] font-bold text-white">
                 {isPro ? '₹299' : '₹0'}
               </p>
-              <p className="font-mono text-[10px] text-[#49474e]">/month</p>
+              <p className="font-mono text-[10px] text-[#64748b]">/month</p>
             </div>
           </div>
 
           {/* Usage */}
           <div className="mb-5">
             <div className="flex justify-between mb-2">
-              <span className="font-mono text-[10px] text-[#49474e] uppercase tracking-[0.08em]">
+              <span className="font-mono text-[10px] text-[#64748b] uppercase tracking-[0.08em]">
                 Interviews this month
               </span>
-              <span className="font-mono text-[11px] text-[#e5e5e5]">
+              <span className="font-mono text-[11px] text-white">
                 {used} / {isPro ? '∞' : limit}
               </span>
             </div>
-            <div className="h-1.5 bg-[#2b292d] rounded-full overflow-hidden">
+            <div className="h-1.5 bg-[#1e1e2f] rounded-full overflow-hidden">
               <div
                 className={`h-full rounded-full transition-all ${
-                  usagePct >= 100 ? 'bg-[#f87171]' : usagePct >= 80 ? 'bg-[#f59e0b]' : 'bg-[#71d083]'
+                  usagePct >= 100 ? 'bg-[#f87171]' : usagePct >= 80 ? 'bg-[#f59e0b]' : 'bg-[#4f46e5]'
                 }`}
                 style={{ width: `${isPro ? Math.min((used / 30) * 100, 10) : usagePct}%` }}
               />
@@ -171,7 +171,7 @@ export function BillingClient({ profile, subscriptions }: BillingClientProps) {
                   <button
                     onClick={handleCancel}
                     disabled={canceling}
-                    className="flex items-center gap-2 px-4 py-2 border border-[#2b292d] hover:border-[#f87171]/40 text-[#7c7a85] hover:text-[#f87171] font-mono text-[11px] uppercase tracking-[0.06em] rounded-[6px] transition-colors disabled:opacity-50"
+                    className="flex items-center gap-2 px-4 py-2 border border-[#1e1e2f] hover:border-[#f87171]/40 text-[#9ca3af] hover:text-[#f87171] font-mono text-[11px] uppercase tracking-[0.06em] rounded-[6px] transition-colors disabled:opacity-50"
                   >
                     {canceling ? 'Canceling...' : 'Cancel Plan'}
                   </button>
@@ -188,7 +188,7 @@ export function BillingClient({ profile, subscriptions }: BillingClientProps) {
                 onClick={handleUpgrade}
                 disabled={upgrading}
                 whileTap={{ scale: 0.98 }}
-                className="flex items-center gap-2 px-5 py-2.5 bg-[#71d083] text-[#04040b] font-mono text-[12px] font-bold uppercase tracking-[0.06em] rounded-[6px] border border-[#366740] hover:bg-[#82dba2] disabled:opacity-50 transition-colors shadow-[inset_0_1px_0_rgba(255,255,255,0.22)]"
+                className="flex items-center gap-2 px-5 py-2.5 bg-[#4f46e5] text-white font-mono text-[12px] font-bold uppercase tracking-[0.06em] rounded-[6px] border border-[#3730a3] hover:bg-[#5865f2] disabled:opacity-50 transition-colors shadow-[0_0_20px_rgba(79,70,229,0.35)]"
               >
                 <Zap className="h-3.5 w-3.5" />
                 {upgrading ? 'Processing...' : 'Upgrade to Pro — ₹299/mo'}
@@ -196,7 +196,7 @@ export function BillingClient({ profile, subscriptions }: BillingClientProps) {
             )}
             <Link
               href="/pricing"
-              className="flex items-center gap-1.5 px-4 py-2 border border-[#2b292d] hover:border-[#4b494e] text-[#7c7a85] hover:text-[#e5e5e5] font-mono text-[11px] uppercase tracking-[0.06em] rounded-[6px] transition-colors"
+              className="flex items-center gap-1.5 px-4 py-2 border border-[#1e1e2f] hover:border-[#3730a3] text-[#9ca3af] hover:text-white font-mono text-[11px] uppercase tracking-[0.06em] rounded-[6px] transition-colors bg-[#000000]"
             >
               View Plans <ArrowUpRight className="h-3 w-3" />
             </Link>
@@ -209,21 +209,21 @@ export function BillingClient({ profile, subscriptions }: BillingClientProps) {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="p-6 rounded-[8px] border border-[#2b292d] bg-[#0c0c10]"
+            className="p-6 rounded-[8px] border border-[#1e1e2f] bg-[#09090e]"
           >
-            <h2 className="font-mono text-[12px] font-bold text-[#b5b2bc] uppercase tracking-[0.1em] mb-4">
+            <h2 className="font-mono text-[12px] font-bold text-[#818cf8] uppercase tracking-[0.1em] mb-4">
               Subscription History
             </h2>
             <div className="space-y-3">
               {subscriptions.map((sub) => (
                 <div
                   key={sub.id}
-                  className="flex items-center justify-between py-3 border-b border-[#2b292d]/60 last:border-0"
+                  className="flex items-center justify-between py-3 border-b border-[#1e1e2f]/60 last:border-0"
                 >
                   <div>
-                    <p className="font-mono text-[12px] text-[#e5e5e5] capitalize">{sub.plan} Plan</p>
+                    <p className="font-mono text-[12px] text-white capitalize">{sub.plan} Plan</p>
                     {sub.current_period_start && sub.current_period_end && (
-                      <p className="font-mono text-[10px] text-[#49474e] mt-0.5">
+                      <p className="font-mono text-[10px] text-[#64748b] mt-0.5">
                         {new Date(sub.current_period_start).toLocaleDateString('en-IN')} → {new Date(sub.current_period_end).toLocaleDateString('en-IN')}
                       </p>
                     )}

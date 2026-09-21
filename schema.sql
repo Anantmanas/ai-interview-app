@@ -198,3 +198,35 @@ create policy "Users can manage own parsed resume data"
   on public.parsed_resume_data for all
   using (auth.uid() = user_id)
   with check (auth.uid() = user_id);
+
+-- ==============================================================================
+-- AUTOMATIC PROFILE CREATION TRIGGER
+-- Whenever a user signs up in auth.users, create their profile row
+-- ==============================================================================
+
+create or replace function public.handle_new_user()
+returns trigger
+language plpgsql
+security definer set search_path = public
+as $$
+begin
+  insert into public.profiles (id, email, full_name, avatar_url)
+  values (
+    new.id,
+    new.email,
+    coalesce(new.raw_user_meta_data->>'full_name', split_part(new.email, '@', 1)),
+    new.raw_user_meta_data->>'avatar_url'
+  )
+  on conflict (id) do update
+  set
+    email = excluded.email,
+    full_name = coalesce(excluded.full_name, public.profiles.full_name);
+  return new;
+end;
+$$;
+
+-- Trigger on auth.users after insert
+drop trigger if exists on_auth_user_created on auth.users;
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute procedure public.handle_new_user();

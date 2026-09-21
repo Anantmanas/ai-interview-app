@@ -31,26 +31,26 @@ export function ResumeUploadCard() {
             <button
               onClick={() => inputRef.current?.click()}
               disabled={isExtracting}
-              className="inline-flex items-center gap-2 font-mono text-[11px] text-[#7c7a85] hover:text-[#71d083] transition-colors py-1.5 px-3 rounded-[6px] hover:bg-[#1a191b] border border-transparent hover:border-[#2b292d] cursor-pointer"
+              className="inline-flex items-center gap-2 font-mono text-[11px] text-[#9ca3af] hover:text-[#818cf8] transition-colors py-1.5 px-3 rounded-md hover:bg-[#14142b] border border-transparent hover:border-[#3730a3]/50 cursor-pointer"
             >
               {isExtracting ? (
                 <Spinner className="h-3.5 w-3.5" />
               ) : (
-                <RefreshCw className="h-3.5 w-3.5 text-[#71d083]" />
+                <RefreshCw className="h-3.5 w-3.5 text-[#818cf8]" />
               )}
               {isExtracting ? 'Analyzing Resume...' : 'Re-upload Resume'}
             </button>
           </div>
         </div>
       ) : (
-        <div className="card-console p-7 text-center border-dashed border-[#2d5736] hover:border-[#71d083] transition-all bg-gradient-to-b from-[#1a191b]/40 to-[#121113]">
-          <div className="mx-auto p-3 rounded-[8px] bg-[#1a191b] border border-[#2d5736] w-fit mb-3.5 text-[#71d083] shadow-[0_0_15px_rgba(113,208,131,0.2)]">
+        <div className="card-console p-7 text-center border-dashed border-[#3730a3] hover:border-[#4f46e5] transition-all bg-gradient-to-b from-[#14142b]/40 to-[#09090e]">
+          <div className="mx-auto p-3 rounded-lg bg-[#14142b] border border-[#3730a3] w-fit mb-3.5 text-[#818cf8] shadow-[0_0_15px_rgba(79,70,229,0.3)]">
             <Upload className="h-5 w-5" />
           </div>
-          <h3 className="font-display text-[17px] font-semibold text-[#fdfcff] mb-1.5">
+          <h3 className="font-display text-[17px] font-semibold text-[#ffffff] mb-1.5">
             Enhance Your Mock Interviews with Resume Grounding
           </h3>
-          <p className="font-body text-[13px] text-[#948bb0] max-w-md mx-auto mb-6 leading-relaxed">
+          <p className="font-body text-[13px] text-[#9ca3af] max-w-md mx-auto mb-6 leading-relaxed">
             Upload your resume to extract your tech stack and generate personalized questions tailored to your experience.
           </p>
           
@@ -71,7 +71,7 @@ export function ResumeUploadCard() {
             <button
               onClick={() => inputRef.current?.click()}
               disabled={isExtracting}
-              className="btn-neo-violet font-mono text-[12px] font-bold uppercase tracking-[0.05em] px-7 py-3 rounded-[6px] inline-flex items-center gap-2 cursor-pointer disabled:opacity-50"
+              className="btn-neo-violet font-mono text-[12px] font-bold uppercase tracking-[0.05em] px-7 py-3 rounded-md inline-flex items-center gap-2 cursor-pointer disabled:opacity-50"
             >
               {isExtracting ? (
                 <>
@@ -85,7 +85,7 @@ export function ResumeUploadCard() {
                 </>
               )}
             </button>
-            <p className="font-mono text-[10px] text-[#50446b] mt-3">
+            <p className="font-mono text-[10px] text-[#64748b] mt-3">
               Supports PDF, DOCX, TXT (Max 5MB)
             </p>
           </div>

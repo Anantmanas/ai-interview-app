@@ -23,38 +23,38 @@ export default async function NewInterviewPage() {
   ])
 
   return (
-    <div className="h-screen bg-[#05030a] text-[#f5f3ff] flex flex-col font-sans relative overflow-hidden">
+    <div className="h-screen bg-[#000000] text-[#f8fafc] flex flex-col font-sans relative overflow-hidden">
       {/* ── Ambient Glow Atmosphere ── */}
       <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-0">
-        <div className="absolute -top-40 left-1/4 h-[600px] w-[600px] rounded-full bg-[#a855f7] opacity-[0.07] blur-[140px]" />
-        <div className="absolute top-1/2 -right-40 h-[500px] w-[500px] rounded-full bg-[#6366f1] opacity-[0.05] blur-[120px]" />
+        <div className="absolute -top-40 left-1/4 h-[600px] w-[600px] rounded-full bg-[#4f46e5] opacity-[0.09] blur-[140px]" />
+        <div className="absolute top-1/2 -right-40 h-[500px] w-[500px] rounded-full bg-[#6366f1] opacity-[0.06] blur-[120px]" />
         <div className="dot-grid absolute inset-0 opacity-[0.3]" />
       </div>
 
       {/* Cockpit Top Header */}
-      <header className="h-12 shrink-0 border-b border-[#291a45] bg-[#0d0918]/90 backdrop-blur-md px-6 flex items-center justify-between z-20 sticky top-0">
+      <header className="h-12 shrink-0 border-b border-[#1e1e2f] bg-[#000000]/90 backdrop-blur-md px-6 flex items-center justify-between z-20 sticky top-0">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-[#a855f7] led-pulse" />
-            <span className="font-mono text-xs font-bold tracking-wider text-[#f5f3ff]">
+            <span className="w-2 h-2 rounded-full bg-[#6366f1] led-pulse" />
+            <span className="font-mono text-xs font-bold tracking-wider text-[#ffffff]">
               INTERVIEW_AI
             </span>
           </div>
-          <div className="h-3.5 w-[1px] bg-[#291a45]" />
-          <span className="text-[11px] font-mono text-[#948bb0] uppercase tracking-wider">
+          <div className="h-3.5 w-[1px] bg-[#1e1e2f]" />
+          <span className="text-[11px] font-mono text-[#9ca3af] uppercase tracking-wider">
             SESSION_CONFIGURATION
           </span>
         </div>
 
-        <div className="flex items-center gap-2 font-mono text-[10px] text-[#c084fc] bg-[#201138] border border-[#4c1d95] rounded-full px-2.5 py-0.5">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#a855f7] led-pulse" />
+        <div className="flex items-center gap-2 font-mono text-[10px] text-[#818cf8] bg-[#14142b] border border-[#3730a3] rounded-full px-2.5 py-0.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#6366f1] led-pulse" />
           <span>COCKPIT READY</span>
         </div>
       </header>
 
-      {/* Neo-Violet Terminal Accent Line */}
-      <div className="h-[2px] w-full bg-[#140e24] shrink-0">
-        <div className="h-full bg-gradient-to-r from-[#9333ea] via-[#a855f7] to-[#6366f1] w-full opacity-70" />
+      {/* Electric Indigo Terminal Accent Line */}
+      <div className="h-[2px] w-full bg-[#000000] shrink-0">
+        <div className="h-full bg-gradient-to-r from-[#4f46e5] via-[#6366f1] to-[#818cf8] w-full opacity-70" />
       </div>
 
       {/* Main Configuration Content - Smooth vertical scroll with ample bottom padding */}

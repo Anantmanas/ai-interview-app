@@ -89,7 +89,7 @@ export default function PricingPage() {
             name: data.customer_name,
             email: data.customer_email,
           },
-          theme: { color: '#71d083' },
+          theme: { color: '#4f46e5' },
           handler: () => {
             // Payment captured — webhook will update DB async
             window.location.href = '/dashboard/billing?upgraded=1'
@@ -107,22 +107,22 @@ export default function PricingPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#04040b] relative overflow-hidden">
+    <main className="min-h-screen bg-[#000000] relative overflow-hidden">
       <LandingBackground />
 
       <div className="relative z-10">
         {/* Nav */}
-        <nav className="border-b border-[#2b292d]/60 bg-[#04040b]/80 backdrop-blur-sm">
+        <nav className="border-b border-[#1e1e2f] bg-[#000000]/80 backdrop-blur-sm">
           <div className="max-w-[1100px] mx-auto px-6 h-14 flex items-center justify-between">
             <Link href="/" className="inline-flex items-center gap-2.5">
-              <span className="led-pulse h-2 w-2 rounded-full bg-[#71d083]" />
-              <span className="font-mono text-[13px] font-bold text-[#e5e5e5] uppercase tracking-[0.1em]">
+              <span className="led-pulse h-2 w-2 rounded-full bg-[#6366f1]" />
+              <span className="font-mono text-[13px] font-bold text-[#ffffff] uppercase tracking-[0.1em]">
                 InterviewAI
               </span>
             </Link>
             <Link
               href="/auth/login"
-              className="font-mono text-[11px] text-[#71d083] hover:text-[#82dba2] uppercase tracking-[0.08em] transition-colors"
+              className="font-mono text-[11px] text-[#818cf8] hover:text-white uppercase tracking-[0.08em] transition-colors"
             >
               Sign In →
             </Link>
@@ -136,39 +136,39 @@ export default function PricingPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: 'easeOut' }}
           >
-            <p className="font-mono text-[10px] text-[#71d083] uppercase tracking-[0.2em] mb-4">
+            <p className="font-mono text-[10px] text-[#818cf8] uppercase tracking-[0.2em] mb-4">
               // PRICING
             </p>
-            <h1 className="font-display text-[52px] font-bold text-[#e5e5e5] tracking-[-0.025em] leading-[1.05] mb-4">
+            <h1 className="font-display text-[52px] font-bold text-[#ffffff] tracking-[-0.025em] leading-[1.05] mb-4">
               Simple, Transparent Pricing
             </h1>
-            <p className="font-body text-[17px] text-[#7c7a85] max-w-[520px] mx-auto mb-10">
+            <p className="font-body text-[17px] text-[#9ca3af] max-w-[520px] mx-auto mb-10">
               Start free. Upgrade when you need unlimited practice.
               No hidden fees — cancel anytime.
             </p>
 
             {/* Billing toggle */}
-            <div className="inline-flex items-center gap-0 bg-[#0c0c10] border border-[#2b292d] rounded-[6px] p-1">
+            <div className="inline-flex items-center gap-0 bg-[#09090e] border border-[#1e1e2f] rounded-lg p-1">
               <button
                 onClick={() => setBillingCycle('monthly')}
-                className={`font-mono text-[11px] uppercase tracking-[0.06em] px-4 py-1.5 rounded-[4px] transition-colors ${
+                className={`font-mono text-[11px] uppercase tracking-[0.06em] px-4 py-1.5 rounded-md transition-colors ${
                   billingCycle === 'monthly'
-                    ? 'bg-[#71d083] text-[#04040b] font-bold'
-                    : 'text-[#7c7a85] hover:text-[#e5e5e5]'
+                    ? 'bg-[#4f46e5] text-white font-bold shadow-[0_0_12px_rgba(79,70,229,0.35)]'
+                    : 'text-[#9ca3af] hover:text-white'
                 }`}
               >
                 Monthly
               </button>
               <button
                 onClick={() => setBillingCycle('yearly')}
-                className={`font-mono text-[11px] uppercase tracking-[0.06em] px-4 py-1.5 rounded-[4px] transition-colors ${
+                className={`font-mono text-[11px] uppercase tracking-[0.06em] px-4 py-1.5 rounded-md transition-colors ${
                   billingCycle === 'yearly'
-                    ? 'bg-[#71d083] text-[#04040b] font-bold'
-                    : 'text-[#7c7a85] hover:text-[#e5e5e5]'
+                    ? 'bg-[#4f46e5] text-white font-bold shadow-[0_0_12px_rgba(79,70,229,0.35)]'
+                    : 'text-[#9ca3af] hover:text-white'
                 }`}
               >
                 Yearly
-                <span className="ml-1.5 text-[9px] bg-[#71d083]/20 text-[#71d083] px-1.5 py-0.5 rounded">
+                <span className="ml-1.5 text-[9px] bg-[#6366f1]/30 text-[#c7d2fe] px-1.5 py-0.5 rounded">
                   -17%
                 </span>
               </button>
@@ -215,8 +215,8 @@ export default function PricingPage() {
               { icon: Zap, text: 'Cancel anytime — no lock-in' },
             ].map(({ icon: Icon, text }) => (
               <div key={text} className="flex items-center gap-2">
-                <Icon className="h-3.5 w-3.5 text-[#71d083]" />
-                <span className="font-mono text-[11px] text-[#49474e] uppercase tracking-[0.06em]">
+                <Icon className="h-3.5 w-3.5 text-[#6366f1]" />
+                <span className="font-mono text-[11px] text-[#64748b] uppercase tracking-[0.06em]">
                   {text}
                 </span>
               </div>
@@ -227,10 +227,10 @@ export default function PricingPage() {
         {/* FAQ */}
         <section className="max-w-[700px] mx-auto px-6 pb-24">
           <div className="text-center mb-10">
-            <p className="font-mono text-[10px] text-[#71d083] uppercase tracking-[0.2em] mb-2">
+            <p className="font-mono text-[10px] text-[#818cf8] uppercase tracking-[0.2em] mb-2">
               // FAQ
             </p>
-            <h2 className="font-display text-[30px] font-bold text-[#e5e5e5]">
+            <h2 className="font-display text-[30px] font-bold text-[#ffffff]">
               Questions? We have answers.
             </h2>
           </div>
@@ -239,22 +239,22 @@ export default function PricingPage() {
             {FAQS.map((faq, i) => (
               <div
                 key={i}
-                className="border border-[#2b292d] rounded-[6px] bg-[#0c0c10]/60 overflow-hidden"
+                className="border border-[#1e1e2f] rounded-lg bg-[#09090e]/80 overflow-hidden"
               >
                 <button
                   onClick={() => setOpenFaq(openFaq === i ? null : i)}
                   className="w-full flex items-center justify-between px-5 py-4 text-left"
                 >
-                  <span className="font-mono text-[13px] text-[#e5e5e5]">{faq.q}</span>
+                  <span className="font-mono text-[13px] text-[#f8fafc]">{faq.q}</span>
                   <HelpCircle
                     className={`h-4 w-4 flex-shrink-0 transition-colors ${
-                      openFaq === i ? 'text-[#71d083]' : 'text-[#49474e]'
+                      openFaq === i ? 'text-[#818cf8]' : 'text-[#64748b]'
                     }`}
                   />
                 </button>
                 {openFaq === i && (
-                  <div className="px-5 pb-4 border-t border-[#2b292d]/60">
-                    <p className="font-body text-[14px] text-[#7c7a85] leading-[1.7] pt-3">
+                  <div className="px-5 pb-4 border-t border-[#1e1e2f]">
+                    <p className="font-body text-[14px] text-[#9ca3af] leading-[1.7] pt-3">
                       {faq.a}
                     </p>
                   </div>
@@ -265,17 +265,17 @@ export default function PricingPage() {
         </section>
 
         {/* Footer */}
-        <footer className="border-t border-[#2b292d]/40 py-8">
+        <footer className="border-t border-[#1e1e2f] py-8">
           <div className="max-w-[1100px] mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
             <div className="flex items-center gap-2.5">
-              <span className="led-pulse h-2 w-2 rounded-full bg-[#71d083]" />
-              <span className="font-mono text-[12px] font-bold text-[#e5e5e5] uppercase tracking-[0.08em]">
+              <span className="led-pulse h-2 w-2 rounded-full bg-[#6366f1]" />
+              <span className="font-mono text-[12px] font-bold text-[#ffffff] uppercase tracking-[0.08em]">
                 InterviewAI
               </span>
             </div>
             <div className="flex items-center gap-5">
-              <Link href="/privacy" className="font-mono text-[10px] text-[#49474e] hover:text-[#7c7a85] uppercase tracking-[0.06em] transition-colors">Privacy</Link>
-              <Link href="/terms" className="font-mono text-[10px] text-[#49474e] hover:text-[#7c7a85] uppercase tracking-[0.06em] transition-colors">Terms</Link>
+              <Link href="/privacy" className="font-mono text-[10px] text-[#64748b] hover:text-[#9ca3af] uppercase tracking-[0.06em] transition-colors">Privacy</Link>
+              <Link href="/terms" className="font-mono text-[10px] text-[#64748b] hover:text-[#9ca3af] uppercase tracking-[0.06em] transition-colors">Terms</Link>
             </div>
           </div>
         </footer>

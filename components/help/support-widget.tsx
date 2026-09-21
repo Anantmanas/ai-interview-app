@@ -27,7 +27,7 @@ export function SupportWidget() {
         onClick={() => setOpen(o => !o)}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        className="fixed bottom-6 right-6 z-40 h-12 w-12 rounded-full bg-[#71d083] text-[#04040b] shadow-[0_4px_24px_rgba(113,208,131,0.3)] flex items-center justify-center border border-[#366740] hover:bg-[#82dba2] transition-colors"
+        className="fixed bottom-6 right-6 z-40 h-12 w-12 rounded-full bg-[#4f46e5] text-white shadow-[0_4px_24px_rgba(79,70,229,0.4)] flex items-center justify-center border border-[#3730a3] hover:bg-[#5865f2] transition-colors"
         aria-label="Get help"
       >
         <AnimatePresence mode="wait">
@@ -51,38 +51,38 @@ export function SupportWidget() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.96 }}
             transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-            className="fixed bottom-24 right-6 z-40 w-[300px] bg-[#0c0c10] border border-[#2b292d] rounded-[8px] shadow-2xl overflow-hidden"
+            className="fixed bottom-24 right-6 z-40 w-[300px] bg-[#09090e] border border-[#1e1e2f] rounded-[8px] shadow-2xl overflow-hidden"
           >
             {/* Header */}
-            <div className="p-4 border-b border-[#2b292d]/60 bg-[#0a0a0e]">
+            <div className="p-4 border-b border-[#1e1e2f] bg-[#000000]">
               <div className="flex items-center gap-2 mb-1">
-                <span className="led-pulse h-1.5 w-1.5 rounded-full bg-[#71d083]" />
-                <p className="font-mono text-[11px] font-bold text-[#e5e5e5] uppercase tracking-[0.08em]">
+                <span className="led-pulse h-1.5 w-1.5 rounded-full bg-[#6366f1]" />
+                <p className="font-mono text-[11px] font-bold text-white uppercase tracking-[0.08em]">
                   Help & Support
                 </p>
               </div>
-              <p className="font-body text-[12px] text-[#49474e]">
+              <p className="font-body text-[12px] text-[#64748b]">
                 Usually replies within 24 hours.
               </p>
             </div>
 
             {/* Search */}
-            <div className="p-3 border-b border-[#2b292d]/60">
+            <div className="p-3 border-b border-[#1e1e2f]">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#49474e]" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#64748b]" />
                 <input
                   type="text"
                   placeholder="Search FAQs..."
                   value={search}
                   onChange={e => setSearch(e.target.value)}
-                  className="w-full bg-[#0a0a0e] border border-[#2b292d] rounded-[4px] pl-8 pr-3 py-2 font-mono text-[11px] text-[#e5e5e5] placeholder-[#49474e] focus:outline-none focus:border-[#71d083]/50 transition-colors"
+                  className="w-full bg-[#000000] border border-[#1e1e2f] rounded-[4px] pl-8 pr-3 py-2 font-mono text-[11px] text-white placeholder-[#64748b] focus:outline-none focus:border-[#6366f1] transition-colors"
                 />
               </div>
             </div>
 
             {/* Quick answers */}
             <div className="p-3">
-              <p className="font-mono text-[9px] text-[#49474e] uppercase tracking-[0.1em] mb-2">
+              <p className="font-mono text-[9px] text-[#64748b] uppercase tracking-[0.1em] mb-2">
                 Quick answers
               </p>
               <div className="space-y-1">
@@ -91,12 +91,12 @@ export function SupportWidget() {
                     key={a.q}
                     href={a.href}
                     onClick={() => setOpen(false)}
-                    className="flex items-center justify-between px-3 py-2 rounded-[4px] border border-[#2b292d] hover:border-[#4b494e] hover:bg-[#0a0a0e] transition-colors group"
+                    className="flex items-center justify-between px-3 py-2 rounded-[4px] border border-[#1e1e2f] hover:border-[#3730a3] hover:bg-[#14142b] transition-colors group"
                   >
-                    <span className="font-mono text-[11px] text-[#b5b2bc] group-hover:text-[#e5e5e5] transition-colors">
+                    <span className="font-mono text-[11px] text-[#9ca3af] group-hover:text-white transition-colors">
                       {a.q}
                     </span>
-                    <ExternalLink className="h-3 w-3 text-[#49474e] group-hover:text-[#71d083] transition-colors" />
+                    <ExternalLink className="h-3 w-3 text-[#64748b] group-hover:text-[#818cf8] transition-colors" />
                   </Link>
                 ))}
               </div>
@@ -107,13 +107,13 @@ export function SupportWidget() {
               <Link
                 href="/help"
                 onClick={() => setOpen(false)}
-                className="w-full flex items-center justify-center gap-2 px-3 py-2 border border-[#2b292d] hover:border-[#4b494e] text-[#7c7a85] hover:text-[#e5e5e5] font-mono text-[11px] uppercase tracking-[0.06em] rounded-[4px] transition-colors"
+                className="w-full flex items-center justify-center gap-2 px-3 py-2 border border-[#1e1e2f] hover:border-[#3730a3] text-[#9ca3af] hover:text-white font-mono text-[11px] uppercase tracking-[0.06em] rounded-[4px] transition-colors bg-[#000000]"
               >
                 View Full Help Center
               </Link>
               <a
                 href="mailto:support@interviewai.app"
-                className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-[#71d083]/10 border border-[#71d083]/20 hover:bg-[#71d083]/15 text-[#71d083] font-mono text-[11px] uppercase tracking-[0.06em] rounded-[4px] transition-colors"
+                className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-[#4f46e5]/15 border border-[#4f46e5]/30 hover:bg-[#4f46e5]/25 text-[#818cf8] font-mono text-[11px] uppercase tracking-[0.06em] rounded-[4px] transition-colors"
               >
                 <Mail className="h-3.5 w-3.5" />
                 Email Support

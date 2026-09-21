@@ -1,20 +1,14 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { motion } from 'motion/react'
 import type { User } from '@supabase/supabase-js'
 import type { Profile } from '@/lib/types'
 import {
   Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
+  SidebarBody,
+  useSidebar,
 } from '@/components/ui/sidebar'
 import {
   DropdownMenu,
@@ -35,12 +29,10 @@ import {
   FileText,
   CreditCard,
   BarChart3,
-  Bell,
-  HelpCircle,
   Gift,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
+import { cn } from '@/lib/utils'
 
 const navigation = [
   {
@@ -75,9 +67,10 @@ interface DashboardSidebarProps {
   profile: Profile | null
 }
 
-export function DashboardSidebar({ user, profile }: DashboardSidebarProps) {
+function SidebarInnerContent({ user, profile }: DashboardSidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
+  const { open, setOpen } = useSidebar()
 
   const handleSignOut = async () => {
     const supabase = createClient()
@@ -99,118 +92,165 @@ export function DashboardSidebar({ user, profile }: DashboardSidebarProps) {
   }
 
   return (
-    <Sidebar className="border-r border-[#2b292d] bg-[#121113] text-[#eeeef0] flex flex-col h-screen">
-      <SidebarHeader className="p-0 bg-[#121113] border-none">
-        <div className="flex items-center gap-2.5 px-5 py-4 border-b border-[#2b292d]">
-          <span className="h-2 w-2 rounded-full bg-[#71d083] led-pulse" />
-          <span className="font-mono text-[13px] font-bold text-[#e5e5e5] tracking-[0.08em] uppercase">
-            InterviewAI
-          </span>
-          <span className="ml-auto font-mono text-[9px] text-[#71d083] border border-[#366740] bg-[#1d3a24] rounded-sm px-1.5 py-0.5 tracking-[0.05em]">
-            NEO v2.0
-          </span>
+    <SidebarBody className="justify-between h-full w-full bg-transparent text-[#f8fafc]">
+      {/* Top Header / Logo & Navigation Items */}
+      <div className="flex flex-1 flex-col overflow-x-hidden overflow-y-auto min-h-0">
+        {/* Brand Header */}
+        <div
+          className={cn(
+            'flex items-center gap-2.5 pb-3 border-b border-[#1e1e2f] min-h-[52px]',
+            !open && 'justify-center px-0'
+          )}
+        >
+          <div className="h-8 w-8 rounded-lg bg-[#14142b] border border-[#3730a3] flex items-center justify-center shrink-0 shadow-[0_0_12px_rgba(99,102,241,0.3)]">
+            <span className="h-2.5 w-2.5 rounded-full bg-[#6366f1] led-pulse" />
+          </div>
+          {open && (
+            <motion.div
+              initial={{ opacity: 0, x: -4 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.15 }}
+              className="flex items-center gap-2 overflow-hidden whitespace-nowrap min-w-0"
+            >
+              <span className="font-mono text-[13px] font-bold text-[#f8fafc] tracking-[0.08em] uppercase truncate">
+                InterviewAI
+              </span>
+              <span className="font-mono text-[9px] text-[#818cf8] border border-[#3730a3] bg-[#14142b] rounded-sm px-1.5 py-0.5 tracking-[0.05em] shrink-0">
+                NEO v2.0
+              </span>
+            </motion.div>
+          )}
         </div>
-      </SidebarHeader>
 
-      <SidebarContent className="px-0 py-2 bg-[#121113] gap-0">
-        {navigation.map((group, idx) => (
-          <SidebarGroup key={group.title} className="p-0">
-            {idx > 0 && <div className="mx-5 my-3 h-px bg-[#2b292d]" />}
-            <p className="font-mono text-[9px] uppercase tracking-[0.15em] text-[#7c7a85] px-5 pt-3 pb-2 font-semibold">
-              {group.title}
-            </p>
-            <SidebarGroupContent>
-              <SidebarMenu className="gap-1 px-1">
+        {/* Navigation Groups */}
+        <div className="mt-4 flex flex-col gap-3">
+          {navigation.map((group, groupIdx) => (
+            <div key={group.title} className="flex flex-col gap-1">
+              {groupIdx > 0 && <div className="my-1 h-px bg-[#1e1e2f]" />}
+              {open && (
+                <p className="font-mono text-[9px] uppercase tracking-[0.15em] text-[#64748b] px-2.5 py-1 font-semibold whitespace-nowrap">
+                  {group.title}
+                </p>
+              )}
+              <div className="flex flex-col gap-1">
                 {group.items.map((item) => {
-                  const isActive = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href + '/'))
+                  const isActive =
+                    pathname === item.href ||
+                    (item.href !== '/dashboard' && pathname.startsWith(item.href + '/'))
+
                   return (
-                    <SidebarMenuItem key={item.href}>
-                      <SidebarMenuButton
-                        asChild
-                        isActive={isActive}
-                        className={`flex items-center gap-3 px-5 py-2.5 mx-2 rounded-[6px] font-mono text-[12px] uppercase tracking-[0.04em] transition-all duration-150 cursor-pointer ${
-                          isActive
-                            ? 'bg-[#1d3a24] border-l-2 border-[#71d083] text-[#71d083] font-semibold shadow-[0_0_15px_rgba(113,208,131,0.2)]'
-                            : 'text-[#7c7a85] hover:bg-[#1a191b] hover:text-[#eeeef0]'
-                        }`}
-                      >
-                        <Link href={item.href}>
-                          <item.icon className={`h-4 w-4 shrink-0 ${isActive ? 'text-[#71d083]' : 'text-[#7c7a85]'}`} />
-                          <span>{item.title}</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      title={!open ? item.title : undefined}
+                      onClick={() => {
+                        // Close sidebar on mobile item click
+                        if (typeof window !== 'undefined' && window.innerWidth < 768) {
+                          setOpen(false)
+                        }
+                      }}
+                      className={cn(
+                        'flex items-center rounded-lg font-mono text-[12px] uppercase tracking-[0.04em] transition-all duration-150 cursor-pointer group',
+                        open
+                          ? 'gap-3 px-2.5 py-2 justify-start'
+                          : 'justify-center p-2 w-10 h-10 mx-auto',
+                        isActive
+                          ? 'bg-[#14142b] border-l-2 border-[#6366f1] text-[#818cf8] font-semibold shadow-[0_0_15px_rgba(99,102,241,0.25)]'
+                          : 'text-[#9ca3af] hover:bg-[#0f0f18] hover:text-white'
+                      )}
+                    >
+                      <item.icon
+                        className={cn(
+                          'h-4 w-4 shrink-0 transition-colors',
+                          isActive ? 'text-[#818cf8]' : 'text-[#9ca3af] group-hover:text-white'
+                        )}
+                      />
+                      {open && (
+                        <span className="truncate whitespace-nowrap transition-transform duration-150 group-hover:translate-x-0.5">
+                          {item.title}
+                        </span>
+                      )}
+                    </Link>
                   )
                 })}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        ))}
-      </SidebarContent>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
 
-      <SidebarFooter className="mt-auto border-t border-[#2b292d] p-3 pb-8 bg-[#121113]">
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <motion.div
-                  whileHover={{ x: 2 }}
-                  transition={{ duration: 0.15 }}
-                  className="flex items-center gap-3 px-3 py-2.5 rounded-[6px] hover:bg-[#1a191b] transition-colors cursor-pointer w-full border border-transparent hover:border-[#2b292d]"
-                >
-                  {/* Avatar */}
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#366740] to-[#71d083] border border-[#71d083]/40 flex items-center justify-center flex-shrink-0 shadow-[0_0_10px_rgba(113,208,131,0.3)]">
-                    <span className="font-mono text-[11px] text-[#04040b] font-bold">
-                      {getInitials()}
-                    </span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-mono text-[11px] text-[#e5e5e5] font-semibold uppercase tracking-[0.04em] truncate">
+      {/* Footer Profile Section */}
+      <div className="pt-3 border-t border-[#1e1e2f] shrink-0">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <div
+              className={cn(
+                'flex items-center rounded-lg hover:bg-[#0f0f18] transition-colors cursor-pointer border border-transparent hover:border-[#1e1e2f]',
+                open ? 'gap-2.5 p-1.5 w-full' : 'justify-center p-1 w-10 h-10 mx-auto'
+              )}
+              title={!open ? (profile?.full_name ?? user.email ?? 'Account') : undefined}
+            >
+              {/* Avatar with Initials */}
+              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#3730a3] to-[#6366f1] border border-[#4f46e5]/50 flex items-center justify-center shrink-0 shadow-[0_0_12px_rgba(79,70,229,0.35)]">
+                <span className="font-mono text-[11px] text-white font-bold">
+                  {getInitials()}
+                </span>
+              </div>
+
+              {/* User Info when expanded */}
+              {open && (
+                <>
+                  <div className="flex-1 min-w-0 flex flex-col overflow-hidden text-left">
+                    <p className="font-mono text-[11px] text-[#f8fafc] font-semibold uppercase tracking-[0.04em] truncate">
                       {profile?.full_name ?? 'Engineer'}
                     </p>
-                    <p className="font-mono text-[10px] text-[#7c7a85] truncate">
+                    <p className="font-mono text-[10px] text-[#64748b] truncate">
                       {user.email}
                     </p>
                   </div>
-                  <ChevronUp className="ml-auto h-3.5 w-3.5 text-[#7c7a85]" />
-                </motion.div>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                className="w-[--radix-dropdown-menu-trigger-width] min-w-56 bg-[#121113] border border-[#2b292d] text-[#eeeef0] shadow-2xl rounded-[8px] p-1.5"
-                side="top"
-                align="start"
-              >
-                <DropdownMenuItem asChild className="focus:bg-[#1a191b] focus:text-[#71d083] cursor-pointer rounded-[4px] font-mono text-[12px] uppercase">
-                  <Link href="/dashboard/profile">
-                    <UserIcon className="mr-2 h-4 w-4 text-[#71d083]" />
-                    Profile
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild className="focus:bg-[#1a191b] focus:text-[#71d083] cursor-pointer rounded-[4px] font-mono text-[12px] uppercase">
-                  <Link href="/dashboard/resume">
-                    <FileText className="mr-2 h-4 w-4 text-[#71d083]" />
-                    Resume
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild className="focus:bg-[#1a191b] focus:text-[#71d083] cursor-pointer rounded-[4px] font-mono text-[12px] uppercase">
-                  <Link href="/dashboard/settings">
-                    <Settings className="mr-2 h-4 w-4 text-[#70b8ff]" />
-                    Settings
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator className="bg-[#2b292d] my-1" />
-                <DropdownMenuItem 
-                  onClick={handleSignOut}
-                  className="text-[#f87171] focus:bg-[#2a0e15] focus:text-[#f87171] cursor-pointer rounded-[4px] font-mono text-[12px] uppercase"
-                >
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Sign out
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarFooter>
-    </Sidebar>
+                  <ChevronUp className="h-3.5 w-3.5 text-[#64748b] ml-auto shrink-0" />
+                </>
+              )}
+            </div>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            className="w-56 bg-[#09090e] border border-[#1e1e2f] text-[#f8fafc] shadow-2xl rounded-lg p-1.5"
+            side="top"
+            align="start"
+          >
+            <DropdownMenuItem asChild className="focus:bg-[#14142b] focus:text-[#818cf8] cursor-pointer rounded-[4px] font-mono text-[12px] uppercase">
+              <Link href="/dashboard/profile">
+                <UserIcon className="mr-2 h-4 w-4 text-[#818cf8]" />
+                Profile
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild className="focus:bg-[#14142b] focus:text-[#818cf8] cursor-pointer rounded-[4px] font-mono text-[12px] uppercase">
+              <Link href="/dashboard/resume">
+                <FileText className="mr-2 h-4 w-4 text-[#818cf8]" />
+                Resume
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild className="focus:bg-[#14142b] focus:text-[#818cf8] cursor-pointer rounded-[4px] font-mono text-[12px] uppercase">
+              <Link href="/dashboard/settings">
+                <Settings className="mr-2 h-4 w-4 text-[#818cf8]" />
+                Settings
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator className="bg-[#1e1e2f] my-1" />
+            <DropdownMenuItem
+              onClick={handleSignOut}
+              className="text-[#f87171] focus:bg-[#2a0e15] focus:text-[#f87171] cursor-pointer rounded-[4px] font-mono text-[12px] uppercase"
+            >
+              <LogOut className="mr-2 h-4 w-4" />
+              Sign out
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    </SidebarBody>
   )
+}
+
+export function DashboardSidebar({ user, profile }: DashboardSidebarProps) {
+  return <SidebarInnerContent user={user} profile={profile} />
 }

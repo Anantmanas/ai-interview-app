@@ -145,30 +145,30 @@ export default function TermsPage() {
     <div className="max-w-[900px] mx-auto px-6 py-16">
       {/* Header */}
       <div className="mb-14">
-        <p className="font-mono text-[10px] text-[#71d083] uppercase tracking-[0.2em] mb-3">
+        <p className="font-mono text-[10px] text-[#818cf8] uppercase tracking-[0.2em] mb-3">
           // LEGAL
         </p>
-        <h1 className="font-display text-[44px] font-bold text-[#e5e5e5] tracking-[-0.025em] leading-[1.05] mb-4">
+        <h1 className="font-display text-[44px] font-bold text-white tracking-[-0.025em] leading-[1.05] mb-4">
           Terms of Service
         </h1>
-        <p className="font-body text-[15px] text-[#7c7a85] max-w-[560px]">
+        <p className="font-body text-[15px] text-[#9ca3af] max-w-[560px]">
           Please read these Terms carefully before using InterviewAI. They form the legal
           agreement between you and us.
         </p>
         <div className="mt-6 flex items-center gap-3">
-          <span className="inline-flex items-center gap-1.5 font-mono text-[10px] text-[#49474e] uppercase tracking-[0.08em] border border-[#2b292d] rounded-[4px] px-2.5 py-1">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#71d083]" />
+          <span className="inline-flex items-center gap-1.5 font-mono text-[10px] text-[#64748b] uppercase tracking-[0.08em] border border-[#1e1e2f] rounded-[4px] px-2.5 py-1">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#6366f1]" />
             Last updated: September 2026
           </span>
-          <span className="inline-flex items-center gap-1.5 font-mono text-[10px] text-[#49474e] uppercase tracking-[0.08em] border border-[#2b292d] rounded-[4px] px-2.5 py-1">
+          <span className="inline-flex items-center gap-1.5 font-mono text-[10px] text-[#64748b] uppercase tracking-[0.08em] border border-[#1e1e2f] rounded-[4px] px-2.5 py-1">
             Effective: September 20, 2026
           </span>
         </div>
       </div>
 
       {/* Quick nav */}
-      <nav className="mb-12 p-5 border border-[#2b292d] rounded-[6px] bg-[#0c0c10]/60">
-        <p className="font-mono text-[10px] text-[#49474e] uppercase tracking-[0.12em] mb-3">
+      <nav className="mb-12 p-5 border border-[#1e1e2f] rounded-[6px] bg-[#09090e]">
+        <p className="font-mono text-[10px] text-[#64748b] uppercase tracking-[0.12em] mb-3">
           Contents
         </p>
         <ul className="space-y-1.5">
@@ -176,7 +176,7 @@ export default function TermsPage() {
             <li key={s.id}>
               <a
                 href={`#${s.id}`}
-                className="font-mono text-[12px] text-[#7c7a85] hover:text-[#71d083] transition-colors uppercase tracking-[0.06em]"
+                className="font-mono text-[12px] text-[#9ca3af] hover:text-[#818cf8] transition-colors uppercase tracking-[0.06em]"
               >
                 {s.label}
               </a>
@@ -189,16 +189,16 @@ export default function TermsPage() {
       <div className="space-y-14">
         {sections.map((section) => (
           <section key={section.id} id={section.id}>
-            <h2 className="font-mono text-[13px] text-[#71d083] uppercase tracking-[0.12em] mb-6 border-b border-[#2b292d]/60 pb-3">
+            <h2 className="font-mono text-[13px] text-[#818cf8] uppercase tracking-[0.12em] mb-6 border-b border-[#1e1e2f] pb-3">
               {section.label}
             </h2>
             <div className="space-y-6">
               {section.content.map((item) => (
-                <div key={item.heading} className="pl-4 border-l border-[#2b292d]">
-                  <h3 className="font-mono text-[12px] font-bold text-[#b5b2bc] uppercase tracking-[0.08em] mb-2">
+                <div key={item.heading} className="pl-4 border-l border-[#1e1e2f]">
+                  <h3 className="font-mono text-[12px] font-bold text-white uppercase tracking-[0.08em] mb-2">
                     {item.heading}
                   </h3>
-                  <p className="font-body text-[14px] text-[#7c7a85] leading-[1.75]">
+                  <p className="font-body text-[14px] text-[#9ca3af] leading-[1.75]">
                     {item.body}
                   </p>
                 </div>
@@ -209,13 +209,13 @@ export default function TermsPage() {
       </div>
 
       {/* Bottom CTA */}
-      <div className="mt-16 p-6 border border-[#2b292d] rounded-[6px] bg-[#0c0c10]/40 text-center">
-        <p className="font-mono text-[11px] text-[#7c7a85] mb-1">
+      <div className="mt-16 p-6 border border-[#1e1e2f] rounded-[6px] bg-[#09090e] text-center">
+        <p className="font-mono text-[11px] text-[#9ca3af] mb-1">
           Legal questions or notices?
         </p>
         <a
           href="mailto:legal@interviewai.app"
-          className="font-mono text-[12px] text-[#71d083] hover:text-[#82dba2] transition-colors uppercase tracking-[0.06em]"
+          className="font-mono text-[12px] text-[#818cf8] hover:text-white transition-colors uppercase tracking-[0.06em]"
         >
           legal@interviewai.app →
         </a>

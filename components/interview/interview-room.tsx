@@ -336,7 +336,7 @@ function VoiceRecorder({
           className={`px-5 py-2 rounded-full font-mono text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 ${
             isRecording
               ? 'bg-[#ef4444] text-[var(--color-ash)] shadow-md animate-pulse'
-              : 'bg-[var(--color-signal-green)] hover:bg-[var(--color-led-green)] text-[var(--color-carbon)] shadow-sm active:scale-95'
+              : 'bg-[#4f46e5] hover:bg-[#5865f2] text-white shadow-[0_0_20px_rgba(79,70,229,0.35)] active:scale-95'
           }`}
         >
           {isRecording ? (
@@ -660,7 +660,7 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
             </button>
             <button
               onClick={() => router.push(interviewId ? `/dashboard/history/${interviewId}` : '/dashboard/history')}
-              className="w-full sm:w-auto rounded-full bg-[var(--color-signal-green)] hover:bg-[#5dbd6e] text-[var(--color-carbon)] text-xs font-mono font-bold uppercase tracking-wider px-6 py-2.5 transition-colors shadow-sm"
+              className="w-full sm:w-auto rounded-full bg-[#4f46e5] hover:bg-[#5865f2] text-white text-xs font-mono font-bold uppercase tracking-wider px-6 py-2.5 transition-colors shadow-[0_0_20px_rgba(79,70,229,0.35)]"
             >
               See History →
             </button>
@@ -941,11 +941,11 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
                 <button
                   onClick={handleSubmitAnswer}
                   disabled={isEvaluating || (!textAnswer.trim() && !codeAnswer.trim())}
-                  className="rounded-full bg-[var(--color-signal-green)] hover:bg-[#5dbd6e] text-[var(--color-carbon)] font-mono text-xs font-bold uppercase tracking-wider px-6 py-2.5 disabled:opacity-30 disabled:cursor-not-allowed transition-colors shadow-sm active:scale-[0.98]"
+                  className="rounded-full bg-[#4f46e5] hover:bg-[#5865f2] text-white font-mono text-xs font-bold uppercase tracking-wider px-6 py-2.5 disabled:opacity-30 disabled:cursor-not-allowed transition-colors shadow-[0_0_20px_rgba(79,70,229,0.35)] active:scale-[0.98]"
                 >
                   {isEvaluating ? (
                     <span className="flex items-center gap-2">
-                      <span className="w-3 h-3 border-2 border-[var(--color-carbon)] border-t-transparent rounded-full animate-spin" />
+                      <span className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
                       EVALUATING...
                     </span>
                   ) : (
@@ -957,14 +957,14 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
                   {currentQIndex < questions.length - 1 ? (
                     <button
                       onClick={handleNextQuestion}
-                      className="rounded-full bg-[var(--color-signal-green)] hover:bg-[#5dbd6e] text-[var(--color-carbon)] font-mono text-xs font-bold uppercase tracking-wider px-6 py-2.5 transition-colors shadow-sm active:scale-[0.98]"
+                      className="rounded-full bg-[#4f46e5] hover:bg-[#5865f2] text-white font-mono text-xs font-bold uppercase tracking-wider px-6 py-2.5 transition-colors shadow-[0_0_20px_rgba(79,70,229,0.35)] active:scale-[0.98]"
                     >
                       NEXT QUESTION →
                     </button>
                   ) : (
                     <button
                       onClick={handleEndInterview}
-                      className="rounded-full bg-[var(--color-signal-green)] hover:bg-[var(--color-led-green)] hover:text-[var(--color-chalk)] text-[var(--color-carbon)] font-mono text-xs font-bold uppercase tracking-wider px-6 py-2.5 transition-colors shadow-sm active:scale-[0.98]"
+                      className="rounded-full bg-[#4f46e5] hover:bg-[#5865f2] text-white font-mono text-xs font-bold uppercase tracking-wider px-6 py-2.5 transition-colors shadow-[0_0_20px_rgba(79,70,229,0.35)] active:scale-[0.98]"
                     >
                       FINISH INTERVIEW →
                     </button>

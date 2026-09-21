@@ -22,12 +22,12 @@ import {
 import { BarChart3, TrendingUp, Target, Zap } from 'lucide-react'
 
 const TYPE_COLORS: Record<string, string> = {
-  dsa: '#71d083',
-  system_design: '#70b8ff',
-  behavioral: '#c084fc',
-  frontend: '#f59e0b',
-  backend: '#f87171',
-  technical: '#71d083',
+  dsa: '#6366f1',
+  system_design: '#818cf8',
+  behavioral: '#a5b4fc',
+  frontend: '#c7d2fe',
+  backend: '#3730a3',
+  technical: '#4f46e5',
 }
 
 interface AnalyticsData {
@@ -44,16 +44,16 @@ function StatCard({ label, value, icon: Icon, sub }: { label: string; value: str
     <motion.div
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-[#0c0c10] border border-[#2b292d] rounded-[8px] p-5"
+      className="bg-[#09090e] border border-[#1e1e2f] rounded-xl p-5 shadow-[0_4px_20px_rgba(0,0,0,0.4)]"
     >
       <div className="flex items-start justify-between">
         <div>
-          <p className="font-mono text-[10px] text-[#49474e] uppercase tracking-[0.1em] mb-1">{label}</p>
-          <p className="font-display text-[32px] font-bold text-[#e5e5e5] leading-none">{value}</p>
-          {sub && <p className="font-mono text-[11px] text-[#49474e] mt-1">{sub}</p>}
+          <p className="font-mono text-[10px] text-[#64748b] uppercase tracking-[0.1em] mb-1">{label}</p>
+          <p className="font-display text-[32px] font-bold text-[#ffffff] leading-none">{value}</p>
+          {sub && <p className="font-mono text-[11px] text-[#64748b] mt-1">{sub}</p>}
         </div>
-        <div className="h-9 w-9 rounded-full bg-[#71d083]/10 border border-[#71d083]/20 flex items-center justify-center">
-          <Icon className="h-4 w-4 text-[#71d083]" />
+        <div className="h-9 w-9 rounded-md bg-[#14142b] border border-[#3730a3]/50 flex items-center justify-center">
+          <Icon className="h-4 w-4 text-[#818cf8]" />
         </div>
       </div>
     </motion.div>
@@ -64,8 +64,8 @@ function StatCard({ label, value, icon: Icon, sub }: { label: string; value: str
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null
   return (
-    <div className="bg-[#0c0c10] border border-[#2b292d] rounded-[6px] px-3 py-2 shadow-xl">
-      <p className="font-mono text-[10px] text-[#49474e] mb-1">{label}</p>
+    <div className="bg-[#09090e] border border-[#1e1e2f] rounded-md px-3 py-2 shadow-xl">
+      <p className="font-mono text-[10px] text-[#64748b] mb-1">{label}</p>
       {payload.map((p: { name: string; value: number; color: string }) => (
         <p key={p.name} className="font-mono text-[12px]" style={{ color: p.color }}>
           {p.name}: {p.value}
@@ -93,7 +93,7 @@ export default function AnalyticsPage() {
           {[0, 1, 2].map(i => (
             <motion.div
               key={i}
-              className="h-2 w-2 rounded-full bg-[#71d083]"
+              className="h-2 w-2 rounded-full bg-[#6366f1]"
               animate={{ opacity: [0.3, 1, 0.3] }}
               transition={{ duration: 0.8, delay: i * 0.2, repeat: Infinity }}
             />
@@ -106,11 +106,11 @@ export default function AnalyticsPage() {
   return (
     <div className="p-6 max-w-[1100px] mx-auto">
       <div className="mb-8">
-        <p className="font-mono text-[10px] text-[#71d083] uppercase tracking-[0.2em] mb-1">// ANALYTICS</p>
-        <h1 className="font-display text-[28px] font-bold text-[#e5e5e5] tracking-[-0.02em]">
+        <p className="font-mono text-[10px] text-[#818cf8] uppercase tracking-[0.2em] mb-1">// ANALYTICS</p>
+        <h1 className="font-display text-[28px] font-bold text-[#ffffff] tracking-[-0.02em]">
           Performance Analytics
         </h1>
-        <p className="font-body text-[14px] text-[#7c7a85] mt-1">Track your interview progress and improvement over time.</p>
+        <p className="font-body text-[14px] text-[#9ca3af] mt-1">Track your interview progress and improvement over time.</p>
       </div>
 
       {/* KPI cards */}
@@ -125,30 +125,30 @@ export default function AnalyticsPage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="bg-[#0c0c10] border border-[#2b292d] rounded-[8px] p-6 mb-5"
+        className="bg-[#09090e] border border-[#1e1e2f] rounded-xl p-6 mb-5 shadow-[0_4px_20px_rgba(0,0,0,0.4)]"
       >
-        <h2 className="font-mono text-[12px] font-bold text-[#b5b2bc] uppercase tracking-[0.1em] mb-5 flex items-center gap-2">
-          <TrendingUp className="h-4 w-4 text-[#71d083]" /> Score Over Time
+        <h2 className="font-mono text-[12px] font-bold text-[#ffffff] uppercase tracking-[0.1em] mb-5 flex items-center gap-2">
+          <TrendingUp className="h-4 w-4 text-[#818cf8]" /> Score Over Time
         </h2>
         {data?.scoreOverTime && data.scoreOverTime.length > 0 ? (
           <ResponsiveContainer width="100%" height={240}>
             <AreaChart data={data.scoreOverTime}>
               <defs>
                 <linearGradient id="scoreGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#71d083" stopOpacity={0.15} />
-                  <stop offset="95%" stopColor="#71d083" stopOpacity={0} />
+                  <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.25} />
+                  <stop offset="95%" stopColor="#4f46e5" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#2b292d" />
-              <XAxis dataKey="date" tick={{ fill: '#49474e', fontSize: 10, fontFamily: 'monospace' }} />
-              <YAxis domain={[0, 100]} tick={{ fill: '#49474e', fontSize: 10, fontFamily: 'monospace' }} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#1e1e2f" />
+              <XAxis dataKey="date" tick={{ fill: '#64748b', fontSize: 10, fontFamily: 'monospace' }} />
+              <YAxis domain={[0, 100]} tick={{ fill: '#64748b', fontSize: 10, fontFamily: 'monospace' }} />
               <Tooltip content={<CustomTooltip />} />
-              <Area type="monotone" dataKey="score" stroke="#71d083" fill="url(#scoreGrad)" strokeWidth={2} name="Score" dot={{ fill: '#71d083', r: 3 }} />
-              <Line type="monotone" dataKey="rollingAvg" stroke="#70b8ff" strokeWidth={1.5} strokeDasharray="4 2" dot={false} name="7-session avg" />
+              <Area type="monotone" dataKey="score" stroke="#6366f1" fill="url(#scoreGrad)" strokeWidth={2} name="Score" dot={{ fill: '#6366f1', r: 3 }} />
+              <Line type="monotone" dataKey="rollingAvg" stroke="#818cf8" strokeWidth={1.5} strokeDasharray="4 2" dot={false} name="7-session avg" />
             </AreaChart>
           </ResponsiveContainer>
         ) : (
-          <div className="flex items-center justify-center h-40 text-[#49474e] font-mono text-[12px]">
+          <div className="flex items-center justify-center h-40 text-[#64748b] font-mono text-[12px]">
             Complete more interviews to see your progress
           </div>
         )}
@@ -160,25 +160,25 @@ export default function AnalyticsPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15 }}
-          className="bg-[#0c0c10] border border-[#2b292d] rounded-[8px] p-6"
+          className="bg-[#09090e] border border-[#1e1e2f] rounded-xl p-6 shadow-[0_4px_20px_rgba(0,0,0,0.4)]"
         >
-          <h2 className="font-mono text-[12px] font-bold text-[#b5b2bc] uppercase tracking-[0.1em] mb-5 flex items-center gap-2">
-            <Zap className="h-4 w-4 text-[#71d083]" /> Interview Type Breakdown
+          <h2 className="font-mono text-[12px] font-bold text-[#ffffff] uppercase tracking-[0.1em] mb-5 flex items-center gap-2">
+            <Zap className="h-4 w-4 text-[#818cf8]" /> Interview Type Breakdown
           </h2>
           {data?.typeBreakdown && data.typeBreakdown.length > 0 ? (
             <ResponsiveContainer width="100%" height={220}>
               <PieChart>
                 <Pie data={data.typeBreakdown} cx="50%" cy="50%" innerRadius={55} outerRadius={90} paddingAngle={3} dataKey="value" nameKey="name">
                   {data.typeBreakdown.map((entry) => (
-                    <Cell key={entry.name} fill={TYPE_COLORS[entry.name] ?? '#7c7a85'} />
+                    <Cell key={entry.name} fill={TYPE_COLORS[entry.name] ?? '#9ca3af'} />
                   ))}
                 </Pie>
                 <Tooltip content={<CustomTooltip />} />
-                <Legend formatter={(v) => <span style={{ color: '#7c7a85', fontSize: 11, fontFamily: 'monospace' }}>{v}</span>} />
+                <Legend formatter={(v) => <span style={{ color: '#9ca3af', fontSize: 11, fontFamily: 'monospace' }}>{v}</span>} />
               </PieChart>
             </ResponsiveContainer>
           ) : (
-            <div className="flex items-center justify-center h-40 text-[#49474e] font-mono text-[12px]">No data yet</div>
+            <div className="flex items-center justify-center h-40 text-[#64748b] font-mono text-[12px]">No data yet</div>
           )}
         </motion.div>
 
@@ -187,27 +187,27 @@ export default function AnalyticsPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="bg-[#0c0c10] border border-[#2b292d] rounded-[8px] p-6"
+          className="bg-[#09090e] border border-[#1e1e2f] rounded-xl p-6 shadow-[0_4px_20px_rgba(0,0,0,0.4)]"
         >
-          <h2 className="font-mono text-[12px] font-bold text-[#b5b2bc] uppercase tracking-[0.1em] mb-5 flex items-center gap-2">
-            <Target className="h-4 w-4 text-[#71d083]" /> Topic Weakness Map
+          <h2 className="font-mono text-[12px] font-bold text-[#ffffff] uppercase tracking-[0.1em] mb-5 flex items-center gap-2">
+            <Target className="h-4 w-4 text-[#818cf8]" /> Topic Weakness Map
           </h2>
           {data?.weaknesses && data.weaknesses.length > 0 ? (
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={data.weaknesses} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" stroke="#2b292d" horizontal={false} />
-                <XAxis type="number" domain={[0, 100]} tick={{ fill: '#49474e', fontSize: 10, fontFamily: 'monospace' }} />
-                <YAxis type="category" dataKey="topic" tick={{ fill: '#7c7a85', fontSize: 10, fontFamily: 'monospace' }} width={100} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#1e1e2f" horizontal={false} />
+                <XAxis type="number" domain={[0, 100]} tick={{ fill: '#64748b', fontSize: 10, fontFamily: 'monospace' }} />
+                <YAxis type="category" dataKey="topic" tick={{ fill: '#9ca3af', fontSize: 10, fontFamily: 'monospace' }} width={100} />
                 <Tooltip content={<CustomTooltip />} />
                 <Bar dataKey="score" name="Weakness Score" radius={[0, 3, 3, 0]}>
                   {data.weaknesses.map((entry) => (
-                    <Cell key={entry.topic} fill={entry.score < 40 ? '#f87171' : entry.score < 60 ? '#f59e0b' : '#71d083'} />
+                    <Cell key={entry.topic} fill={entry.score < 40 ? '#f87171' : entry.score < 60 ? '#f59e0b' : '#6366f1'} />
                   ))}
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
           ) : (
-            <div className="flex items-center justify-center h-40 text-[#49474e] font-mono text-[12px]">No weakness data yet</div>
+            <div className="flex items-center justify-center h-40 text-[#64748b] font-mono text-[12px]">No weakness data yet</div>
           )}
         </motion.div>
       </div>

@@ -60,21 +60,21 @@ export function StatsCards({
       display: `${totalCount}`,
       sub: `${completedCount} completed`,
       icon: Calendar,
-      iconColor: 'text-[#71d083]',
+      iconColor: 'text-[#818cf8]',
     },
     {
       label: 'AVERAGE SCORE',
       display: `${avgCount}%`,
       sub: 'Across completed sessions',
       icon: TrendingUp,
-      iconColor: 'text-[#70b8ff]',
+      iconColor: 'text-[#6366f1]',
     },
     {
       label: 'PRACTICE TIME',
       display: `${(hoursCount / 10).toFixed(1)}h`,
       sub: 'Total time spent practicing',
       icon: Clock,
-      iconColor: 'text-[#baa7ff]',
+      iconColor: 'text-[#a5b4fc]',
     },
     {
       label: 'ACTIVE WEAKNESSES',
@@ -102,20 +102,20 @@ export function StatsCards({
             hidden:   { opacity: 0, y: 16 },
             visible:  { opacity: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' } },
           }}
-          className="card-console p-5 hover:border-[#4c1d95] transition-all"
+          className="card-console p-5 hover:border-[#3730a3] transition-all"
         >
           <div className="flex items-center justify-between mb-4">
-            <p className="font-mono text-[10px] text-[#948bb0] uppercase tracking-[0.1em] font-semibold">
+            <p className="font-mono text-[10px] text-[#9ca3af] uppercase tracking-[0.1em] font-semibold">
               {stat.label}
             </p>
-            <div className="p-1.5 rounded-[4px] bg-[#140e24] border border-[#291a45]">
+            <div className="p-1.5 rounded-md bg-[#14142b] border border-[#1e1e2f]">
               <stat.icon className={`h-3.5 w-3.5 ${stat.iconColor}`} />
             </div>
           </div>
-          <p className="font-display text-[32px] font-bold text-[#fdfcff] leading-[1] tracking-[-0.02em] mb-1">
+          <p className="font-display text-[32px] font-bold text-[#ffffff] leading-[1] tracking-[-0.02em] mb-1">
             {stat.display}
           </p>
-          <p className="font-mono text-[11px] text-[#948bb0]">{stat.sub}</p>
+          <p className="font-mono text-[11px] text-[#64748b]">{stat.sub}</p>
         </motion.div>
       ))}
     </motion.div>

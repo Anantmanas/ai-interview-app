@@ -69,7 +69,7 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#04040b] flex items-center justify-center p-6 relative overflow-hidden">
+    <main className="min-h-screen bg-[#000000] flex items-center justify-center p-6 relative overflow-hidden">
       <LandingBackground />
 
       <div className="relative z-10 w-full max-w-[420px]">
@@ -81,14 +81,14 @@ export default function LoginPage() {
           className="text-center mb-8"
         >
           <Link href="/" className="inline-flex items-center gap-2.5 mb-6">
-            <span className="led-pulse h-2 w-2 rounded-full bg-[#71d083]" />
-            <span className="font-mono text-[14px] font-bold text-[#e5e5e5] uppercase tracking-[0.1em]">InterviewAI</span>
+            <span className="led-pulse h-2 w-2 rounded-full bg-[#6366f1]" />
+            <span className="font-mono text-[14px] font-bold text-[#ffffff] uppercase tracking-[0.1em]">InterviewAI</span>
           </Link>
-          <p className="font-mono text-[10px] text-[#71d083] uppercase tracking-[0.2em] mb-2.5">// ACCESS TERMINAL</p>
-          <h1 className="font-display text-[30px] font-bold text-[#e5e5e5] tracking-[-0.025em]">
+          <p className="font-mono text-[10px] text-[#818cf8] uppercase tracking-[0.2em] mb-2.5">// ACCESS TERMINAL</p>
+          <h1 className="font-display text-[30px] font-bold text-[#ffffff] tracking-[-0.025em]">
             Sign in to Console
           </h1>
-          <p className="font-body text-[14px] text-[#7c7a85] mt-2">
+          <p className="font-body text-[14px] text-[#9ca3af] mt-2">
             Continue your interview preparation
           </p>
         </motion.div>
@@ -98,7 +98,7 @@ export default function LoginPage() {
           initial={{ opacity: 0, y: 32, scale: 0.97 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          className="bg-[#121113] border border-[#2b292d] rounded-[6px] shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] p-7"
+          className="bg-[#09090e] border border-[#1e1e2f] rounded-xl shadow-[0_4px_30px_rgba(0,0,0,0.5)] p-7"
         >
           {/* OAuth buttons */}
           <div className="flex flex-col gap-2.5 mb-5">
@@ -106,14 +106,14 @@ export default function LoginPage() {
               type="button"
               onClick={() => handleOAuth('google')}
               disabled={!!oauthLoading || loading}
-              className="w-full flex items-center justify-center gap-2.5 bg-[#0e0e12] border border-[#2b292d] hover:border-[#4b494e] text-[#e5e5e5] font-mono text-[12px] uppercase tracking-[0.06em] py-2.5 rounded-[6px] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              className="w-full flex items-center justify-center gap-2.5 bg-[#000000] border border-[#27272a] hover:bg-[#121216] hover:border-[#3f3f46] text-[#f8fafc] font-mono text-[12px] uppercase tracking-[0.06em] py-2.5 rounded-md transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {oauthLoading === 'google' ? (
                 <span className="flex gap-1">
                   {[0, 1, 2].map((i) => (
                     <motion.span
                       key={i}
-                      className="h-1.5 w-1.5 rounded-full bg-[#7c7a85]"
+                      className="h-1.5 w-1.5 rounded-full bg-[#9ca3af]"
                       animate={{ opacity: [0.3, 1, 0.3] }}
                       transition={{ duration: 0.8, delay: i * 0.15, repeat: Infinity }}
                     />
@@ -134,14 +134,14 @@ export default function LoginPage() {
               type="button"
               onClick={() => handleOAuth('github')}
               disabled={!!oauthLoading || loading}
-              className="w-full flex items-center justify-center gap-2.5 bg-[#0e0e12] border border-[#2b292d] hover:border-[#4b494e] text-[#e5e5e5] font-mono text-[12px] uppercase tracking-[0.06em] py-2.5 rounded-[6px] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              className="w-full flex items-center justify-center gap-2.5 bg-[#000000] border border-[#27272a] hover:bg-[#121216] hover:border-[#3f3f46] text-[#f8fafc] font-mono text-[12px] uppercase tracking-[0.06em] py-2.5 rounded-md transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {oauthLoading === 'github' ? (
                 <span className="flex gap-1">
                   {[0, 1, 2].map((i) => (
                     <motion.span
                       key={i}
-                      className="h-1.5 w-1.5 rounded-full bg-[#7c7a85]"
+                      className="h-1.5 w-1.5 rounded-full bg-[#9ca3af]"
                       animate={{ opacity: [0.3, 1, 0.3] }}
                       transition={{ duration: 0.8, delay: i * 0.15, repeat: Infinity }}
                     />
@@ -156,14 +156,14 @@ export default function LoginPage() {
 
           {/* Divider */}
           <div className="flex items-center gap-3 mb-5">
-            <div className="flex-1 h-px bg-[#2b292d]" />
-            <span className="font-mono text-[10px] text-[#49474e] uppercase tracking-[0.1em]">or</span>
-            <div className="flex-1 h-px bg-[#2b292d]" />
+            <div className="flex-1 h-px bg-[#1e1e2f]" />
+            <span className="font-mono text-[10px] text-[#64748b] uppercase tracking-[0.1em]">or</span>
+            <div className="flex-1 h-px bg-[#1e1e2f]" />
           </div>
 
           <form onSubmit={handleLogin} className="space-y-0">
             {error && (
-              <div className="flex items-center gap-2 p-3 bg-[#2a0e15] border border-[#5c1d28] rounded-[6px] text-[#f87171] font-mono text-[11px] mb-4">
+              <div className="flex items-center gap-2 p-3 bg-[#2a0e15] border border-[#5c1d28] rounded-md text-[#f87171] font-mono text-[11px] mb-4">
                 <AlertCircle className="h-4 w-4 shrink-0" />
                 <span>{error}</span>
               </div>
@@ -171,7 +171,7 @@ export default function LoginPage() {
 
             {/* Email field */}
             <div className="mb-4">
-              <label htmlFor="email" className="font-mono text-[10px] text-[#b5b2bc] uppercase tracking-[0.1em] block mb-2">
+              <label htmlFor="email" className="font-mono text-[10px] text-[#9ca3af] uppercase tracking-[0.1em] block mb-2">
                 Email Address
               </label>
               <TypewriterInput
@@ -194,12 +194,12 @@ export default function LoginPage() {
             {/* Password field */}
             <div className="mb-6">
               <div className="flex items-center justify-between mb-2">
-                <label htmlFor="password" className="font-mono text-[10px] text-[#b5b2bc] uppercase tracking-[0.1em]">
+                <label htmlFor="password" className="font-mono text-[10px] text-[#9ca3af] uppercase tracking-[0.1em]">
                   Password
                 </label>
                 <Link
                   href="/auth/forgot-password"
-                  className="font-mono text-[10px] text-[#70b8ff] hover:text-[#eeeef0] transition-colors uppercase tracking-[0.06em]"
+                  className="font-mono text-[10px] text-[#818cf8] hover:text-white transition-colors uppercase tracking-[0.06em]"
                 >
                   Forgot?
                 </Link>
@@ -222,7 +222,7 @@ export default function LoginPage() {
               type="submit"
               disabled={loading}
               whileTap={{ scale: 0.98 }}
-              className="w-full bg-[#71d083] text-[#04040b] font-mono text-[13px] font-bold uppercase tracking-[0.06em] py-3.5 rounded-[6px] border border-[#366740] hover:bg-[#82dba2] disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-[inset_0_1px_0_rgba(255,255,255,0.22)] relative overflow-hidden flex items-center justify-center"
+              className="w-full bg-[#4f46e5] text-white font-medium text-[13px] tracking-[0.02em] py-3.5 rounded-md border border-[#6366f1]/40 hover:bg-[#5865f2] disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-[0_0_20px_rgba(79,70,229,0.35)] relative overflow-hidden flex items-center justify-center"
             >
               <AnimatePresence mode="wait">
                 {loading ? (
@@ -237,7 +237,7 @@ export default function LoginPage() {
                       {[0, 1, 2].map(i => (
                         <motion.span
                           key={i}
-                          className="h-1.5 w-1.5 rounded-full bg-[#04040b]"
+                          className="h-1.5 w-1.5 rounded-full bg-white"
                           animate={{ opacity: [0.3, 1, 0.3] }}
                           transition={{ duration: 0.8, delay: i * 0.15, repeat: Infinity }}
                         />
@@ -261,11 +261,11 @@ export default function LoginPage() {
         </motion.div>
 
         {/* Switch link */}
-        <p className="text-center font-mono text-[11px] text-[#49474e] mt-5 uppercase tracking-[0.04em]">
+        <p className="text-center font-mono text-[11px] text-[#64748b] mt-5 uppercase tracking-[0.04em]">
           Don&apos;t have an account?{' '}
           <Link
             href="/auth/sign-up"
-            className="text-[#70b8ff] hover:text-[#eeeef0] transition-colors"
+            className="text-[#818cf8] hover:text-white transition-colors"
           >
             Create account
           </Link>

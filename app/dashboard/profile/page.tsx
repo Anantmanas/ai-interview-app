@@ -87,7 +87,7 @@ export default function ProfilePage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-[60vh]">
-        <Loader2 className="h-6 w-6 animate-spin text-[#a855f7]" />
+        <Loader2 className="h-6 w-6 animate-spin text-[#818cf8]" />
       </div>
     )
   }
@@ -95,9 +95,9 @@ export default function ProfilePage() {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div>
-        <p className="font-mono text-[11px] text-[#c084fc] uppercase tracking-[0.15em] mb-1 font-semibold">// CANDIDATE CONFIG</p>
-        <h1 className="font-display text-[32px] font-bold text-[#fdfcff] leading-[1.1] tracking-[-0.02em]">Profile</h1>
-        <p className="font-body text-[14px] text-[#c8c0e0] mt-1">
+        <p className="font-mono text-[11px] text-[#818cf8] uppercase tracking-[0.15em] mb-1 font-semibold">// CANDIDATE CONFIG</p>
+        <h1 className="font-display text-[32px] font-bold text-white leading-[1.1] tracking-[-0.02em]">Profile</h1>
+        <p className="font-body text-[14px] text-[#9ca3af] mt-1">
           Manage your target engineering goals and personal details for AI customization.
         </p>
       </div>
@@ -106,16 +106,16 @@ export default function ProfilePage() {
         <div className="md:col-span-2 space-y-6">
           {/* Profile Form */}
           <div className="card-console">
-            <div className="p-5 border-b border-[#291a45]">
-              <p className="font-mono text-[11px] text-[#fdfcff] uppercase tracking-[0.08em] font-semibold">Personal Details</p>
-              <p className="font-body text-[13px] text-[#948bb0] mt-1">
+            <div className="p-5 border-b border-[#1e1e2f]">
+              <p className="font-mono text-[11px] text-white uppercase tracking-[0.08em] font-semibold">Personal Details</p>
+              <p className="font-body text-[13px] text-[#9ca3af] mt-1">
                 Your target role and companies help the AI generate relevant interview questions.
               </p>
             </div>
             <div className="p-5 space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="fullName" className="font-mono text-[10px] text-[#c8c0e0] uppercase tracking-[0.08em] block mb-1.5 font-semibold">
+                  <label htmlFor="fullName" className="font-mono text-[10px] text-[#9ca3af] uppercase tracking-[0.08em] block mb-1.5 font-semibold">
                     Full Name
                   </label>
                   <input
@@ -123,23 +123,23 @@ export default function ProfilePage() {
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     placeholder="John Doe"
-                    className="bg-[#140e24] border border-[#291a45] rounded-[6px] px-3.5 py-2.5 text-[14px] text-[#f5f3ff] placeholder:text-[#50446b] focus:outline-none focus:border-[#a855f7] focus:ring-1 focus:ring-[#a855f7]/40 transition-colors w-full font-body"
+                    className="bg-[#000000] border border-[#1e1e2f] rounded-[6px] px-3.5 py-2.5 text-[14px] text-white placeholder:text-[#64748b] focus:outline-none focus:border-[#6366f1] focus:ring-1 focus:ring-[#6366f1]/40 transition-colors w-full font-body"
                   />
                 </div>
                 <div>
-                  <label htmlFor="email" className="font-mono text-[10px] text-[#c8c0e0] uppercase tracking-[0.08em] block mb-1.5 font-semibold">
+                  <label htmlFor="email" className="font-mono text-[10px] text-[#9ca3af] uppercase tracking-[0.08em] block mb-1.5 font-semibold">
                     Email Address
                   </label>
                   <input
                     id="email"
                     value={profile?.email || ''}
                     readOnly
-                    className="bg-[#0d0918] border border-[#291a45] rounded-[6px] px-3.5 py-2.5 text-[14px] text-[#50446b] cursor-not-allowed w-full font-body"
+                    className="bg-[#09090e] border border-[#1e1e2f] rounded-[6px] px-3.5 py-2.5 text-[14px] text-[#64748b] cursor-not-allowed w-full font-body"
                   />
                 </div>
               </div>
               <div>
-                <label htmlFor="targetRole" className="font-mono text-[10px] text-[#c8c0e0] uppercase tracking-[0.08em] block mb-1.5 font-semibold">
+                <label htmlFor="targetRole" className="font-mono text-[10px] text-[#9ca3af] uppercase tracking-[0.08em] block mb-1.5 font-semibold">
                   Target Role
                 </label>
                 <input
@@ -147,11 +147,11 @@ export default function ProfilePage() {
                   value={targetRole}
                   onChange={(e) => setTargetRole(e.target.value)}
                   placeholder="Senior Frontend Engineer"
-                  className="bg-[#140e24] border border-[#291a45] rounded-[6px] px-3.5 py-2.5 text-[14px] text-[#f5f3ff] placeholder:text-[#50446b] focus:outline-none focus:border-[#a855f7] focus:ring-1 focus:ring-[#a855f7]/40 transition-colors w-full font-body"
+                  className="bg-[#000000] border border-[#1e1e2f] rounded-[6px] px-3.5 py-2.5 text-[14px] text-white placeholder:text-[#64748b] focus:outline-none focus:border-[#6366f1] focus:ring-1 focus:ring-[#6366f1]/40 transition-colors w-full font-body"
                 />
               </div>
               <div>
-                <label htmlFor="targetCompanies" className="font-mono text-[10px] text-[#c8c0e0] uppercase tracking-[0.08em] block mb-1.5 font-semibold">
+                <label htmlFor="targetCompanies" className="font-mono text-[10px] text-[#9ca3af] uppercase tracking-[0.08em] block mb-1.5 font-semibold">
                   Target Companies (comma separated)
                 </label>
                 <input
@@ -159,7 +159,7 @@ export default function ProfilePage() {
                   value={targetCompanies}
                   onChange={(e) => setTargetCompanies(e.target.value)}
                   placeholder="Google, Meta, Amazon, Stripe"
-                  className="bg-[#140e24] border border-[#291a45] rounded-[6px] px-3.5 py-2.5 text-[14px] text-[#f5f3ff] placeholder:text-[#50446b] focus:outline-none focus:border-[#a855f7] focus:ring-1 focus:ring-[#a855f7]/40 transition-colors w-full font-body"
+                  className="bg-[#000000] border border-[#1e1e2f] rounded-[6px] px-3.5 py-2.5 text-[14px] text-white placeholder:text-[#64748b] focus:outline-none focus:border-[#6366f1] focus:ring-1 focus:ring-[#6366f1]/40 transition-colors w-full font-body"
                 />
               </div>
               <div className="pt-2">
@@ -187,15 +187,15 @@ export default function ProfilePage() {
 
         <div className="space-y-6">
           <div className="card-console">
-            <div className="p-5 border-b border-[#291a45]">
-              <p className="font-mono text-[11px] text-[#fdfcff] uppercase tracking-[0.08em] font-semibold">Profile Completion</p>
+            <div className="p-5 border-b border-[#1e1e2f]">
+              <p className="font-mono text-[11px] text-white uppercase tracking-[0.08em] font-semibold">Profile Completion</p>
             </div>
             <div className="p-5">
               <div className="space-y-4">
                 <div className="flex justify-between items-center text-[13px] font-body">
-                  <span className="text-[#c8c0e0]">Full Name</span>
+                  <span className="text-[#9ca3af]">Full Name</span>
                   {fullName ? (
-                    <span className="flex items-center gap-1 font-mono text-[11px] text-[#c084fc]">
+                    <span className="flex items-center gap-1 font-mono text-[11px] text-[#818cf8]">
                       <CheckCircle2 className="h-3.5 w-3.5" /> Done
                     </span>
                   ) : (
@@ -203,18 +203,18 @@ export default function ProfilePage() {
                   )}
                 </div>
                 <div className="flex justify-between items-center text-[13px] font-body">
-                  <span className="text-[#c8c0e0]">Target Role Set</span>
+                  <span className="text-[#9ca3af]">Target Role Set</span>
                   {targetRole ? (
-                    <span className="flex items-center gap-1 font-mono text-[11px] text-[#c084fc]">
+                    <span className="flex items-center gap-1 font-mono text-[11px] text-[#818cf8]">
                       <CheckCircle2 className="h-3.5 w-3.5" /> Done
                     </span>
                   ) : (
-                    <span className="font-mono text-[11px] text-[#948bb0]">Not set</span>
+                    <span className="font-mono text-[11px] text-[#64748b]">Not set</span>
                   )}
                 </div>
-                <div className="h-2 w-full bg-[#140e24] rounded-full overflow-hidden border border-[#291a45]">
+                <div className="h-2 w-full bg-[#000000] rounded-full overflow-hidden border border-[#1e1e2f]">
                   <div
-                    className="h-full bg-gradient-to-r from-[#9333ea] to-[#c084fc] transition-all duration-300"
+                    className="h-full bg-gradient-to-r from-[#4f46e5] to-[#818cf8] transition-all duration-300"
                     style={{
                       width: `${(fullName ? 50 : 0) + (targetRole ? 50 : 0)}%`,
                     }}
