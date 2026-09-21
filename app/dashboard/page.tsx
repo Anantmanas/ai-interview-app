@@ -12,6 +12,7 @@ import {
 } from 'lucide-react'
 import { ResumeUploadCard } from '@/components/dashboard/resume-upload-card'
 import { StatsCards } from '@/components/dashboard/stats-cards'
+import { MacTrafficLights } from '@/components/ui/terminal-card'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -84,46 +85,73 @@ export default async function DashboardPage() {
       {/* ── Two-column lower section ── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         {/* Recent Interviews Panel (2/3 width) */}
-        <div className="lg:col-span-2 card-console">
-          <div className="flex items-center justify-between p-5 border-b border-[#1e1e2f]">
-            <p className="font-mono text-[11px] text-[#ffffff] uppercase tracking-[0.08em] font-semibold">Recent Interviews</p>
-            <Link href="/dashboard/history" className="font-mono text-[10px] text-[#818cf8] uppercase tracking-[0.05em] hover:text-white transition-colors">
+        <div className="lg:col-span-2 rounded-xl border border-[#1e2030] bg-[#09090f] shadow-[0_8px_32px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.05)] overflow-hidden flex flex-col">
+          {/* Apple Terminal Titlebar */}
+          <div className="flex items-center justify-between px-4 h-10 border-b border-[#1e2030] bg-[#11121b]/90 select-none">
+            <div className="flex items-center gap-3">
+              <MacTrafficLights size="sm" />
+              <span className="font-mono text-[11px] text-[#9ca3af] font-medium tracking-wide">
+                recent-sessions.log — zsh
+              </span>
+            </div>
+            <Link
+              href="/dashboard/history"
+              className="font-mono text-[10px] text-[#818cf8] uppercase tracking-[0.05em] hover:text-white transition-colors bg-[#14142b]/60 border border-[#1e1e2f] hover:border-[#3730a3] px-2.5 py-1 rounded-[5px]"
+            >
               View all →
             </Link>
           </div>
 
+          {/* Terminal Command Line Subheader */}
+          <div className="px-5 py-2.5 border-b border-[#1e2030]/40 bg-[#0c0d15]/50 flex items-center justify-between font-mono text-[11px] text-[#64748b]">
+            <div className="flex items-center gap-1.5">
+              <span className="text-[#38bdf8]">$</span>
+              <span>cat ~/.interviewai/history.log</span>
+            </div>
+            <span className="text-[10px] text-[#64748b] hidden sm:inline">UTF-8 // ARCHIVE</span>
+          </div>
+
           {recentInterviews.length > 0 ? (
-            <div className="divide-y divide-[#1e1e2f]">
-              {recentInterviews.map((interview) => (
+            <div className="divide-y divide-[#1e1e2f]/70 flex-1">
+              {recentInterviews.map((interview, index) => (
                 <Link
                   key={interview.id}
                   href={`/interview/${interview.id}`}
-                  className="flex items-center justify-between px-5 py-4 hover:bg-[#0f0f18] hover:translate-x-1 transition-all duration-150 cursor-pointer group"
+                  className="flex items-center justify-between px-5 py-4 hover:bg-[#0f0f18] hover:translate-x-0.5 transition-all duration-150 cursor-pointer group"
                 >
-                  <div className="flex items-center gap-3.5">
-                    <div className="w-8 h-8 rounded-md bg-[#14142b] border border-[#1e1e2f] group-hover:border-[#4f46e5] flex items-center justify-center flex-shrink-0 transition-colors">
+                  <div className="flex items-center gap-3.5 min-w-0">
+                    <span className="font-mono text-[11px] text-[#64748b] group-hover:text-[#818cf8] transition-colors w-6">
+                      [{String(index + 1).padStart(2, '0')}]
+                    </span>
+                    <div className="w-8 h-8 rounded-lg bg-[#14142b] border border-[#1e1e2f] group-hover:border-[#4f46e5] flex items-center justify-center flex-shrink-0 transition-colors">
                       <Clock className="h-4 w-4 text-[#818cf8]" />
                     </div>
-                    <div>
-                      <p className="font-display text-[14px] font-semibold text-[#f8fafc] group-hover:text-[#818cf8] transition-colors">{interview.title}</p>
-                      <p className="font-mono text-[11px] text-[#64748b]">{new Date(interview.created_at).toLocaleDateString()}</p>
+                    <div className="min-w-0">
+                      <p className="font-display text-[14px] font-semibold text-[#f8fafc] group-hover:text-[#818cf8] transition-colors truncate">
+                        {interview.title}
+                      </p>
+                      <p className="font-mono text-[10px] text-[#64748b]">
+                        timestamp: {new Date(interview.created_at).toLocaleDateString()}
+                      </p>
                     </div>
                   </div>
                   {/* Status badge */}
-                  {interview.status === 'completed' ? (
-                    <span className="font-mono text-[10px] text-[#818cf8] bg-[#14142b] border border-[#3730a3] rounded-md px-2.5 py-1 uppercase tracking-[0.05em] shadow-[0_0_10px_rgba(79,70,229,0.25)]">
-                      {interview.overall_score !== null ? `${interview.overall_score}% score` : 'completed'}
-                    </span>
-                  ) : (
-                    <span className="font-mono text-[10px] text-[#9ca3af] bg-[#09090e] border border-[#1e1e2f] rounded-md px-2.5 py-1 uppercase tracking-[0.05em]">
-                      in progress
-                    </span>
-                  )}
+                  <div className="shrink-0 ml-3">
+                    {interview.status === 'completed' ? (
+                      <span className="font-mono text-[10px] text-[#818cf8] bg-[#14142b] border border-[#3730a3] rounded-md px-2.5 py-1 uppercase tracking-[0.05em] shadow-[0_0_10px_rgba(79,70,229,0.25)]">
+                        {interview.overall_score !== null ? `[${interview.overall_score}% SCORE]` : '[COMPLETED]'}
+                      </span>
+                    ) : (
+                      <span className="font-mono text-[10px] text-[#9ca3af] bg-[#09090e] border border-[#1e1e2f] rounded-md px-2.5 py-1 uppercase tracking-[0.05em]">
+                        [IN_PROGRESS]
+                      </span>
+                    )}
+                  </div>
                 </Link>
               ))}
             </div>
           ) : (
-            <div className="p-10 text-center">
+            <div className="p-10 text-center flex-1 flex flex-col items-center justify-center">
               <p className="font-mono text-[12px] text-[#64748b] uppercase tracking-[0.05em]">// NO SESSIONS FOUND</p>
               <p className="font-body text-[14px] text-[#9ca3af] mt-2 mb-4">No interviews yet — start your first practice session!</p>
               <Link
@@ -139,21 +167,37 @@ export default async function DashboardPage() {
         {/* Right panels (1/3 width) */}
         <div className="lg:col-span-1 space-y-5">
           {/* Top Weaknesses */}
-          <div className="card-console">
-            <div className="flex items-center justify-between p-5 border-b border-[#1e1e2f]">
-              <p className="font-mono text-[11px] text-[#ffffff] uppercase tracking-[0.08em] font-semibold">Top Weaknesses</p>
-              <Link href="/dashboard/roadmap" className="font-mono text-[10px] text-[#818cf8] uppercase tracking-[0.05em] hover:text-white transition-colors">
+          <div className="rounded-xl border border-[#1e2030] bg-[#09090f] shadow-[0_8px_32px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.05)] overflow-hidden">
+            {/* Apple Terminal Titlebar */}
+            <div className="flex items-center justify-between px-4 h-10 border-b border-[#1e2030] bg-[#11121b]/90 select-none">
+              <div className="flex items-center gap-3">
+                <MacTrafficLights size="sm" />
+                <span className="font-mono text-[11px] text-[#9ca3af] font-medium tracking-wide">
+                  diagnostics.err — bash
+                </span>
+              </div>
+              <Link
+                href="/dashboard/roadmap"
+                className="font-mono text-[10px] text-[#818cf8] uppercase tracking-[0.05em] hover:text-white transition-colors bg-[#14142b]/60 border border-[#1e1e2f] hover:border-[#3730a3] px-2 py-0.5 rounded-[5px]"
+              >
                 View all →
               </Link>
             </div>
+
+            {/* Terminal Command Line Subheader */}
+            <div className="px-4 py-2 border-b border-[#1e2030]/40 bg-[#0c0d15]/50 flex items-center gap-1.5 font-mono text-[11px] text-[#64748b]">
+              <span className="text-[#38bdf8]">$</span>
+              <span>analyze-weaknesses --user</span>
+            </div>
+
             {weaknesses && weaknesses.length > 0 ? (
-              <div className="divide-y divide-[#1e1e2f]">
+              <div className="divide-y divide-[#1e1e2f]/70">
                 {weaknesses.slice(0, 4).map((weakness) => (
                   <div
                     key={weakness.id}
-                    className="flex items-center justify-between px-5 py-3.5 hover:bg-[#0f0f18] transition-colors"
+                    className="flex items-center justify-between px-4 py-3.5 hover:bg-[#0f0f18] transition-colors"
                   >
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2.5 min-w-0">
                       <AlertTriangle className={`h-4 w-4 shrink-0 ${
                         weakness.weakness_score > 70 
                           ? 'text-[#f87171]' 
@@ -161,53 +205,70 @@ export default async function DashboardPage() {
                           ? 'text-[#818cf8]'
                           : 'text-[#9ca3af]'
                       }`} />
-                      <div>
-                        <p className="font-display text-[13px] font-semibold text-[#f8fafc]">{weakness.topic}</p>
-                        <p className="font-mono text-[10px] text-[#64748b]">{weakness.subtopic}</p>
+                      <div className="min-w-0">
+                        <p className="font-display text-[13px] font-semibold text-[#f8fafc] truncate">{weakness.topic}</p>
+                        <p className="font-mono text-[10px] text-[#64748b] truncate">{weakness.subtopic}</p>
                       </div>
                     </div>
-                    <span className={`font-mono text-[10px] rounded-md px-2 py-0.5 uppercase tracking-[0.05em] ${
+                    <span className={`font-mono text-[10px] rounded px-2 py-0.5 uppercase tracking-[0.05em] shrink-0 ml-2 ${
                       weakness.weakness_score > 70
                         ? 'text-[#f87171] bg-[#2a0e15] border border-[#5c1d28]'
                         : weakness.weakness_score > 40
                         ? 'text-[#818cf8] bg-[#14142b] border border-[#3730a3]'
                         : 'text-[#9ca3af] bg-[#09090e] border border-[#1e1e2f]'
                     }`}>
-                      {weakness.weakness_score > 70 ? 'Critical' : weakness.weakness_score > 40 ? 'Moderate' : 'Low'}
+                      {weakness.weakness_score > 70 ? '[CRITICAL]' : weakness.weakness_score > 40 ? '[MODERATE]' : '[LOW]'}
                     </span>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="p-8 text-center">
-                <p className="font-mono text-[12px] text-[#64748b] uppercase tracking-[0.05em]">// NO DATA</p>
-                <p className="font-body text-[13px] text-[#9ca3af] mt-2">No weaknesses identified yet — complete an interview to begin tracking.</p>
+              <div className="p-7 text-center">
+                <p className="font-mono text-[11px] text-[#22c55e] mb-1">✓ No critical weaknesses identified</p>
+                <p className="font-mono text-[10px] text-[#64748b] leading-relaxed">Complete an interview to begin telemetry tracking.</p>
               </div>
             )}
           </div>
 
           {/* Learning Progress */}
-          <div className="card-console">
-            <div className="flex items-center justify-between p-5 border-b border-[#1e1e2f]">
-              <p className="font-mono text-[11px] text-[#ffffff] uppercase tracking-[0.08em] font-semibold">Learning Progress</p>
-              <Link href="/dashboard/roadmap" className="font-mono text-[10px] text-[#818cf8] uppercase tracking-[0.05em] hover:text-white transition-colors">
+          <div className="rounded-xl border border-[#1e2030] bg-[#09090f] shadow-[0_8px_32px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.05)] overflow-hidden">
+            {/* Apple Terminal Titlebar */}
+            <div className="flex items-center justify-between px-4 h-10 border-b border-[#1e2030] bg-[#11121b]/90 select-none">
+              <div className="flex items-center gap-3">
+                <MacTrafficLights size="sm" />
+                <span className="font-mono text-[11px] text-[#9ca3af] font-medium tracking-wide">
+                  roadmap-progress.sh — bash
+                </span>
+              </div>
+              <Link
+                href="/dashboard/roadmap"
+                className="font-mono text-[10px] text-[#818cf8] uppercase tracking-[0.05em] hover:text-white transition-colors bg-[#14142b]/60 border border-[#1e1e2f] hover:border-[#3730a3] px-2 py-0.5 rounded-[5px]"
+              >
                 View roadmap →
               </Link>
             </div>
+
+            {/* Terminal Command Line Subheader */}
+            <div className="px-4 py-2 border-b border-[#1e2030]/40 bg-[#0c0d15]/50 flex items-center gap-1.5 font-mono text-[11px] text-[#64748b]">
+              <span className="text-[#38bdf8]">$</span>
+              <span>get --roadmap-completion</span>
+            </div>
+
             <div className="p-5 space-y-4">
               <div className="flex items-center justify-between font-mono text-[12px]">
-                <span className="text-[#9ca3af] uppercase">Overall Progress</span>
+                <span className="text-[#9ca3af] uppercase text-[11px]">Progress Rate</span>
                 <span className="font-semibold text-[#818cf8]">{roadmapProgress}%</span>
               </div>
-              <div className="h-2 w-full bg-[#09090e] rounded-full overflow-hidden border border-[#1e1e2f]">
+              <div className="h-2.5 w-full bg-[#09090e] rounded-full overflow-hidden border border-[#1e1e2f]">
                 <div
-                  className="h-full bg-gradient-to-r from-[#4f46e5] to-[#818cf8] transition-all duration-300"
+                  className="h-full bg-gradient-to-r from-[#4f46e5] to-[#818cf8] transition-all duration-300 shadow-[0_0_10px_rgba(79,70,229,0.5)]"
                   style={{ width: `${roadmapProgress}%` }}
                 />
               </div>
-              <p className="font-mono text-[10px] text-[#64748b]">
-                {completedRoadmapItems} of {totalRoadmapItems} items completed
-              </p>
+              <div className="flex items-center justify-between font-mono text-[10px] text-[#64748b]">
+                <span>Status: {completedRoadmapItems} / {totalRoadmapItems} modules completed</span>
+                <span className="text-[#818cf8] font-semibold">{roadmapProgress === 100 ? 'COMPLETE' : 'ACTIVE'}</span>
+              </div>
             </div>
           </div>
         </div>

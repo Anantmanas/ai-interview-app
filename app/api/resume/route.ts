@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import pdfParse from 'pdf-parse'
 import { createClient } from '@/lib/supabase/server'
 import { formatResumeMarkdown, parseResumeMarkdown, structuredToDashboardResume } from '@/lib/resume/format'
 import { ResumeParsingService } from '@/lib/resume/parser-service'
@@ -23,34 +22,68 @@ function normalizeText(input: string): string {
     .trim()
 }
 
+const KNOWN_TECH_SKILLS = [
+  'JavaScript', 'TypeScript', 'React', 'Next.js', 'Node.js', 'Python', 'Express.js',
+  'Java', 'C++', 'C#', 'Go', 'Golang', 'Rust', 'Docker', 'Kubernetes', 'AWS',
+  'Azure', 'GCP', 'SQL', 'PostgreSQL', 'MySQL', 'MongoDB', 'Redis', 'GraphQL',
+  'REST APIs', 'Tailwind CSS', 'HTML5', 'CSS3', 'Git', 'GitHub', 'CI/CD',
+  'Redux', 'Zustand', 'Prisma', 'Supabase', 'Firebase', 'Linux', 'Microservices',
+  'Kafka', 'RabbitMQ', 'Elasticsearch', 'Webpack', 'Vite', 'Jest', 'Cypress',
+  'Playwright', 'TensorFlow', 'PyTorch', 'OpenAI', 'LangChain', 'FastAPI',
+  'Django', 'Flask', 'Spring Boot', 'Angular', 'Vue.js', 'Svelte', 'WebSockets'
+]
+
 function parseSkills(text: string): string[] {
+  const detected = new Set<string>()
+
   const sectionMatch = text.match(/(?:technical\s+)?skills?\s*[:\-]?\s*\n+([\s\S]*?)(?:\n{2,}|\n(?=[A-Z][^\n]{2,40}\n)|$)/i)
   if (sectionMatch) {
-    return sectionMatch[1]
+    sectionMatch[1]
       .split(/[\n,|/•·]/)
       .map((s) => s.replace(/^[-•·]\s*/, '').trim())
-      .filter((s) => s.length > 0 && s.length < 40)
+      .filter((s) => s.length > 1 && s.length < 35)
       .slice(0, 24)
+      .forEach((s) => detected.add(s))
   }
 
   const inlineMatch = text.match(/skills?\s*[:\-]\s*([^\n]+)/i)
-  if (!inlineMatch) return []
-  return inlineMatch[1]
-    .split(/[,|/]/)
-    .map((s) => s.trim())
-    .filter(Boolean)
-    .slice(0, 24)
+  if (inlineMatch) {
+    inlineMatch[1]
+      .split(/[,|/]/)
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .slice(0, 24)
+      .forEach((s) => detected.add(s))
+  }
+
+  // Guarantee tech skills are discovered even if section layout varies
+  for (const tech of KNOWN_TECH_SKILLS) {
+    const escaped = tech.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    const regex = new RegExp(`(^|[^a-zA-Z0-9_#+])${escaped}([^a-zA-Z0-9_#+]|$)`, 'i')
+    if (regex.test(text)) {
+      detected.add(tech)
+      if (detected.size >= 24) break
+    }
+  }
+
+  return Array.from(detected).slice(0, 24)
 }
 
 function parseName(text: string, fileName: string): string {
+  // Check for explicit "Name: John Doe"
+  const nameLabelMatch = text.match(/(?:name|candidate(?:\s+name)?)\s*[:\-]\s*([A-Za-z][A-Za-z\s.'-]{2,40})/i)
+  if (nameLabelMatch?.[1]) {
+    return nameLabelMatch[1].trim()
+  }
+
   const lines = text
     .split('\n')
     .map((l) => l.trim())
-    .filter((l) => l.length > 0 && !l.startsWith('%PDF-'))
+    .filter((l) => l.length > 0 && !l.startsWith('%PDF-') && !l.startsWith('http') && !l.includes('@'))
 
-  const candidate = lines.find((l) => /^[A-Za-z][A-Za-z\s.'-]{2,40}$/.test(l))
+  const candidate = lines.find((l) => /^[A-Za-z][A-Za-z\s.'-]{2,35}$/.test(l) && !/resume|curriculum|vitae|page|engineer|developer/i.test(l))
   if (candidate) return candidate
-  return fileName.replace(/\.[^.]+$/, '').slice(0, 60)
+  return fileName.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' ').slice(0, 60)
 }
 
 function parseYears(text: string): number {
@@ -61,14 +94,14 @@ function parseYears(text: string): number {
 }
 
 function parseTargetRole(text: string): string | undefined {
-  const role = text.match(/(full stack engineer|software engineer|frontend engineer|backend engineer|qa engineer|devops engineer|data engineer|product manager|designer)/i)
+  const role = text.match(/(full\s*stack\s*engineer|software\s*engineer|frontend\s*engineer|backend\s*engineer|qa\s*engineer|devops\s*engineer|data\s*engineer|product\s*manager|ui\/ux\s*designer|mobile\s*developer)/i)
   return role?.[1]
 }
 
 function parseEducation(text: string): string[] {
   const lines = text.split('\n').map((l) => l.trim())
   return lines
-    .filter((l) => /(b\.tech|btech|m\.tech|mtech|bachelor|master|university|college)/i.test(l))
+    .filter((l) => /(b\.tech|btech|m\.tech|mtech|bachelor|master|university|college|computer\s+science)/i.test(l))
     .slice(0, 6)
 }
 
@@ -95,10 +128,10 @@ function buildFallbackResumeData(text: string, fileName: string): ResumeData {
   return {
     name,
     skills,
-    experience: years > 0 ? [{ role: targetRole || 'Professional', company: 'Various', years }] : [],
+    experience: years > 0 ? [{ role: targetRole || 'Software Engineer', company: 'Various', years }] : [],
     education,
     targetRole,
-    summary: normalized.slice(0, 500) || 'Resume uploaded successfully.',
+    summary: normalized.slice(0, 500) || 'Resume uploaded and parsed successfully.',
   }
 }
 
@@ -106,14 +139,37 @@ async function extractRawText(file: File): Promise<string> {
   const name = file.name.toLowerCase()
 
   if (name.endsWith('.pdf') || file.type === 'application/pdf') {
-    const ab = await file.arrayBuffer()
-    const buf = Buffer.from(ab)
     try {
-      const result = await pdfParse(buf)
-      return result?.text || ''
+      const ab = await file.arrayBuffer()
+      const buf = Buffer.from(ab)
+
+      const pdfModule = (await import('pdf-parse')) as any
+
+      // 1. pdf-parse v2 class check
+      if (pdfModule?.PDFParse) {
+        const parser = new pdfModule.PDFParse({ data: buf })
+        try {
+          const parsedData = await parser.getText()
+          if (parsedData?.text?.trim()) {
+            return parsedData.text.trim()
+          }
+        } finally {
+          if (typeof parser.destroy === 'function') {
+            await parser.destroy()
+          }
+        }
+      }
+
+      // 2. pdf-parse v1 function export check
+      const parseFn = typeof pdfModule === 'function' ? pdfModule : pdfModule?.default
+      if (typeof parseFn === 'function') {
+        const result = await parseFn(buf)
+        if (result?.text?.trim()) {
+          return result.text.trim()
+        }
+      }
     } catch (e) {
-      console.warn('[resume] pdf-parse failed:', e instanceof Error ? e.message : e)
-      return ''
+      console.warn('[api/resume] pdf extraction failed:', e instanceof Error ? e.message : e)
     }
   }
 

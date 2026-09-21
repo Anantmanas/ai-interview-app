@@ -92,7 +92,7 @@ function SidebarInnerContent({ user, profile }: DashboardSidebarProps) {
   }
 
   return (
-    <SidebarBody className="justify-between h-full w-full bg-transparent text-[#f8fafc]">
+    <SidebarBody className="justify-between h-screen h-[100dvh] min-h-screen w-full bg-[#08080c] text-[#f8fafc]">
       {/* Top Header / Logo & Navigation Items */}
       <div className="flex flex-1 flex-col overflow-x-hidden overflow-y-auto min-h-0">
         {/* Brand Header */}
@@ -180,7 +180,7 @@ function SidebarInnerContent({ user, profile }: DashboardSidebarProps) {
       </div>
 
       {/* Footer Profile Section */}
-      <div className="pt-3 border-t border-[#1e1e2f] shrink-0">
+      <div className="pt-3 border-t border-[#1e1e2f] shrink-0 mt-auto">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <div

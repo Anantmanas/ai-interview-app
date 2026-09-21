@@ -56,6 +56,8 @@ export function StatsCards({
 
   const stats = [
     {
+      terminalTitle: 'session.stat',
+      command: 'sys:~$ query --total-sessions',
       label: 'TOTAL INTERVIEWS',
       display: `${totalCount}`,
       sub: `${completedCount} completed`,
@@ -63,6 +65,8 @@ export function StatsCards({
       iconColor: 'text-[#818cf8]',
     },
     {
+      terminalTitle: 'score.metric',
+      command: 'sys:~$ eval --avg-score',
       label: 'AVERAGE SCORE',
       display: `${avgCount}%`,
       sub: 'Across completed sessions',
@@ -70,6 +74,8 @@ export function StatsCards({
       iconColor: 'text-[#6366f1]',
     },
     {
+      terminalTitle: 'uptime.log',
+      command: 'sys:~$ get --practice-time',
       label: 'PRACTICE TIME',
       display: `${(hoursCount / 10).toFixed(1)}h`,
       sub: 'Total time spent practicing',
@@ -77,6 +83,8 @@ export function StatsCards({
       iconColor: 'text-[#a5b4fc]',
     },
     {
+      terminalTitle: 'diagnostics.err',
+      command: 'sys:~$ lint --weaknesses',
       label: 'ACTIVE WEAKNESSES',
       display: `${weakCount}`,
       sub: 'Areas to improve',
@@ -87,7 +95,7 @@ export function StatsCards({
 
   return (
     <motion.div
-      className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6"
+      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6"
       initial="hidden"
       animate="visible"
       variants={{
@@ -102,20 +110,40 @@ export function StatsCards({
             hidden:   { opacity: 0, y: 16 },
             visible:  { opacity: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' } },
           }}
-          className="card-console p-5 hover:border-[#3730a3] transition-all"
+          className="rounded-xl border border-[#1e2030] bg-[#09090f] shadow-[0_8px_32px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.05)] hover:border-[#3730a3] transition-all overflow-hidden flex flex-col group"
         >
-          <div className="flex items-center justify-between mb-4">
-            <p className="font-mono text-[10px] text-[#9ca3af] uppercase tracking-[0.1em] font-semibold">
-              {stat.label}
-            </p>
-            <div className="p-1.5 rounded-md bg-[#14142b] border border-[#1e1e2f]">
-              <stat.icon className={`h-3.5 w-3.5 ${stat.iconColor}`} />
+          {/* macOS Terminal Titlebar */}
+          <div className="flex items-center justify-between px-3.5 h-8 border-b border-[#1e2030] bg-[#11121b]/90 select-none">
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5">
+                <span className="h-2 w-2 rounded-full bg-[#ff5f56] border border-[#e0443e]/50" />
+                <span className="h-2 w-2 rounded-full bg-[#ffbd2e] border border-[#dea123]/50" />
+                <span className="h-2 w-2 rounded-full bg-[#27c93f] border border-[#1aab29]/50" />
+              </div>
+              <span className="font-mono text-[10px] text-[#6b7280] font-medium tracking-wide">
+                {stat.terminalTitle}
+              </span>
+            </div>
+            <div className="p-1 rounded bg-[#14142b]/60 border border-[#1e1e2f] group-hover:border-[#3730a3] transition-colors">
+              <stat.icon className={`h-3 w-3 ${stat.iconColor}`} />
             </div>
           </div>
-          <p className="font-display text-[32px] font-bold text-[#ffffff] leading-[1] tracking-[-0.02em] mb-1">
-            {stat.display}
-          </p>
-          <p className="font-mono text-[11px] text-[#64748b]">{stat.sub}</p>
+
+          {/* Terminal Card Body */}
+          <div className="p-4 flex-1 flex flex-col justify-between">
+            <div className="font-mono text-[10px] text-[#64748b] truncate mb-2">
+              <span className="text-[#38bdf8] font-semibold">$</span> {stat.command.replace('sys:~$ ', '')}
+            </div>
+            <div>
+              <p className="font-display text-[32px] font-bold text-[#ffffff] leading-none tracking-[-0.02em] mb-1.5">
+                {stat.display}
+              </p>
+              <div className="flex items-center gap-1.5 font-mono text-[11px] text-[#64748b]">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#6366f1]/80" />
+                <span className="truncate">{stat.sub}</span>
+              </div>
+            </div>
+          </div>
         </motion.div>
       ))}
     </motion.div>

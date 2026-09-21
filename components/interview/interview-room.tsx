@@ -11,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { MacTrafficLights } from '@/components/ui/terminal-card';
 
 interface Question {
   id: string;
@@ -547,123 +548,165 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
     const secs = totalElapsedSeconds % 60;
 
     return (
-      <div className="relative min-h-screen bg-[var(--color-carbon)] text-[var(--color-ash)] flex flex-col items-center justify-center p-6 overflow-y-auto select-none font-sans">
-        <div className="relative z-10 w-full max-w-3xl bg-[var(--color-graphite)] border border-[var(--color-basalt)] rounded-[4px] p-8 sm:p-10 shadow-2xl space-y-8 my-8">
-          {/* Header */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-6 border-b border-[var(--color-basalt)] pb-6">
-            <div className="text-center sm:text-left space-y-1.5">
-              <span className="text-[11px] font-mono font-semibold text-[var(--color-signal-green)] uppercase tracking-widest block">
-                SESSION_COMPLETE
+      <div className="relative min-h-screen bg-[#050508] text-white flex flex-col items-center justify-center p-4 sm:p-6 overflow-y-auto select-none font-sans">
+        <div className="relative z-10 w-full max-w-3xl rounded-xl border border-[#1e2030] bg-[#09090f] shadow-[0_8px_32px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.05)] overflow-hidden my-8">
+          {/* Apple Terminal Titlebar */}
+          <div className="flex items-center justify-between px-4 h-10 border-b border-[#1e2030] bg-[#11121b]/90 select-none">
+            <div className="flex items-center gap-3">
+              <MacTrafficLights size="sm" />
+              <span className="font-mono text-[11px] text-[#9ca3af] font-medium tracking-wide">
+                session-evaluation-report.log — zsh
               </span>
-              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--color-chalk)]">
-                {interview?.title || 'Technical Assessment'} Summary
-              </h1>
-              <p className="text-xs text-[var(--color-fog)] font-mono uppercase">
-                {interview?.target_role || 'SOFTWARE ENGINEER'} · {interviewType.toUpperCase()} · {difficulty.toUpperCase()}
-              </p>
             </div>
+            <div className="flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-[#22c55e] led-pulse" />
+              <span className="font-mono text-[10px] text-[#22c55e] bg-[#22c55e]/10 border border-[#22c55e]/20 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                SESSION COMPLETE
+              </span>
+            </div>
+          </div>
 
-            {/* Score Ring Display */}
-            <div className="flex items-center gap-4 bg-[var(--color-obsidian)] border border-[var(--color-basalt)] rounded-[4px] p-4 px-6">
-              <ScoreRing score={avgScore} />
-              <div className="space-y-0.5">
-                <span className="text-[10px] text-[var(--color-fog)] uppercase tracking-wider font-mono block">FINAL SCORE</span>
-                <p className="text-xl font-bold font-mono text-[var(--color-chalk)]">
-                  {avgScore >= 80 ? 'EXCEPTIONAL' : avgScore >= 65 ? 'PASS / STRONG' : 'NEEDS PRACTICE'}
+          {/* Terminal Command Cue */}
+          <div className="px-5 py-2.5 border-b border-[#1e2030]/40 bg-[#0c0d15]/50 flex items-center gap-2 font-mono text-[12px]">
+            <span className="text-[#38bdf8] font-semibold">interviewai@eval</span>
+            <span className="text-[#94a3b8]">:</span>
+            <span className="text-[#818cf8]">~/telemetry</span>
+            <span className="text-[#f8fafc]">$</span>
+            <span className="text-[#22c55e]">./score_assessment.sh --target=candidate_eval --report=full</span>
+          </div>
+
+          <div className="p-6 sm:p-8 space-y-6">
+            {/* Header / Score Ring */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-6 border-b border-[#1e2030]/60 pb-6">
+              <div className="text-center sm:text-left space-y-1.5">
+                <span className="text-[11px] font-mono font-semibold text-[#818cf8] uppercase tracking-widest block">
+                  // ASSESSMENT RESULT
+                </span>
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white font-display">
+                  {interview?.title || 'Mock Test'} Summary
+                </h1>
+                <p className="text-xs text-[#9ca3af] font-mono uppercase">
+                  {interview?.target_role || 'SOFTWARE ENGINEER'} · {interviewType.toUpperCase()} · {difficulty.toUpperCase()}
                 </p>
-                <span className="text-xs text-[var(--color-signal-green)] font-mono">{answersCount} OF {questions.length || 5} COMPLETED</span>
+              </div>
+
+              {/* Score Ring Display */}
+              <div className="flex items-center gap-4 bg-[#0c0d15] border border-[#1e2030] rounded-lg p-4 px-6 shadow-[0_2px_12px_rgba(0,0,0,0.4)]">
+                <ScoreRing score={avgScore} />
+                <div className="space-y-0.5">
+                  <span className="text-[10px] text-[#9ca3af] uppercase tracking-wider font-mono block">FINAL SCORE</span>
+                  <p className="text-xl font-bold font-mono text-white">
+                    {avgScore >= 80 ? 'EXCEPTIONAL' : avgScore >= 65 ? 'STRONG' : 'NEEDS PRACTICE'}
+                  </p>
+                  <span className="text-xs text-[#22c55e] font-mono">{answersCount} OF {questions.length || 5} COMPLETED</span>
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* 4-Column Technical Metrics Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div className="bg-[var(--color-obsidian)] border border-[var(--color-basalt)] rounded-[4px] p-3">
-              <span className="text-[10px] text-[var(--color-fog)] font-mono uppercase tracking-wider">QUESTIONS</span>
-              <p className="text-base font-bold text-[var(--color-chalk)] font-mono mt-0.5">{questions.length || 5}</p>
-            </div>
-            <div className="bg-[var(--color-obsidian)] border border-[var(--color-basalt)] rounded-[4px] p-3">
-              <span className="text-[10px] text-[var(--color-fog)] font-mono uppercase tracking-wider">COMPLETED</span>
-              <p className="text-base font-bold text-[var(--color-signal-green)] font-mono mt-0.5">{answersCount}</p>
-            </div>
-            <div className="bg-[var(--color-obsidian)] border border-[var(--color-basalt)] rounded-[4px] p-3">
-              <span className="text-[10px] text-[var(--color-fog)] font-mono uppercase tracking-wider">DURATION</span>
-              <p className="text-base font-bold text-[var(--color-chalk)] font-mono mt-0.5">{mins}m {secs}s</p>
-            </div>
-            <div className="bg-[var(--color-obsidian)] border border-[var(--color-basalt)] rounded-[4px] p-3">
-              <span className="text-[10px] text-[var(--color-fog)] font-mono uppercase tracking-wider">ACCURACY</span>
-              <p className="text-base font-bold text-[var(--color-chalk)] font-mono mt-0.5">{avgScore}%</p>
-            </div>
-          </div>
-
-          {/* Question Breakdown List */}
-          <div className="space-y-3">
-            <h2 className="text-xs font-mono font-semibold uppercase tracking-wider text-[var(--color-fog)]">
-              QUESTION BREAKDOWN ({recordedHistory.length})
-            </h2>
-
-            {recordedHistory.length === 0 ? (
-              <div className="text-center py-6 border border-dashed border-[var(--color-basalt)] rounded-[4px] text-[var(--color-fog)] text-xs font-mono">
-                NO ANSWERS EVALUATED IN THIS SESSION
+            {/* 4-Column Technical Metrics Terminal Grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="bg-[#0c0d15] border border-[#1e2030] rounded-lg p-3 hover:border-[#3730a3]/50 transition-colors">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[10px] text-[#9ca3af] font-mono uppercase tracking-wider">QUESTIONS</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#818cf8]" />
+                </div>
+                <p className="text-lg font-bold text-white font-mono">{questions.length || 5}</p>
               </div>
-            ) : (
-              <div className="space-y-3">
-                {recordedHistory.map((item, idx) => (
-                  <div
-                    key={idx}
-                    className="bg-[var(--color-obsidian)] border border-[var(--color-basalt)] rounded-[4px] p-4 space-y-3"
-                  >
-                    <div className="flex items-start justify-between gap-3 border-b border-[var(--color-basalt)]/50 pb-2.5">
-                      <div className="space-y-0.5">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs font-mono text-[var(--color-signal-green)] font-semibold">
-                            {String(idx + 1).padStart(2, '0')}
-                          </span>
-                          <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[var(--color-slate)] text-[var(--color-silver)] border border-[var(--color-basalt)] uppercase">
-                            {item.question.topic || item.question.type}
-                          </span>
+
+              <div className="bg-[#0c0d15] border border-[#1e2030] rounded-lg p-3 hover:border-[#3730a3]/50 transition-colors">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[10px] text-[#9ca3af] font-mono uppercase tracking-wider">COMPLETED</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e]" />
+                </div>
+                <p className="text-lg font-bold text-[#22c55e] font-mono">{answersCount}</p>
+              </div>
+
+              <div className="bg-[#0c0d15] border border-[#1e2030] rounded-lg p-3 hover:border-[#3730a3]/50 transition-colors">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[10px] text-[#9ca3af] font-mono uppercase tracking-wider">DURATION</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#38bdf8]" />
+                </div>
+                <p className="text-lg font-bold text-white font-mono">{mins}m {secs}s</p>
+              </div>
+
+              <div className="bg-[#0c0d15] border border-[#1e2030] rounded-lg p-3 hover:border-[#3730a3]/50 transition-colors">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[10px] text-[#9ca3af] font-mono uppercase tracking-wider">ACCURACY</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#a855f7]" />
+                </div>
+                <p className="text-lg font-bold text-white font-mono">{avgScore}%</p>
+              </div>
+            </div>
+
+            {/* Question Breakdown List */}
+            <div className="space-y-3">
+              <h2 className="text-xs font-mono font-semibold uppercase tracking-wider text-[#9ca3af]">
+                QUESTION BREAKDOWN ({recordedHistory.length})
+              </h2>
+
+              {recordedHistory.length === 0 ? (
+                <div className="text-center py-8 border border-dashed border-[#1e2030] rounded-lg text-[#64748b] text-xs font-mono">
+                  NO ANSWERS EVALUATED IN THIS SESSION
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {recordedHistory.map((item, idx) => (
+                    <div
+                      key={idx}
+                      className="bg-[#0c0d15] border border-[#1e2030] rounded-lg p-4 space-y-3 hover:border-[#3730a3]/40 transition-colors"
+                    >
+                      <div className="flex items-start justify-between gap-3 border-b border-[#1e2030]/60 pb-2.5">
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-mono text-[#818cf8] font-semibold">
+                              #{String(idx + 1).padStart(2, '0')}
+                            </span>
+                            <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#14142b] text-[#818cf8] border border-[#3730a3]/40 uppercase">
+                              {item.question.topic || item.question.type}
+                            </span>
+                          </div>
+                          <p className="text-sm font-medium text-white leading-relaxed mt-1">
+                            {item.question.text}
+                          </p>
                         </div>
-                        <p className="text-sm font-medium text-[var(--color-chalk)] leading-relaxed mt-1">
-                          {item.question.text}
-                        </p>
+                        <span className="text-base font-bold font-mono text-[#22c55e] shrink-0 bg-[#22c55e]/10 border border-[#22c55e]/20 px-2.5 py-1 rounded-md">
+                          {item.evaluation.score}%
+                        </span>
                       </div>
-                      <span className="text-base font-bold font-mono text-[var(--color-signal-green)] shrink-0">
-                        {item.evaluation.score}%
-                      </span>
-                    </div>
 
-                    <div className="space-y-2 text-xs">
-                      <p className="text-[var(--color-ash)] leading-relaxed">
-                        <strong className="text-[var(--color-chalk)] font-mono text-[11px] uppercase tracking-wider">Feedback: </strong>
-                        {item.evaluation.feedback}
-                      </p>
-                      {(item.evaluation.improvements || item.evaluation.improvement) && (
-                        <p className="text-[var(--color-ash)] leading-relaxed">
-                          <strong className="text-[var(--color-signal-green)] font-mono text-[11px] uppercase tracking-wider">Suggestion: </strong>
-                          {item.evaluation.improvements || item.evaluation.improvement}
+                      <div className="space-y-2 text-xs">
+                        <p className="text-[#9ca3af] leading-relaxed">
+                          <strong className="text-white font-mono text-[11px] uppercase tracking-wider">Feedback: </strong>
+                          {item.evaluation.feedback}
                         </p>
-                      )}
+                        {(item.evaluation.improvements || item.evaluation.improvement) && (
+                          <p className="text-[#9ca3af] leading-relaxed">
+                            <strong className="text-[#818cf8] font-mono text-[11px] uppercase tracking-wider">Suggestion: </strong>
+                            {item.evaluation.improvements || item.evaluation.improvement}
+                          </p>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+                  ))}
+                </div>
+              )}
+            </div>
 
-          {/* Action CTAs */}
-          <div className="flex flex-col sm:flex-row items-center justify-end gap-3 pt-4 border-t border-[var(--color-basalt)]">
-            <button
-              onClick={() => router.push('/dashboard')}
-              className="w-full sm:w-auto rounded-full border border-[var(--color-basalt)] hover:border-[var(--color-steel)] text-[var(--color-ash)] hover:text-[var(--color-chalk)] text-xs font-mono uppercase tracking-wider px-6 py-2.5 transition-colors"
-            >
-              Go to Dashboard
-            </button>
-            <button
-              onClick={() => router.push(interviewId ? `/dashboard/history/${interviewId}` : '/dashboard/history')}
-              className="w-full sm:w-auto rounded-full bg-[#4f46e5] hover:bg-[#5865f2] text-white text-xs font-mono font-bold uppercase tracking-wider px-6 py-2.5 transition-colors shadow-[0_0_20px_rgba(79,70,229,0.35)]"
-            >
-              See History →
-            </button>
+            {/* Action CTAs */}
+            <div className="flex flex-col sm:flex-row items-center justify-end gap-3 pt-4 border-t border-[#1e2030]/60">
+              <button
+                onClick={() => router.push('/dashboard')}
+                className="w-full sm:w-auto rounded-md border border-[#1e2030] hover:border-[#3730a3] bg-[#0c0d15] hover:bg-[#14142b] text-[#9ca3af] hover:text-white text-xs font-mono uppercase tracking-wider px-6 py-2.5 transition-colors cursor-pointer"
+              >
+                Go to Dashboard
+              </button>
+              <button
+                onClick={() => router.push(interviewId ? `/dashboard/history/${interviewId}` : '/dashboard/history')}
+                className="w-full sm:w-auto rounded-md bg-[#4f46e5] hover:bg-[#5865f2] text-white text-xs font-mono font-bold uppercase tracking-wider px-6 py-2.5 transition-all shadow-[0_0_20px_rgba(79,70,229,0.35)] cursor-pointer"
+              >
+                See History →
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -724,19 +767,32 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
       </div>
 
       {/* 3-COLUMN COCKPIT BODY */}
-      <div className="flex-1 min-h-0 grid grid-cols-[320px_1fr_280px] overflow-hidden">
+      <div className="flex-1 min-h-0 grid grid-cols-[330px_1fr_300px] overflow-hidden bg-[#050508]">
         {/* ========================================================= */}
-        {/* LEFT PANEL: Technical Briefing Rail (w-[320px]) */}
+        {/* LEFT PANEL: Technical Briefing Rail (w-[330px]) */}
         {/* ========================================================= */}
-        <aside className="w-[320px] border-r border-[var(--color-basalt)] bg-[var(--color-graphite)] p-5 flex flex-col justify-between overflow-y-auto select-text">
-          <div className="space-y-5">
+        <aside className="w-[330px] border-r border-[#1e2030] bg-[#09090f] flex flex-col justify-between overflow-hidden select-text">
+          {/* Apple Terminal Titlebar */}
+          <div className="flex items-center justify-between px-4 h-10 border-b border-[#1e2030] bg-[#11121b]/90 select-none shrink-0">
+            <div className="flex items-center gap-2.5">
+              <MacTrafficLights size="sm" />
+              <span className="font-mono text-[11px] text-[#9ca3af] font-medium tracking-wide">
+                question-briefing.sh — zsh
+              </span>
+            </div>
+            <span className="font-mono text-[10px] text-[#818cf8] bg-[#818cf8]/10 border border-[#818cf8]/20 px-2 py-0.5 rounded-full uppercase tracking-wider font-semibold">
+              Q{String(currentQIndex + 1).padStart(2, '0')}/{String(questions.length || 5).padStart(2, '0')}
+            </span>
+          </div>
+
+          <div className="p-5 overflow-y-auto space-y-5 flex-1">
             {/* Meta Header */}
-            <div className="space-y-1">
-              <span className="text-[10px] font-mono uppercase tracking-widest text-[var(--color-fog)] block">
+            <div className="flex items-center justify-between gap-2 border-b border-[#1e2030]/60 pb-3">
+              <span className="text-[10px] font-mono uppercase tracking-widest text-[#64748b]">
                 QUESTION {String(currentQIndex + 1).padStart(2, '0')} OF {String(questions.length || 5).padStart(2, '0')}
               </span>
               {currentQuestion?.topic && (
-                <span className="text-xs font-mono font-semibold text-[var(--color-signal-green)] block uppercase tracking-wide">
+                <span className="text-[10px] font-mono font-semibold text-[#22c55e] uppercase tracking-wide bg-[#22c55e]/10 border border-[#22c55e]/20 px-2 py-0.5 rounded">
                   {currentQuestion.topic}
                 </span>
               )}
@@ -746,14 +802,14 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
             <div className="space-y-3">
               {isGenerating ? (
                 <div className="space-y-2.5 animate-pulse">
-                  <div className="h-4 bg-[var(--color-obsidian)] rounded-[4px] w-3/4" />
-                  <div className="h-3.5 bg-[var(--color-obsidian)] rounded-[4px] w-full" />
-                  <div className="h-3.5 bg-[var(--color-obsidian)] rounded-[4px] w-5/6" />
-                  <div className="h-3.5 bg-[var(--color-obsidian)] rounded-[4px] w-2/3" />
-                  <p className="text-[11px] text-[var(--color-signal-green)] font-mono mt-3">► GENERATING_QUESTIONS...</p>
+                  <div className="h-4 bg-[#14142b] rounded w-3/4" />
+                  <div className="h-3.5 bg-[#14142b] rounded w-full" />
+                  <div className="h-3.5 bg-[#14142b] rounded w-5/6" />
+                  <div className="h-3.5 bg-[#14142b] rounded w-2/3" />
+                  <p className="text-[11px] text-[#818cf8] font-mono mt-3">► GENERATING_QUESTIONS...</p>
                 </div>
               ) : (
-                <h2 className="text-[18px] text-[var(--color-chalk)] font-normal leading-relaxed tracking-normal font-sans">
+                <h2 className="text-[16px] sm:text-[17px] text-[#f8fafc] font-normal leading-relaxed tracking-normal font-sans">
                   {currentQuestion?.text || 'Loading technical question...'}
                 </h2>
               )}
@@ -763,17 +819,19 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
             <div className="pt-1">
               <button
                 onClick={() => setShowHint(!showHint)}
-                className="text-xs font-mono text-[var(--color-fog)] hover:text-[var(--color-signal-green)] flex items-center gap-1.5 transition-colors uppercase tracking-wider"
+                className="text-xs font-mono text-[#9ca3af] hover:text-[#818cf8] flex items-center gap-1.5 transition-colors uppercase tracking-wider bg-[#0c0d15] border border-[#1e2030] hover:border-[#3730a3] px-3 py-1.5 rounded-md w-full justify-between cursor-pointer"
               >
                 <span>{showHint ? '- HIDE STRATEGY HINT' : '+ STRATEGY HINT'}</span>
+                <span className="text-[10px] text-[#64748b]">hint.sh</span>
               </button>
 
               {showHint && (
-                <div className="mt-2.5 p-3 bg-[var(--color-obsidian)] border border-[var(--color-basalt)] rounded-[4px] text-xs text-[var(--color-ash)] leading-relaxed space-y-1 animate-in fade-in duration-150">
-                  <p className="font-mono text-[10px] font-semibold text-[var(--color-signal-green)] uppercase tracking-wider">
-                    ┌ STRATEGY HINT ────────────────
+                <div className="mt-2.5 p-3.5 bg-[#0c0d15] border border-[#1e2030] rounded-lg text-xs text-[#9ca3af] leading-relaxed space-y-2 animate-in fade-in duration-150">
+                  <p className="font-mono text-[10px] font-semibold text-[#818cf8] uppercase tracking-wider flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#818cf8]" />
+                    STRATEGY GUIDANCE
                   </p>
-                  <p className="font-sans pl-2 border-l border-[var(--color-basalt)] text-[var(--color-ash)]">
+                  <p className="font-sans pl-2 border-l border-[#3730a3] text-[#cbd5e1]">
                     {currentQuestion?.topic
                       ? `Focus on core principles of ${currentQuestion.topic}. Outline assumptions, time/space complexity, and practical trade-offs.`
                       : 'State your high-level approach first before diving into details. Outline constraints and edge cases.'}
@@ -783,21 +841,21 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
             </div>
           </div>
 
-          {/* Session Metrics */}
-          <div className="pt-4 border-t border-[var(--color-basalt)] space-y-2">
-            <span className="text-[10px] text-[var(--color-fog)] font-mono uppercase tracking-widest block">
-              SESSION METRICS
+          {/* Session Metrics Terminal Widget */}
+          <div className="p-4 border-t border-[#1e2030] bg-[#0c0d15]/50 space-y-2.5 shrink-0">
+            <span className="text-[10px] text-[#64748b] font-mono uppercase tracking-widest block font-semibold">
+              SESSION TELEMETRY
             </span>
             <div className="grid grid-cols-2 gap-2">
-              <div className="bg-[var(--color-obsidian)] border border-[var(--color-basalt)] rounded-[4px] p-2.5">
-                <span className="text-[9px] text-[var(--color-fog)] uppercase font-mono tracking-wider">COMPLETED</span>
-                <p className="text-sm font-bold text-[var(--color-chalk)] font-mono mt-0.5">
+              <div className="bg-[#09090f] border border-[#1e2030] rounded-md p-2.5">
+                <span className="text-[9px] text-[#64748b] uppercase font-mono tracking-wider block">COMPLETED</span>
+                <p className="text-sm font-bold text-white font-mono mt-0.5">
                   {String(answersCount).padStart(2, '0')} / {String(questions.length || 5).padStart(2, '0')}
                 </p>
               </div>
-              <div className="bg-[var(--color-obsidian)] border border-[var(--color-basalt)] rounded-[4px] p-2.5">
-                <span className="text-[9px] text-[var(--color-fog)] uppercase font-mono tracking-wider">ACCURACY</span>
-                <p className="text-sm font-bold text-[var(--color-signal-green)] font-mono mt-0.5">
+              <div className="bg-[#09090f] border border-[#1e2030] rounded-md p-2.5">
+                <span className="text-[9px] text-[#64748b] uppercase font-mono tracking-wider block">ACCURACY</span>
+                <p className="text-sm font-bold text-[#22c55e] font-mono mt-0.5">
                   {answersCount > 0 ? `${Math.round(totalScore / answersCount)}%` : '--'}
                 </p>
               </div>
@@ -808,73 +866,84 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
         {/* ========================================================= */}
         {/* CENTER PANEL: IDE / Editor Workspace (flex-1) */}
         {/* ========================================================= */}
-        <main className="flex-1 min-w-0 flex flex-col overflow-hidden bg-[var(--color-carbon)]">
-          {/* Mode Switcher Strip */}
-          <div className="h-11 shrink-0 border-b border-[var(--color-basalt)] px-5 flex items-center justify-between bg-[var(--color-graphite)]">
-            <div className="flex items-center gap-1.5">
-              {(['text', 'code', 'voice'] as const).map((mode) => {
-                const isActive = answerMode === mode;
-                return (
-                  <button
-                    key={mode}
-                    onClick={() => setAnswerMode(mode)}
-                    className={`rounded-full px-3.5 py-1 text-xs font-mono font-medium transition-all flex items-center gap-1.5 uppercase tracking-wider ${
-                      isActive
-                        ? 'bg-[var(--color-obsidian)] border border-[var(--color-basalt)] text-[var(--color-chalk)]'
-                        : 'text-[var(--color-fog)] hover:text-[var(--color-ash)]'
-                    }`}
-                  >
-                    {isActive && <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-signal-green)]" />}
-                    <span>{mode === 'text' ? 'TEXT' : mode === 'code' ? 'CODE' : 'VOICE'}</span>
-                  </button>
-                );
-              })}
+        <main className="flex-1 min-w-0 flex flex-col overflow-hidden bg-[#050508]">
+          {/* Apple Terminal Titlebar & Mode Switcher */}
+          <div className="h-10 shrink-0 border-b border-[#1e2030] bg-[#11121b]/90 px-4 flex items-center justify-between select-none">
+            <div className="flex items-center gap-3">
+              <MacTrafficLights size="sm" />
+              <span className="font-mono text-[11px] text-[#9ca3af] font-medium tracking-wide">
+                workspace::answer_buffer.{answerMode === 'code' ? (selectedLanguage === 'python' ? 'py' : selectedLanguage === 'javascript' ? 'js' : 'ts') : 'txt'} — editor
+              </span>
             </div>
 
-            {/* Language Select (Code Mode Only) */}
-            {answerMode === 'code' && (
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] text-[var(--color-fog)] font-mono uppercase">LANG:</span>
-                <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
-                  <SelectTrigger className="h-7 w-[120px] rounded-full bg-[var(--color-obsidian)] border-[var(--color-basalt)] text-xs font-mono text-[var(--color-ash)] focus:ring-0">
-                    <SelectValue placeholder="Language" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-[var(--color-graphite)] border-[var(--color-basalt)] text-[var(--color-chalk)] font-mono text-xs rounded-[4px]">
-                    <SelectItem value="javascript">JavaScript</SelectItem>
-                    <SelectItem value="typescript">TypeScript</SelectItem>
-                    <SelectItem value="python">Python</SelectItem>
-                    <SelectItem value="java">Java</SelectItem>
-                    <SelectItem value="cpp">C++</SelectItem>
-                    <SelectItem value="go">Go</SelectItem>
-                    <SelectItem value="rust">Rust</SelectItem>
-                    <SelectItem value="sql">SQL</SelectItem>
-                  </SelectContent>
-                </Select>
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1 bg-[#09090f] border border-[#1e2030] rounded-md p-0.5">
+                {(['text', 'code', 'voice'] as const).map((mode) => {
+                  const isActive = answerMode === mode;
+                  return (
+                    <button
+                      key={mode}
+                      onClick={() => setAnswerMode(mode)}
+                      className={`px-2.5 py-0.5 text-[11px] font-mono font-medium transition-all rounded flex items-center gap-1.5 uppercase tracking-wider cursor-pointer ${
+                        isActive
+                          ? 'bg-[#14142b] border border-[#3730a3] text-white shadow-sm'
+                          : 'text-[#64748b] hover:text-[#9ca3af]'
+                      }`}
+                    >
+                      {isActive && <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e]" />}
+                      <span>{mode === 'text' ? 'TEXT' : mode === 'code' ? 'CODE' : 'VOICE'}</span>
+                    </button>
+                  );
+                })}
               </div>
-            )}
+
+              {/* Language Select (Code Mode Only) */}
+              {answerMode === 'code' && (
+                <div className="flex items-center gap-1.5 ml-2">
+                  <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
+                    <SelectTrigger className="h-7 w-[110px] rounded bg-[#09090f] border-[#1e2030] text-[11px] font-mono text-[#9ca3af] focus:ring-0">
+                      <SelectValue placeholder="Language" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-[#09090f] border-[#1e2030] text-white font-mono text-xs rounded-md">
+                      <SelectItem value="javascript">JavaScript</SelectItem>
+                      <SelectItem value="typescript">TypeScript</SelectItem>
+                      <SelectItem value="python">Python</SelectItem>
+                      <SelectItem value="java">Java</SelectItem>
+                      <SelectItem value="cpp">C++</SelectItem>
+                      <SelectItem value="go">Go</SelectItem>
+                      <SelectItem value="rust">Rust</SelectItem>
+                      <SelectItem value="sql">SQL</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Active Workspace Canvas */}
-          <div className="flex-1 min-h-0 p-5 overflow-y-auto flex flex-col select-text">
+          <div className="flex-1 min-h-0 p-4 sm:p-5 overflow-y-auto flex flex-col select-text">
             {answerMode === 'text' && (
-              <div className="flex-1 min-h-[300px] flex flex-col bg-[var(--color-graphite)] border border-[var(--color-basalt)] focus-within:border-[var(--color-moss-border)] rounded-[4px] p-4 transition-colors">
-                <div className="flex items-center justify-between pb-2 mb-2 border-b border-[var(--color-basalt)]/40">
-                  <span className="text-[10px] font-mono uppercase tracking-widest text-[var(--color-fog)]">ANSWER_BUFFER</span>
+              <div className="flex-1 min-h-[300px] flex flex-col rounded-xl border border-[#1e2030] bg-[#09090f] focus-within:border-[#3730a3] shadow-[0_8px_32px_rgba(0,0,0,0.4)] overflow-hidden transition-colors">
+                <div className="flex items-center justify-between px-4 py-2 border-b border-[#1e2030]/60 bg-[#0c0d15]/60">
+                  <span className="text-[10px] font-mono uppercase tracking-widest text-[#64748b]">
+                    BUFFER: STDIN
+                  </span>
+                  <span className="text-[10px] font-mono text-[#818cf8]">EDITABLE</span>
                 </div>
                 <textarea
                   value={textAnswer}
                   onChange={(e) => setTextAnswer(e.target.value)}
                   placeholder="Type your structured solution, architectural trade-offs, or explanations..."
-                  className="flex-1 w-full bg-transparent text-[var(--color-ash)] font-mono text-sm leading-relaxed placeholder:text-[var(--color-fog)]/40 resize-none focus:outline-none"
+                  className="flex-1 w-full bg-transparent p-4 text-[#f8fafc] font-mono text-sm leading-relaxed placeholder:text-[#64748b]/60 resize-none focus:outline-none"
                 />
               </div>
             )}
 
             {answerMode === 'code' && (
-              <div className="flex-1 min-h-[340px] rounded-[4px] border border-[var(--color-basalt)] overflow-hidden bg-[var(--color-graphite)] flex flex-col">
-                <div className="h-7 shrink-0 bg-[var(--color-graphite)] border-b border-[var(--color-basalt)] px-3 flex items-center justify-between">
-                  <span className="text-[10px] font-mono uppercase tracking-widest text-[var(--color-fog)]">ANSWER_BUFFER</span>
-                  <span className="text-[10px] font-mono uppercase text-[var(--color-signal-green)]">{selectedLanguage}</span>
+              <div className="flex-1 min-h-[340px] rounded-xl border border-[#1e2030] overflow-hidden bg-[#09090f] flex flex-col shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
+                <div className="h-7 shrink-0 bg-[#0c0d15] border-b border-[#1e2030] px-3.5 flex items-center justify-between">
+                  <span className="text-[10px] font-mono uppercase tracking-widest text-[#64748b]">CODE_BUFFER</span>
+                  <span className="text-[10px] font-mono uppercase text-[#22c55e]">{selectedLanguage}</span>
                 </div>
                 <div className="flex-1 min-h-0">
                   <Editor
@@ -896,7 +965,7 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
                       padding: { top: 12, bottom: 12 },
                     }}
                     loading={
-                      <div className="flex items-center justify-center h-full text-xs text-[var(--color-fog)] font-mono animate-pulse">
+                      <div className="flex items-center justify-center h-full text-xs text-[#64748b] font-mono animate-pulse">
                         LOADING_MONACO_EDITOR...
                       </div>
                     }
@@ -907,23 +976,25 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
 
             {answerMode === 'voice' && (
               <div className="flex-1 min-h-[300px] flex flex-col space-y-3.5">
-                <div className="bg-[var(--color-graphite)] border border-[var(--color-basalt)] rounded-[4px] p-4 text-center">
-                  <span className="text-[10px] font-mono uppercase tracking-widest text-[var(--color-fog)] block mb-3">VOICE_INPUT</span>
+                <div className="bg-[#09090f] border border-[#1e2030] rounded-xl p-4 text-center">
+                  <span className="text-[10px] font-mono uppercase tracking-widest text-[#64748b] block mb-3">VOICE_INPUT</span>
                   <VoiceRecorder
                     transcript={textAnswer}
                     onTranscript={(text) => setTextAnswer(text)}
                   />
                 </div>
 
-                <div className="flex-1 flex flex-col bg-[var(--color-graphite)] border border-[var(--color-basalt)] rounded-[4px] p-4">
-                  <span className="text-[10px] text-[var(--color-fog)] font-mono uppercase tracking-widest mb-2 block">
-                    TRANSCRIPT_BUFFER (EDITABLE)
-                  </span>
+                <div className="flex-1 flex flex-col bg-[#09090f] border border-[#1e2030] rounded-xl overflow-hidden">
+                  <div className="px-4 py-2 border-b border-[#1e2030]/60 bg-[#0c0d15]">
+                    <span className="text-[10px] text-[#64748b] font-mono uppercase tracking-widest">
+                      TRANSCRIPT_BUFFER (EDITABLE)
+                    </span>
+                  </div>
                   <textarea
                     value={textAnswer}
                     onChange={(e) => setTextAnswer(e.target.value)}
                     placeholder="Your spoken words will transcribe here in real-time. You can edit before submitting..."
-                    className="flex-1 w-full bg-transparent text-[var(--color-ash)] font-mono text-sm leading-relaxed placeholder:text-[var(--color-fog)]/40 resize-none focus:outline-none"
+                    className="flex-1 w-full bg-transparent p-4 text-[#f8fafc] font-mono text-sm leading-relaxed placeholder:text-[#64748b]/60 resize-none focus:outline-none"
                   />
                 </div>
               </div>
@@ -931,8 +1002,8 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
           </div>
 
           {/* Action Bar */}
-          <div className="h-13 shrink-0 border-t border-[var(--color-basalt)] bg-[var(--color-carbon)] px-5 flex items-center justify-between">
-            <div className="text-xs text-[var(--color-fog)] font-mono">
+          <div className="h-12 shrink-0 border-t border-[#1e2030] bg-[#09090f] px-5 flex items-center justify-between">
+            <div className="text-xs text-[#64748b] font-mono">
               {wordCount} WORDS · {charCount} CHARS
             </div>
 
@@ -941,7 +1012,7 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
                 <button
                   onClick={handleSubmitAnswer}
                   disabled={isEvaluating || (!textAnswer.trim() && !codeAnswer.trim())}
-                  className="rounded-full bg-[#4f46e5] hover:bg-[#5865f2] text-white font-mono text-xs font-bold uppercase tracking-wider px-6 py-2.5 disabled:opacity-30 disabled:cursor-not-allowed transition-colors shadow-[0_0_20px_rgba(79,70,229,0.35)] active:scale-[0.98]"
+                  className="rounded-md bg-[#4f46e5] hover:bg-[#5865f2] text-white font-mono text-xs font-bold uppercase tracking-wider px-6 py-2 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-[0_0_20px_rgba(79,70,229,0.35)] cursor-pointer"
                 >
                   {isEvaluating ? (
                     <span className="flex items-center gap-2">
@@ -957,14 +1028,14 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
                   {currentQIndex < questions.length - 1 ? (
                     <button
                       onClick={handleNextQuestion}
-                      className="rounded-full bg-[#4f46e5] hover:bg-[#5865f2] text-white font-mono text-xs font-bold uppercase tracking-wider px-6 py-2.5 transition-colors shadow-[0_0_20px_rgba(79,70,229,0.35)] active:scale-[0.98]"
+                      className="rounded-md bg-[#4f46e5] hover:bg-[#5865f2] text-white font-mono text-xs font-bold uppercase tracking-wider px-6 py-2 transition-all shadow-[0_0_20px_rgba(79,70,229,0.35)] cursor-pointer"
                     >
                       NEXT QUESTION →
                     </button>
                   ) : (
                     <button
                       onClick={handleEndInterview}
-                      className="rounded-full bg-[#4f46e5] hover:bg-[#5865f2] text-white font-mono text-xs font-bold uppercase tracking-wider px-6 py-2.5 transition-colors shadow-[0_0_20px_rgba(79,70,229,0.35)] active:scale-[0.98]"
+                      className="rounded-md bg-[#4f46e5] hover:bg-[#5865f2] text-white font-mono text-xs font-bold uppercase tracking-wider px-6 py-2 transition-all shadow-[0_0_20px_rgba(79,70,229,0.35)] cursor-pointer"
                     >
                       FINISH INTERVIEW →
                     </button>
@@ -976,45 +1047,48 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
         </main>
 
         {/* ========================================================= */}
-        {/* RIGHT PANEL: AI Coach Live Evaluation Console (w-[280px]) */}
+        {/* RIGHT PANEL: AI Coach Live Evaluation Console (w-[300px]) */}
         {/* ========================================================= */}
-        <aside className="w-[280px] border-l border-[var(--color-basalt)] bg-[var(--color-graphite)] p-5 flex flex-col justify-between overflow-y-auto select-text">
-          <div className="space-y-5">
-            {/* Header */}
-            <div className="flex items-center justify-between border-b border-[var(--color-basalt)] pb-2.5">
-              <span className="font-mono text-xs font-bold uppercase tracking-wider text-[var(--color-chalk)]">
-                AI COACH
+        <aside className="w-[300px] border-l border-[#1e2030] bg-[#09090f] flex flex-col justify-between overflow-hidden select-text">
+          {/* Apple Terminal Titlebar */}
+          <div className="flex items-center justify-between px-4 h-10 border-b border-[#1e2030] bg-[#11121b]/90 select-none shrink-0">
+            <div className="flex items-center gap-2.5">
+              <MacTrafficLights size="sm" />
+              <span className="font-mono text-[11px] text-[#9ca3af] font-medium tracking-wide">
+                ai-coach.telemetry — live
               </span>
-              <div className="flex items-center gap-1.5 font-mono text-[10px] text-[var(--color-signal-green)]">
-                <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-signal-green)]" />
-                <span>LIVE</span>
-              </div>
             </div>
+            <div className="flex items-center gap-1.5 font-mono text-[10px] text-[#22c55e]">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e] led-pulse" />
+              <span>LIVE</span>
+            </div>
+          </div>
 
+          <div className="p-5 overflow-y-auto space-y-5 flex-1">
             {/* Content Area */}
             {isEvaluating ? (
               <div className="py-12 flex flex-col items-center justify-center text-center space-y-3">
-                <div className="w-8 h-8 rounded-full border-2 border-[var(--color-basalt)] border-t-[var(--color-signal-green)] animate-spin" />
+                <div className="w-8 h-8 rounded-full border-2 border-[#1e2030] border-t-[#818cf8] animate-spin" />
                 <div className="space-y-1">
-                  <p className="text-xs font-mono font-medium text-[var(--color-chalk)] uppercase tracking-wider">ANALYZING_BUFFER...</p>
-                  <p className="text-[10px] text-[var(--color-fog)] font-mono uppercase">SCORING TECHNICAL ACCURACY</p>
+                  <p className="text-xs font-mono font-medium text-white uppercase tracking-wider">ANALYZING_BUFFER...</p>
+                  <p className="text-[10px] text-[#64748b] font-mono uppercase">SCORING TECHNICAL ACCURACY</p>
                 </div>
               </div>
             ) : evaluation ? (
               <div className="space-y-5 animate-in fade-in duration-200">
                 {/* Score Ring Header */}
-                <div className="flex items-center justify-between bg-[var(--color-obsidian)] border border-[var(--color-basalt)] rounded-[4px] p-3.5">
+                <div className="flex items-center justify-between bg-[#0c0d15] border border-[#1e2030] rounded-lg p-3.5 shadow-sm">
                   <div>
-                    <span className="text-[10px] font-mono uppercase tracking-wider text-[var(--color-fog)] block">SCORE</span>
-                    <p className="text-2xl font-bold font-mono text-[var(--color-chalk)] leading-none mt-1">
-                      {evaluation.score} <span className="text-xs text-[var(--color-fog)]">/ 100</span>
+                    <span className="text-[10px] font-mono uppercase tracking-wider text-[#64748b] block">SCORE</span>
+                    <p className="text-2xl font-bold font-mono text-white leading-none mt-1">
+                      {evaluation.score} <span className="text-xs text-[#64748b]">/ 100</span>
                     </p>
                   </div>
                   <ScoreRing score={evaluation.score} />
                 </div>
 
                 {/* Sub-Score Progress Bars */}
-                <div className="space-y-2.5 bg-[var(--color-obsidian)] border border-[var(--color-basalt)] rounded-[4px] p-3">
+                <div className="space-y-2.5 bg-[#0c0d15] border border-[#1e2030] rounded-lg p-3">
                   <MiniBar
                     label="TECHNICAL ACCURACY"
                     value={Math.min(100, Math.round(evaluation.score * 1.02))}
@@ -1030,22 +1104,22 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
                 </div>
 
                 {/* Feedback Analysis */}
-                <div className="space-y-1">
-                  <span className="text-[10px] text-[var(--color-fog)] font-mono uppercase tracking-wider block">
+                <div className="space-y-1.5">
+                  <span className="text-[10px] text-[#64748b] font-mono uppercase tracking-wider block">
                     ANALYSIS
                   </span>
-                  <p className="text-xs text-[var(--color-ash)] leading-relaxed font-sans bg-[var(--color-obsidian)] border border-[var(--color-basalt)] rounded-[4px] p-3">
+                  <p className="text-xs text-[#cbd5e1] leading-relaxed font-sans bg-[#0c0d15] border border-[#1e2030] rounded-lg p-3">
                     {evaluation.feedback}
                   </p>
                 </div>
 
                 {/* Improvements */}
                 {(evaluation.improvements || evaluation.improvement) && (
-                  <div className="space-y-1">
-                    <span className="text-[10px] text-[var(--color-signal-green)] font-mono uppercase tracking-wider block">
+                  <div className="space-y-1.5">
+                    <span className="text-[10px] text-[#818cf8] font-mono uppercase tracking-wider block">
                       IMPROVEMENTS
                     </span>
-                    <p className="text-xs text-[var(--color-ash)] leading-relaxed font-sans bg-[var(--color-obsidian)] border border-[var(--color-basalt)] rounded-[4px] p-3">
+                    <p className="text-xs text-[#cbd5e1] leading-relaxed font-sans bg-[#0c0d15] border border-[#1e2030] rounded-lg p-3">
                       {evaluation.improvements || evaluation.improvement}
                     </p>
                   </div>
@@ -1054,19 +1128,19 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
             ) : (
               /* Idle State */
               <div className="py-8 flex flex-col items-center justify-center text-center space-y-3.5">
-                <div className="w-9 h-9 rounded-[4px] bg-[var(--color-obsidian)] border border-[var(--color-basalt)] flex items-center justify-center text-sm text-[var(--color-fog)] font-mono">
+                <div className="w-10 h-10 rounded-lg bg-[#0c0d15] border border-[#1e2030] flex items-center justify-center text-sm text-[#818cf8] font-mono shadow-[0_0_15px_rgba(79,70,229,0.2)]">
                   [►]
                 </div>
                 <div className="space-y-1">
-                  <p className="text-xs font-mono font-semibold text-[var(--color-chalk)] uppercase tracking-wider">AWAITING_RESPONSE</p>
-                  <p className="text-[11px] text-[var(--color-fog)] leading-relaxed font-sans">
+                  <p className="text-xs font-mono font-semibold text-white uppercase tracking-wider">AWAITING_RESPONSE</p>
+                  <p className="text-[11px] text-[#9ca3af] leading-relaxed font-sans">
                     Submit your answer to begin live evaluation.
                   </p>
                 </div>
 
-                <div className="w-full bg-[var(--color-obsidian)] border border-[var(--color-basalt)] rounded-[4px] p-3 text-left space-y-1.5 text-[11px]">
-                  <p className="font-semibold text-[var(--color-chalk)] font-mono text-[10px] uppercase tracking-wider">INTERVIEW TIPS:</p>
-                  <ul className="space-y-1 list-disc list-inside text-[var(--color-silver)] font-sans">
+                <div className="w-full bg-[#0c0d15] border border-[#1e2030] rounded-lg p-3 text-left space-y-1.5 text-[11px]">
+                  <p className="font-semibold text-white font-mono text-[10px] uppercase tracking-wider">INTERVIEW TIPS:</p>
+                  <ul className="space-y-1 list-disc list-inside text-[#9ca3af] font-sans">
                     <li>State assumptions clearly</li>
                     <li>Discuss design trade-offs</li>
                     <li>Account for edge cases</li>
@@ -1077,8 +1151,8 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
           </div>
 
           {/* Footer note */}
-          <div className="pt-3 border-t border-[var(--color-basalt)] text-center">
-            <span className="text-[9px] text-[var(--color-fog)] font-mono uppercase tracking-wider">
+          <div className="p-3 border-t border-[#1e2030] bg-[#0c0d15]/50 text-center shrink-0">
+            <span className="text-[9px] text-[#64748b] font-mono uppercase tracking-wider">
               Gemini & LLM Evaluation Engine
             </span>
           </div>
@@ -1087,36 +1161,49 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
 
       {/* END CONFIRM MODAL */}
       {showEndModal && (
-        <div className="fixed inset-0 z-50 bg-[var(--color-carbon)]/85 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[var(--color-graphite)] border border-[var(--color-basalt)] rounded-[4px] p-6 w-[360px] shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-150 font-sans">
-            <div className="flex items-center gap-2.5 text-[#ef4444]">
-              <span className="w-2 h-2 rounded-full bg-[#ef4444]" />
-              <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-[var(--color-chalk)]">
-                END_SESSION_CONFIRMATION
-              </h3>
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="rounded-xl border border-[#1e2030] bg-[#09090f] w-[400px] shadow-[0_16px_48px_rgba(0,0,0,0.8)] overflow-hidden animate-in fade-in zoom-in-95 duration-150 font-sans">
+            {/* macOS Titlebar */}
+            <div className="flex items-center justify-between px-4 h-10 border-b border-[#1e2030] bg-[#11121b]/90 select-none">
+              <div className="flex items-center gap-2.5">
+                <MacTrafficLights size="sm" />
+                <span className="font-mono text-[11px] text-[#9ca3af] font-medium tracking-wide">
+                  terminate-session.sh — prompt
+                </span>
+              </div>
+              <span className="font-mono text-[10px] text-[#ef4444] bg-[#ef4444]/10 border border-[#ef4444]/20 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                CONFIRM
+              </span>
             </div>
 
-            <p className="text-xs text-[var(--color-silver)] leading-relaxed">
-              You have completed <span className="text-[var(--color-signal-green)] font-mono font-semibold">{answersCount}</span> of{' '}
-              <span className="text-[var(--color-chalk)] font-mono">{questions.length || 5}</span> questions. End now to view your score report or continue the session.
-            </p>
+            <div className="p-6 space-y-4">
+              <div className="flex items-center gap-2 text-[#ef4444] font-mono text-xs font-semibold">
+                <span className="w-2 h-2 rounded-full bg-[#ef4444]" />
+                <span>TERMINATE ASSESSMENT EARLY?</span>
+              </div>
 
-            <div className="flex items-center justify-end gap-2.5 pt-2">
-              <button
-                onClick={() => setShowEndModal(false)}
-                className="rounded-full border border-[var(--color-basalt)] hover:border-[var(--color-steel)] text-[var(--color-ash)] hover:text-[var(--color-chalk)] text-xs font-mono uppercase px-4 py-1.5 transition-colors"
-              >
-                CONTINUE
-              </button>
-              <button
-                onClick={() => {
-                  setShowEndModal(false);
-                  handleEndInterview();
-                }}
-                className="rounded-full bg-[#ef4444] hover:bg-[#dc2626] text-[var(--color-ash)] text-xs font-mono font-bold uppercase px-4 py-1.5 transition-colors shadow-sm"
-              >
-                END & SEE RESULTS
-              </button>
+              <p className="text-xs text-[#9ca3af] leading-relaxed font-mono">
+                Completed <span className="text-[#22c55e] font-semibold">{answersCount}</span> of{' '}
+                <span className="text-white">{questions.length || 5}</span> questions. End now to compute your score report, or continue answering.
+              </p>
+
+              <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-[#1e2030]">
+                <button
+                  onClick={() => setShowEndModal(false)}
+                  className="rounded-md border border-[#1e2030] hover:border-[#3730a3] bg-[#0c0d15] text-[#9ca3af] hover:text-white text-xs font-mono uppercase px-4 py-2 transition-colors cursor-pointer"
+                >
+                  Continue
+                </button>
+                <button
+                  onClick={() => {
+                    setShowEndModal(false);
+                    handleEndInterview();
+                  }}
+                  className="rounded-md bg-[#ef4444] hover:bg-[#dc2626] text-white text-xs font-mono font-bold uppercase px-4 py-2 transition-all shadow-md cursor-pointer"
+                >
+                  End & View Results
+                </button>
+              </div>
             </div>
           </div>
         </div>

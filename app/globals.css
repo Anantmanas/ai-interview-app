@@ -252,19 +252,30 @@
   .border-violet-accent { border: 1px solid #3730a3; }
   .border-neon-accent { border: 1px solid #4f46e5; }
 
-  /* Surface cards */
+  /* Surface cards - Apple Terminal Aesthetic */
   .card-console {
-    background: #09090e;
-    border: 1px solid #1e1e2f;
-    border-radius: 6px;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 4px 20px rgba(0, 0, 0, 0.6);
+    background: #09090f;
+    border: 1px solid #1e2030;
+    border-radius: 12px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 8px 32px rgba(0, 0, 0, 0.55);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .card-console:hover {
+    border-color: #2b2d42;
   }
 
   .card-console-glow {
-    background: #09090e;
+    background: #09090f;
     border: 1px solid #3730a3;
-    border-radius: 6px;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 0 25px rgba(99, 102, 241, 0.15);
+    border-radius: 12px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 0 30px rgba(79, 70, 229, 0.18), 0 8px 32px rgba(0, 0, 0, 0.55);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .card-console-glow:hover {
+    border-color: #4f46e5;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 0 35px rgba(99, 102, 241, 0.25), 0 8px 32px rgba(0, 0, 0, 0.6);
   }
 
   /* Active nav pill */

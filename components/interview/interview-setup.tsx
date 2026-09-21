@@ -8,6 +8,7 @@ import { useResume } from '@/components/resume/resume-provider'
 import { SkillIcon } from '@/components/resume/skill-icon'
 import { ResumeDropzone } from '@/components/resume/resume-dropzone'
 import { Code, Users, Network, Sparkles, ArrowRight, ArrowLeft } from 'lucide-react'
+import { MacTrafficLights } from '@/components/ui/terminal-card'
 
 interface InterviewSetupProps {
   profile: Profile | null
@@ -103,9 +104,26 @@ export function InterviewSetup({ profile, existingCount = 0 }: InterviewSetupPro
   return (
     <div className="space-y-6">
       {/* Cockpit Card Container */}
-      <div className="card-console-glow p-6 sm:p-8 space-y-8">
-        {/* Header Briefing */}
-        <div className="border-b border-[#1e1e2f] pb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="rounded-xl border border-[#3730a3] bg-[#09090f] shadow-[0_0_35px_rgba(79,70,229,0.18),inset_0_1px_0_rgba(255,255,255,0.06)] overflow-hidden">
+        {/* Apple Terminal Titlebar */}
+        <div className="flex items-center justify-between px-4 h-10 border-b border-[#1e2030] bg-[#11121b]/90 select-none">
+          <div className="flex items-center gap-3">
+            <MacTrafficLights size="sm" />
+            <span className="font-mono text-[11px] text-[#9ca3af] font-medium tracking-wide">
+              interview-init.sh — bash — 80x24
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="h-2 w-2 rounded-full bg-[#22c55e] led-pulse" />
+            <span className="font-mono text-[10px] text-[#22c55e] uppercase tracking-wider font-semibold">
+              ENGINE READY
+            </span>
+          </div>
+        </div>
+
+        <div className="p-6 sm:p-8 space-y-8">
+          {/* Header Briefing */}
+          <div className="border-b border-[#1e1e2f] pb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
               <span className="text-[10px] font-mono uppercase tracking-widest text-[#818cf8] font-semibold">
@@ -337,6 +355,7 @@ export function InterviewSetup({ profile, existingCount = 0 }: InterviewSetupPro
             )}
           </button>
         </div>
+      </div>
       </div>
     </div>
   )

@@ -2,6 +2,7 @@
 
 import { Switch } from '@/components/ui/switch'
 import { Bell, Lock } from 'lucide-react'
+import { MacTrafficLights } from '@/components/ui/terminal-card'
 
 export default function SettingsPage() {
   return (
@@ -15,8 +16,16 @@ export default function SettingsPage() {
       </div>
 
       <div className="grid gap-6">
-        <div className="card-console">
-          <div className="p-5 border-b border-[#1e1e2f]">
+        <div className="rounded-xl border border-[#1e2030] bg-[#09090f] shadow-[0_8px_32px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.05)] overflow-hidden">
+          <div className="flex items-center justify-between px-4 h-10 border-b border-[#1e2030] bg-[#11121b]/90 select-none">
+            <div className="flex items-center gap-3">
+              <MacTrafficLights size="sm" />
+              <span className="font-mono text-[11px] text-[#9ca3af] font-medium tracking-wide">
+                notifications.conf — bash
+              </span>
+            </div>
+          </div>
+          <div className="p-5 border-b border-[#1e1e2f]/50 bg-[#0c0d15]/40">
             <p className="font-mono text-[11px] text-white uppercase tracking-[0.08em] font-semibold flex items-center gap-2">
               <Bell className="h-4 w-4 text-[#818cf8]" />
               Notifications
@@ -43,8 +52,16 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        <div className="card-console">
-          <div className="p-5 border-b border-[#1e1e2f]">
+        <div className="rounded-xl border border-[#1e2030] bg-[#09090f] shadow-[0_8px_32px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.05)] overflow-hidden">
+          <div className="flex items-center justify-between px-4 h-10 border-b border-[#1e2030] bg-[#11121b]/90 select-none">
+            <div className="flex items-center gap-3">
+              <MacTrafficLights size="sm" />
+              <span className="font-mono text-[11px] text-[#9ca3af] font-medium tracking-wide">
+                security.conf — bash
+              </span>
+            </div>
+          </div>
+          <div className="p-5 border-b border-[#1e1e2f]/50 bg-[#0c0d15]/40">
             <p className="font-mono text-[11px] text-white uppercase tracking-[0.08em] font-semibold flex items-center gap-2">
               <Lock className="h-4 w-4 text-[#818cf8]" />
               Privacy & Security

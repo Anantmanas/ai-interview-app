@@ -103,7 +103,7 @@ export const DesktopSidebar = ({
   return (
     <motion.div
       className={cn(
-        "h-screen sticky top-0 px-3 py-4 hidden md:flex md:flex-col bg-[#000000] border-r border-[#1e1e2f] shrink-0 overflow-hidden z-30 transition-[width] duration-200 ease-in-out",
+        "h-screen h-[100dvh] min-h-screen sticky top-0 px-3 py-4 hidden md:flex md:flex-col justify-between bg-[#08080c] border-r border-[#1e1e2f] shrink-0 overflow-hidden z-30 transition-[width] duration-200 ease-in-out",
         className
       )}
       animate={{
@@ -126,7 +126,7 @@ export const MobileSidebar = ({
   return (
     <div
       className={cn(
-        "h-12 px-4 py-3 flex flex-row md:hidden items-center justify-between bg-neutral-100 dark:bg-neutral-800 w-full"
+        "h-12 px-4 py-3 flex flex-row md:hidden items-center justify-between bg-[#08080c] border-b border-[#1e1e2f] w-full"
       )}
       {...props}
     >
@@ -135,7 +135,7 @@ export const MobileSidebar = ({
           type="button"
           aria-label="Toggle navigation"
           onClick={() => setOpen(!open)}
-          className="p-1 rounded-md text-neutral-800 dark:text-neutral-200 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors"
+          className="p-1 rounded-md text-[#9ca3af] hover:text-white hover:bg-[#14142b] transition-colors"
         >
           <IconMenu2 className="h-5 w-5" />
         </button>
@@ -151,14 +151,14 @@ export const MobileSidebar = ({
               ease: "easeInOut",
             }}
             className={cn(
-              "fixed h-full w-full inset-0 bg-white dark:bg-neutral-900 p-6 z-[100] flex flex-col justify-between overflow-y-auto",
+              "fixed h-full w-full inset-0 bg-[#08080c] p-6 z-[100] flex flex-col justify-between overflow-y-auto border-r border-[#1e1e2f]",
               className
             )}
           >
             <button
               type="button"
               aria-label="Close navigation"
-              className="absolute right-6 top-6 z-50 text-neutral-800 dark:text-neutral-200 p-1 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+              className="absolute right-6 top-6 z-50 text-[#9ca3af] hover:text-white p-1 rounded-md hover:bg-[#14142b] transition-colors"
               onClick={() => setOpen(!open)}
             >
               <IconX className="h-5 w-5" />

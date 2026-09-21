@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
+import { useRouter } from 'next/navigation'
 
 export interface ResumeData {
   name: string
@@ -94,6 +95,7 @@ export function clearResumePersistent(): void {
 const ResumeContext = createContext<ResumeContextValue | null>(null)
 
 export function ResumeProvider({ children }: { children: ReactNode }) {
+  const router = useRouter()
   const [resumeData, setResumeData] = useState<ResumeData | null>(null)
   const [resumeMeta, setResumeMeta] = useState<ResumeMeta | null>(null)
   const [isExtracting, setIsExtracting] = useState(false)
@@ -178,8 +180,14 @@ export function ResumeProvider({ children }: { children: ReactNode }) {
       }
 
       saveResumePersistent(extracted, meta)
-      setResumeData(extracted)
-      setResumeMeta(meta)
+      setResumeData({ ...extracted })
+      setResumeMeta({ ...meta })
+
+      try {
+        router.refresh()
+      } catch (err) {
+        console.warn('[ResumeProvider] router.refresh error:', err)
+      }
     } catch (err: any) {
       setExtractionError(err?.message || 'Resume analysis failed. Please try again.')
       console.error('[ResumeProvider] upload error:', err)
@@ -193,6 +201,9 @@ export function ResumeProvider({ children }: { children: ReactNode }) {
     setResumeData(null)
     setResumeMeta(null)
     setExtractionError(null)
+    try {
+      router.refresh()
+    } catch {}
   }
 
   return (

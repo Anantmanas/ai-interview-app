@@ -29,15 +29,15 @@ export const openai = new OpenAI({
 })
 
 // Model names per provider
-// OpenRouter defaults to 'openrouter/auto' to dynamically select the best available model
+// OpenRouter defaults to 'openrouter/free' to avoid 402 out-of-credits errors on paid auto-routing
 export const GENERATION_MODEL = isOpenRouter
-  ? (process.env.OPENROUTER_MODEL || 'openrouter/auto')
+  ? (process.env.OPENROUTER_MODEL || 'openrouter/free')
   : isGemini
     ? (process.env.GEMINI_MODEL || 'gemini-1.5-flash')
     : (process.env.OPENAI_MODEL || 'gpt-4o-mini')
 
 export const EVALUATION_MODEL = isOpenRouter
-  ? (process.env.OPENROUTER_EVAL_MODEL || 'openrouter/auto')
+  ? (process.env.OPENROUTER_EVAL_MODEL || 'openrouter/free')
   : isGemini
     ? (process.env.GEMINI_MODEL || 'gemini-1.5-flash')
     : (process.env.OPENAI_EVAL_MODEL || 'gpt-4o')
@@ -70,7 +70,7 @@ export async function createChatCompletion({
     ? [{ role: 'system' as const, content: system }, ...messages]
     : messages
 
-  // Primary: use the configured client with openrouter/auto
+  // Primary: use the configured client
   try {
     const res = await openai.chat.completions.create({
       model: chosenModel,
@@ -80,28 +80,35 @@ export async function createChatCompletion({
     })
     return res.choices[0]?.message?.content || ''
   } catch (err: any) {
-    // If OpenRouter error (e.g. credits required for auto-routed paid model), fallback through free models
+    // If OpenRouter error (e.g. 402 out of credits or 400 unsupported format), fallback through free models
     if (isOpenRouter) {
-      console.warn(`[AI Client] OpenRouter model ${chosenModel} error (${err?.status}):`, err?.message)
+      console.warn(`[AI Client] OpenRouter model ${chosenModel} error (${err?.status || err?.message}):`, err?.message)
       const freeModels = [
+        'openrouter/free',
         'meta-llama/llama-3.3-70b-instruct:free',
         'qwen/qwen-2.5-coder-32b-instruct:free',
+        'google/gemini-2.0-flash-exp:free',
+        'deepseek/deepseek-r1:free',
         'mistralai/mistral-7b-instruct:free',
       ]
 
       for (const fallbackModel of freeModels) {
         if (fallbackModel === chosenModel) continue
-        try {
-          console.log(`[AI Client] Retrying with OpenRouter free model: ${fallbackModel}`)
-          const fallbackRes = await openai.chat.completions.create({
-            model: fallbackModel,
-            messages: allMessages,
-            response_format: responseFormat,
-            max_tokens: 800,
-          })
-          return fallbackRes.choices[0]?.message?.content || ''
-        } catch (fbErr: any) {
-          console.warn(`[AI Client] Fallback ${fallbackModel} failed:`, fbErr?.message)
+        // Try with responseFormat first, then fallback without responseFormat
+        for (const format of [responseFormat, undefined]) {
+          try {
+            console.log(`[AI Client] Retrying with OpenRouter free model: ${fallbackModel}${format ? ' (with json_object)' : ''}`)
+            const fallbackRes = await openai.chat.completions.create({
+              model: fallbackModel,
+              messages: allMessages,
+              response_format: format,
+              max_tokens: 800,
+            })
+            const content = fallbackRes.choices[0]?.message?.content || ''
+            if (content) return content
+          } catch (fbErr: any) {
+            console.warn(`[AI Client] Fallback ${fallbackModel} failed:`, fbErr?.message)
+          }
         }
       }
     }
