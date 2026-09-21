@@ -32,7 +32,7 @@ export async function POST() {
 
     return NextResponse.json({
       subscription_id: subscription.id,
-      key_id: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+      key_id: process.env.RAZORPAY_KEY_ID,
       customer_name: profile?.full_name ?? '',
       customer_email: profile?.email ?? user.email ?? '',
     })
