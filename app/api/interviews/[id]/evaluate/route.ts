@@ -33,9 +33,22 @@ export async function POST(
 
     const rateLimit = await checkRateLimit(user.id)
     if (!rateLimit.allowed) {
+      const plan = rateLimit.plan || 'free'
       return NextResponse.json(
-        { error: 'Daily AI limit reached. Please upgrade or try again tomorrow.' },
-        { status: 429 }
+        {
+          error: 'Daily limit reached.',
+          message: plan === 'free'
+            ? 'You have used your 3 free AI sessions today. Upgrade to Pro for unlimited access.'
+            : 'Daily session limit reached. Resets at midnight.',
+          upgradeUrl: '/dashboard/billing',
+        },
+        {
+          status: 429,
+          headers: {
+            'Retry-After': '86400',
+            'X-RateLimit-Plan': plan,
+          },
+        }
       )
     }
 

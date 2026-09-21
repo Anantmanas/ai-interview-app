@@ -69,6 +69,13 @@ export function BillingClient({ profile, subscriptions }: BillingClientProps) {
   }
 
   const handleUpgrade = async () => {
+    // Guard: fail loudly if keys not configured
+    if (!process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID) {
+      const { toast } = await import('sonner')
+      toast.error('Payment system is not configured. Please contact support.')
+      console.error('[Billing] NEXT_PUBLIC_RAZORPAY_KEY_ID is not set')
+      return
+    }
     setUpgrading(true)
     const res = await fetch('/api/billing/create-subscription', { method: 'POST' })
     const data = await res.json()
@@ -91,6 +98,7 @@ export function BillingClient({ profile, subscriptions }: BillingClientProps) {
     }
     document.body.appendChild(script)
   }
+
 
   return (
     <div className="p-6 max-w-[800px] mx-auto">

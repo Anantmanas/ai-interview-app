@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { useResume } from '@/components/resume/resume-provider'
 import { SkillIcon } from '@/components/resume/skill-icon'
 import { CheckCircle2, FileText } from 'lucide-react'
@@ -8,6 +9,7 @@ import { MacTrafficLights } from '@/components/ui/terminal-card'
 
 export function ResumeSummary() {
   const { resumeData, resumeMeta, isResumeReady } = useResume()
+  const [expanded, setExpanded] = useState(false)
 
   if (!isResumeReady || !resumeData) {
     return null
@@ -48,6 +50,24 @@ export function ResumeSummary() {
       {resumeData.name && (
         <div className="text-xs text-[#9ca3af]">
           Candidate: <strong className="text-[#ffffff] font-medium">{resumeData.name}</strong> • Target: <span className="text-[#818cf8]">{resumeData.targetRole || 'Software Engineer'}</span>
+        </div>
+      )}
+
+      {/* Collapsible executive summary */}
+      {resumeData.summary && (
+        <div>
+          <p
+            className={`font-body text-[13px] text-[#9ca3af] leading-relaxed cursor-pointer ${expanded ? '' : 'line-clamp-2'}`}
+            onClick={() => setExpanded(!expanded)}
+          >
+            {resumeData.summary}
+          </p>
+          <button
+            onClick={() => setExpanded(!expanded)}
+            className="font-mono text-[10px] text-[#4f46e5] hover:text-[#818cf8] transition-colors mt-1"
+          >
+            {expanded ? 'COLLAPSE ↑' : 'EXPAND ↓'}
+          </button>
         </div>
       )}
 

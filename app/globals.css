@@ -411,6 +411,13 @@
       transition-duration: 0.01ms !important;
     }
   }
+
+  /* Release will-change after animation completes — prevents permanent layer promotion */
+  @media (prefers-reduced-motion: no-preference) {
+    [data-animated="true"] {
+      will-change: auto;
+    }
+  }
 }
 
 /* ── Interactivity Pass — Additional Keyframes & Utilities ──── */

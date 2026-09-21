@@ -189,11 +189,17 @@ export function ResumeProvider({ children }: { children: ReactNode }) {
         console.warn('[ResumeProvider] router.refresh error:', err)
       }
     } catch (err: any) {
-      setExtractionError(err?.message || 'Resume analysis failed. Please try again.')
+      const message = err?.message || 'Resume analysis failed. Please try again.'
+      if (message.includes('401') || message.includes('Unauthorized') || message.includes('uploadthing')) {
+        setExtractionError('Resume upload is temporarily unavailable. Please try again later.')
+      } else {
+        setExtractionError(message)
+      }
       console.error('[ResumeProvider] upload error:', err)
     } finally {
       setIsExtracting(false)
     }
+
   }
 
   const replaceResume = () => {

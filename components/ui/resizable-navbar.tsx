@@ -4,10 +4,8 @@ import { Menu as IconMenu2, X as IconX } from "lucide-react";
 import {
   motion,
   AnimatePresence,
-  useScroll,
-  useMotionValueEvent,
 } from "motion/react";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 interface NavbarProps {
   children: React.ReactNode;
@@ -54,24 +52,22 @@ interface NavbarLogoProps {
 }
 
 export const Navbar = ({ children, className }: NavbarProps) => {
-  const ref = useRef<HTMLDivElement>(null);
-  const { scrollY } = useScroll({
-    target: ref,
-    offset: ["start start", "end start"],
-  });
   const [visible, setVisible] = useState<boolean>(false);
 
-  useMotionValueEvent(scrollY, "change", (latest) => {
-    if (latest > 100) {
-      setVisible(true);
-    } else {
-      setVisible(false);
-    }
-  });
+  // Intersection Observer — zero scroll listener overhead
+  useEffect(() => {
+    const sentinel = document.getElementById('scroll-sentinel')
+    if (!sentinel) return
+    const observer = new IntersectionObserver(
+      ([entry]) => setVisible(!entry.isIntersecting),
+      { threshold: 0.1 }
+    )
+    observer.observe(sentinel)
+    return () => observer.disconnect()
+  }, [])
 
   return (
     <motion.div
-      ref={ref}
       // Set to fixed/sticky at top with high z-index
       className={cn("fixed inset-x-0 top-0 z-50 w-full pt-4 px-4 pointer-events-none", className)}
     >
@@ -88,6 +84,7 @@ export const Navbar = ({ children, className }: NavbarProps) => {
     </motion.div>
   );
 };
+
 
 export const NavBody = ({ children, className, visible }: NavBodyProps) => {
   return (
@@ -110,7 +107,7 @@ export const NavBody = ({ children, className, visible }: NavBodyProps) => {
       }}
       className={cn(
         "relative z-[60] mx-auto hidden w-full max-w-7xl flex-row items-center justify-between self-start rounded-full bg-transparent px-6 py-2.5 transition-colors duration-200 lg:flex",
-        visible && "bg-[#000000]/85 border border-[#1e1e2f] backdrop-blur-xl dark:bg-[#000000]/85",
+        visible && "bg-[#000000]/85 border border-[#1e1e2f] backdrop-blur-md dark:bg-[#000000]/85",
         className,
       )}
     >

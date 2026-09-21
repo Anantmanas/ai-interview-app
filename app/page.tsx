@@ -19,10 +19,10 @@ import { DottedGlowBackground } from '@/components/ui/dotted-glow-background'
 
 /* ── Typewriter hook ─────────────────────────────────────────── */
 
-function useTypewriter(words: string[], speed = 80, pause = 2000) {
-  const [displayed, setDisplayed] = useState('')
+function useTypewriter(words: string[], speed = 80, pause = 2000, initialValue = '') {
+  const [displayed, setDisplayed] = useState(initialValue || (words[0] ?? ''))
   const [wordIndex, setWordIndex] = useState(0)
-  const [charIndex, setCharIndex] = useState(0)
+  const [charIndex, setCharIndex] = useState(initialValue ? words[0]?.length ?? 0 : 0)
   const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
@@ -46,6 +46,7 @@ function useTypewriter(words: string[], speed = 80, pause = 2000) {
 
   return displayed
 }
+
 
 /* ── Feature data ─────────────────────────────────────────────── */
 
@@ -109,10 +110,12 @@ const typewriterRoles = [
 /* ── Page ─────────────────────────────────────────────────────── */
 
 export default function LandingPage() {
-  const roles = useTypewriter(typewriterRoles)
+  const roles = useTypewriter(typewriterRoles, 80, 2000, 'DSA & Coding Interviews')
 
   return (
     <main className="relative min-h-screen bg-[#000000] overflow-x-hidden">
+      {/* Scroll sentinel for IntersectionObserver-based navbar — zero scroll listener overhead */}
+      <div id="scroll-sentinel" className="absolute top-20 h-px w-full pointer-events-none" aria-hidden="true" />
       <LandingBackground />
 
       <div className="relative z-10">
@@ -230,6 +233,7 @@ export default function LandingPage() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-60px' }}
             transition={{ duration: 0.5, ease: 'easeOut' }}
+            style={{ willChange: 'transform, opacity' }}
             className="mb-14 text-center"
           >
             <p className="font-mono text-[10px] text-[#818cf8] uppercase tracking-[0.2em] mb-3">// CAPABILITIES</p>
@@ -251,6 +255,7 @@ export default function LandingPage() {
                 viewport={{ once: true, margin: '-60px' }}
                 transition={{ duration: 0.5, delay: idx * 0.08, ease: 'easeOut' }}
                 whileHover={{ y: -3, transition: { duration: 0.15 } }}
+                style={{ willChange: 'transform, opacity' }}
                 className={`p-5 group cursor-default transition-colors duration-200 ${
                   idx === 0
                     ? 'bg-[#09090e] border border-[#3730a3] rounded-lg shadow-[0_4px_24px_rgba(79,70,229,0.12)] hover:border-[#4f46e5] hover:bg-[#0f0f18]'
@@ -274,6 +279,7 @@ export default function LandingPage() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-60px' }}
             transition={{ duration: 0.5, ease: 'easeOut' }}
+            style={{ willChange: 'transform, opacity' }}
             className="mb-14 text-center sm:text-left"
           >
             <p className="font-mono text-[10px] text-[#818cf8] uppercase tracking-[0.2em] mb-3">// WORKFLOW</p>
@@ -309,6 +315,7 @@ export default function LandingPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-60px' }}
                 transition={{ duration: 0.5, delay: i * 0.1, ease: 'easeOut' }}
+                style={{ willChange: 'transform, opacity' }}
                 className="bg-[#09090e] border border-[#1e1e2f] rounded-lg shadow-[0_4px_20px_rgba(0,0,0,0.4)] p-7 hover:border-[#3730a3] transition-all"
               >
                 <div className="font-mono text-[28px] font-bold text-[#6366f1] mb-4 tracking-tight">

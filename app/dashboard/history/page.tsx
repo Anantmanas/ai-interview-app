@@ -115,14 +115,20 @@ export default async function HistoryPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
-                    {interview.overall_score !== null && (
-                      <div className="text-right">
-                        <div className="font-display text-[26px] font-bold bg-gradient-to-r from-[#6366f1] to-[#818cf8] bg-clip-text text-transparent leading-none">
-                          {interview.overall_score}%
-                        </div>
-                        <div className="font-mono text-[10px] text-[#64748b] uppercase mt-0.5">Score</div>
-                      </div>
-                    )}
+                    <div className="text-right">
+                      {interview.overall_score !== null && interview.overall_score > 0 ? (
+                        <>
+                          <div className="font-display text-[26px] font-bold bg-gradient-to-r from-[#6366f1] to-[#818cf8] bg-clip-text text-transparent leading-none">
+                            {interview.overall_score}%
+                          </div>
+                          <div className="font-mono text-[10px] text-[#64748b] uppercase mt-0.5">Score</div>
+                        </>
+                      ) : interview.status === 'completed' ? (
+                        <span className="font-mono text-[11px] text-[#64748b] bg-[#0f0f18] border border-[#1e1e2f] rounded-[2px] px-2 py-0.5">
+                          — PENDING
+                        </span>
+                      ) : null}
+                    </div>
                     <Link 
                       href={interview.status === 'completed' ? `/dashboard/history/${interview.id}` : `/interview/${interview.id}`}
                       className="inline-flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.05em] text-[#818cf8] hover:text-white transition-colors bg-[#14142b] border border-[#3730a3]/60 hover:border-[#4f46e5] px-4 py-2.5 rounded-lg"

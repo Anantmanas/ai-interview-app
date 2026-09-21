@@ -52,7 +52,7 @@ export class ResumeParsingService {
 
       JSON schema to return:
       {
-        "name": "Full Name",
+        "name": "Full Name — MUST be a human full name (2-4 words, letters only). If you cannot confidently identify a real human name from the text, return null for name.",
         "position": "Current or Target Professional Title/Position",
         "experience_level": "junior" | "mid" | "senior" | "staff" | "principal",
         "overview_summarized": "A 2-3 sentence overview of experience and career focus",
@@ -62,6 +62,7 @@ export class ResumeParsingService {
       Resume text:
       ${resumeText}
     `
+
 
     const rawContent = await createChatCompletion({
       system: 'You are a professional technical recruiter and resume analyzer. You only respond with JSON matching the specified schema.',

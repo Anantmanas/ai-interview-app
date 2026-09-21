@@ -358,20 +358,53 @@ export async function POST(req: NextRequest) {
   }
 }
 
+
+function sanitizeFullName(raw: string): string {
+  if (!raw) return ''
+
+  // PDF binary artifact tokens to reject entirely
+  const PDF_ARTIFACTS = [
+    'endobj', 'endstream', 'stream', 'xref', 'trailer',
+    'startxref', 'obj', '>>', 'BT', 'ET', 'Tf', 'Td', 'Tj',
+  ]
+
+  const lower = raw.toLowerCase().trim()
+
+  // Reject if it IS a known artifact
+  if (PDF_ARTIFACTS.some(token => lower === token.toLowerCase())) return ''
+
+  // Reject if it contains PDF-specific patterns
+  if (/^\d+\s+\d+\s+obj/.test(raw)) return ''
+  if (/^%PDF/.test(raw)) return ''
+  if (raw.length < 2 || raw.length > 80) return ''
+
+  // Allow only: letters, spaces, hyphens, apostrophes, dots
+  const cleaned = raw.replace(/[^a-zA-Z\s\-'.]/g, '').trim()
+
+  // Must look like a real name: at least 2 chars, no digit sequences
+  if (cleaned.length < 2) return ''
+  if (/\d{3,}/.test(cleaned)) return ''
+
+  return cleaned
+}
+
 async function persistResumeProfile(resumeData: ResumeData, markdown: string) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return
 
+  const safeName = sanitizeFullName(resumeData.name || '')
+
   await supabase
     .from('profiles')
     .update({
       resume_text: markdown,
-      full_name: resumeData.name || null,
+      full_name: safeName || null,   // null if sanitizer rejects it — never write garbage
       target_role: resumeData.targetRole || null,
     })
     .eq('id', user.id)
 }
+
 
 export async function GET() {
   const supabase = await createClient()

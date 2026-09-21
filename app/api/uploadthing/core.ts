@@ -2,7 +2,12 @@ import { createUploadthing, type FileRouter } from "uploadthing/next";
 import { createClient } from "@/lib/supabase/server";
 import { ResumeUploadService } from "@/lib/resume/upload-service";
 
+if (!process.env.UPLOADTHING_TOKEN) {
+  console.error('[UploadThing] UPLOADTHING_TOKEN is not set — file uploads will fail with 401')
+}
+
 const f = createUploadthing();
+
 
 export const ourFileRouter = {
   resumeUploader: f({ pdf: { maxFileSize: "4MB" } })

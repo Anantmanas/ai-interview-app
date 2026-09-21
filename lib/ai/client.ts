@@ -29,15 +29,15 @@ export const openai = new OpenAI({
 })
 
 // Model names per provider
-// OpenRouter defaults to 'openrouter/free' to avoid 402 out-of-credits errors on paid auto-routing
+// OpenRouter falls back to free Llama model — avoid invalid 'openrouter/free' or 'openrouter/auto' IDs
 export const GENERATION_MODEL = isOpenRouter
-  ? (process.env.OPENROUTER_MODEL || 'openrouter/free')
+  ? (process.env.OPENROUTER_MODEL || 'meta-llama/llama-3.3-70b-instruct:free')
   : isGemini
     ? (process.env.GEMINI_MODEL || 'gemini-1.5-flash')
     : (process.env.OPENAI_MODEL || 'gpt-4o-mini')
 
 export const EVALUATION_MODEL = isOpenRouter
-  ? (process.env.OPENROUTER_EVAL_MODEL || 'openrouter/free')
+  ? (process.env.OPENROUTER_EVAL_MODEL || 'meta-llama/llama-3.3-70b-instruct:free')
   : isGemini
     ? (process.env.GEMINI_MODEL || 'gemini-1.5-flash')
     : (process.env.OPENAI_EVAL_MODEL || 'gpt-4o')
@@ -84,12 +84,11 @@ export async function createChatCompletion({
     if (isOpenRouter) {
       console.warn(`[AI Client] OpenRouter model ${chosenModel} error (${err?.status || err?.message}):`, err?.message)
       const freeModels = [
-        'openrouter/free',
         'meta-llama/llama-3.3-70b-instruct:free',
         'qwen/qwen-2.5-coder-32b-instruct:free',
+        'mistralai/mistral-7b-instruct:free',
         'google/gemini-2.0-flash-exp:free',
         'deepseek/deepseek-r1:free',
-        'mistralai/mistral-7b-instruct:free',
       ]
 
       for (const fallbackModel of freeModels) {
