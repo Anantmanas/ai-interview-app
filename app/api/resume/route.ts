@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { formatResumeMarkdown, parseResumeMarkdown, structuredToDashboardResume } from '@/lib/resume/format'
 import { ResumeParsingService } from '@/lib/resume/parser-service'
 import type { StructuredResumeData } from '@/lib/resume/types'
+import zlib from 'zlib'
 
 type ResumeData = {
   name: string
@@ -33,15 +34,104 @@ const KNOWN_TECH_SKILLS = [
   'Django', 'Flask', 'Spring Boot', 'Angular', 'Vue.js', 'Svelte', 'WebSockets'
 ]
 
+
+function cleanPdfString(str: string): string {
+  return str
+    .replace(/\\([()\\])/g, '$1')
+    .replace(/\\n/g, '\n')
+    .replace(/\\r/g, '\r')
+    .replace(/\\t/g, '\t')
+    .replace(/\\([0-7]{1,3})/g, (_, oct) => {
+      try {
+        return String.fromCharCode(parseInt(oct, 8))
+      } catch {
+        return ''
+      }
+    })
+}
+
+/**
+ * Pure Node/JS stream decompressor.
+ * Extracts text from PDF content streams (BT...ET blocks, Tj and TJ operators).
+ * Requires zero native dependencies, zero canvas, zero DOMMatrix.
+ * 100% reliable on Vercel Serverless / AWS Lambda.
+ */
+function extractTextFromPdfStreams(buffer: Buffer): string {
+  const binary = buffer.toString('binary')
+  const streamRegex = /stream\r?\n([\s\S]*?)\r?\nendstream/g
+  const chunks: string[] = []
+  let match: RegExpExecArray | null
+
+  while ((match = streamRegex.exec(binary)) !== null) {
+    const rawStream = Buffer.from(match[1], 'binary')
+    let text = ''
+
+    try {
+      text = zlib.inflateSync(rawStream).toString('latin1')
+    } catch {
+      try {
+        text = zlib.inflateRawSync(rawStream).toString('latin1')
+      } catch {
+        // Stream might be uncompressed ASCII/latin1
+        text = match[1]
+      }
+    }
+
+    if (text) {
+      // 1. Text array operator: [(...) 10 (...) -20] TJ
+      const tjMatches = text.matchAll(/\[(.*?)\]\s*TJ/gi)
+      for (const m of tjMatches) {
+        const parts = m[1].matchAll(/\((.*?)(?<!\\)\)/g)
+        const combined = Array.from(parts, (p) => cleanPdfString(p[1])).join('')
+        if (combined.trim()) chunks.push(combined)
+      }
+
+      // 2. Single string operators: (string) Tj, ', "
+      const singleMatches = text.matchAll(/\((.*?)(?<!\\)\)\s*(?:Tj|'|")/gi)
+      for (const m of singleMatches) {
+        const cleaned = cleanPdfString(m[1])
+        if (cleaned.trim()) chunks.push(cleaned)
+      }
+
+      // 3. Plain text inside text blocks
+      const btMatches = text.matchAll(/BT\s+([\s\S]*?)\s+ET/gi)
+      for (const m of btMatches) {
+        const innerStrings = m[1].matchAll(/\((.*?)(?<!\\)\)/g)
+        for (const s of innerStrings) {
+          const cleaned = cleanPdfString(s[1])
+          if (cleaned.trim()) chunks.push(cleaned)
+        }
+      }
+    }
+  }
+
+  return chunks
+    .join(' ')
+    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, ' ')
+    .replace(/\s{2,}/g, ' ')
+    .trim()
+}
+
+const PDF_BINARY_NOISE = /^(endobj|obj|stream|endstream|xref|trailer|startxref|catalog|flatedecode|length|filter|type|pages|font|encoding|parent|annot)$/i
+
+function isNoiseToken(word: string): boolean {
+  return PDF_BINARY_NOISE.test(word.trim()) || word.includes('%PDF-') || word.includes('<<') || word.includes('>>')
+}
+
 function parseSkills(text: string): string[] {
   const detected = new Set<string>()
+
+  // Skip if input looks like raw PDF binary
+  if (text.startsWith('%PDF-') && !text.includes(' ') && !text.includes('\n')) {
+    return []
+  }
 
   const sectionMatch = text.match(/(?:technical\s+)?skills?\s*[:\-]?\s*\n+([\s\S]*?)(?:\n{2,}|\n(?=[A-Z][^\n]{2,40}\n)|$)/i)
   if (sectionMatch) {
     sectionMatch[1]
       .split(/[\n,|/•·]/)
       .map((s) => s.replace(/^[-•·]\s*/, '').trim())
-      .filter((s) => s.length > 1 && s.length < 35)
+      .filter((s) => s.length > 1 && s.length < 35 && !isNoiseToken(s))
       .slice(0, 24)
       .forEach((s) => detected.add(s))
   }
@@ -51,15 +141,17 @@ function parseSkills(text: string): string[] {
     inlineMatch[1]
       .split(/[,|/]/)
       .map((s) => s.trim())
-      .filter(Boolean)
+      .filter((s) => Boolean(s) && !isNoiseToken(s))
       .slice(0, 24)
       .forEach((s) => detected.add(s))
   }
 
-  // Guarantee tech skills are discovered even if section layout varies
+  // Scan against known tech skills with strict word-boundary matching
   for (const tech of KNOWN_TECH_SKILLS) {
     const escaped = tech.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-    const regex = new RegExp(`(^|[^a-zA-Z0-9_#+])${escaped}([^a-zA-Z0-9_#+]|$)`, 'i')
+    // Short 2-letter skills like "Go" or "C" MUST be case-sensitive to avoid matching English words or PDF tokens
+    const flags = tech.length <= 2 ? '' : 'i'
+    const regex = new RegExp(`(^|[^a-zA-Z0-9_#+])${escaped}([^a-zA-Z0-9_#+]|$)`, flags)
     if (regex.test(text)) {
       detected.add(tech)
       if (detected.size >= 24) break
@@ -72,18 +164,30 @@ function parseSkills(text: string): string[] {
 function parseName(text: string, fileName: string): string {
   // Check for explicit "Name: John Doe"
   const nameLabelMatch = text.match(/(?:name|candidate(?:\s+name)?)\s*[:\-]\s*([A-Za-z][A-Za-z\s.'-]{2,40})/i)
-  if (nameLabelMatch?.[1]) {
+  if (nameLabelMatch?.[1] && !isNoiseToken(nameLabelMatch[1])) {
     return nameLabelMatch[1].trim()
   }
 
   const lines = text
     .split('\n')
     .map((l) => l.trim())
-    .filter((l) => l.length > 0 && !l.startsWith('%PDF-') && !l.startsWith('http') && !l.includes('@'))
+    .filter((l) => l.length > 0 && !l.startsWith('%PDF-') && !l.startsWith('http') && !l.includes('@') && !isNoiseToken(l))
 
-  const candidate = lines.find((l) => /^[A-Za-z][A-Za-z\s.'-]{2,35}$/.test(l) && !/resume|curriculum|vitae|page|engineer|developer/i.test(l))
+  const candidate = lines.find((l) =>
+    /^[A-Za-z][A-Za-z\s.'-]{2,35}$/.test(l) &&
+    !/resume|curriculum|vitae|page|engineer|developer|software|technical|experience|education|projects|summary|profile/i.test(l) &&
+    !isNoiseToken(l)
+  )
   if (candidate) return candidate
-  return fileName.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' ').slice(0, 60)
+
+  // Clean filename: "Anant_Resume[2026].pdf" -> "Anant" or "Anant Manas"
+  return fileName
+    .replace(/\.[^.]+$/, '')
+    .replace(/\[\d+\]|\(\d+\)|\d{4}/g, '')
+    .replace(/resume|cv|profile|candidate/gi, '')
+    .replace(/[-_]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim() || 'Candidate'
 }
 
 function parseYears(text: string): number {
@@ -107,12 +211,17 @@ function parseEducation(text: string): string[] {
 
 function mapStructuredToResumeData(structured: StructuredResumeData, rawText: string, fileName: string): ResumeData {
   const fallback = buildFallbackResumeData(rawText, fileName)
+  const candidateName = structured.name && !isNoiseToken(structured.name) ? structured.name : fallback.name
+  const targetPosition = structured.position && !/not answerable|unknown|n\/a/i.test(structured.position)
+    ? structured.position
+    : (fallback.targetRole || 'Software Engineer')
+
   return {
-    name: structured.name || fallback.name,
+    name: candidateName,
     skills: structured.key_skills?.length ? structured.key_skills : fallback.skills,
     experience: fallback.experience,
     education: fallback.education,
-    targetRole: structured.position || fallback.targetRole,
+    targetRole: targetPosition,
     summary: structured.overview_summarized || fallback.summary,
   }
 }
@@ -122,13 +231,13 @@ function buildFallbackResumeData(text: string, fileName: string): ResumeData {
   const years = parseYears(normalized)
   const name = parseName(normalized, fileName)
   const skills = parseSkills(normalized)
-  const targetRole = parseTargetRole(normalized)
+  const targetRole = parseTargetRole(normalized) || 'Software Engineer'
   const education = parseEducation(normalized)
 
   return {
     name,
     skills,
-    experience: years > 0 ? [{ role: targetRole || 'Software Engineer', company: 'Various', years }] : [],
+    experience: years > 0 ? [{ role: targetRole, company: 'Various', years }] : [],
     education,
     targetRole,
     summary: normalized.slice(0, 500) || 'Resume uploaded and parsed successfully.',
@@ -139,15 +248,24 @@ async function extractRawText(file: File): Promise<string> {
   const name = file.name.toLowerCase()
 
   if (name.endsWith('.pdf') || file.type === 'application/pdf') {
+    const ab = await file.arrayBuffer()
+    const buf = Buffer.from(ab)
+
+    // Stage 1: Try native zlib PDF stream extraction (pure JS, 0 native dependencies, fast & reliable on Vercel)
     try {
-      const ab = await file.arrayBuffer()
-      const buf = Buffer.from(ab)
+      const streamText = extractTextFromPdfStreams(buf)
+      if (streamText && streamText.length > 50) {
+        return streamText
+      }
+    } catch (streamErr) {
+      console.warn('[api/resume] stream extraction warning:', streamErr)
+    }
 
+    // Stage 2: Try pdf-parse as secondary option
+    try {
       const pdfModule = (await import('pdf-parse')) as any
-
-      // 1. pdf-parse v2 class check
       if (pdfModule?.PDFParse) {
-        const parser = new pdfModule.PDFParse({ data: buf })
+        const parser = new pdfModule.PDFParse({ data: new Uint8Array(ab) })
         try {
           const parsedData = await parser.getText()
           if (parsedData?.text?.trim()) {
@@ -160,7 +278,6 @@ async function extractRawText(file: File): Promise<string> {
         }
       }
 
-      // 2. pdf-parse v1 function export check
       const parseFn = typeof pdfModule === 'function' ? pdfModule : pdfModule?.default
       if (typeof parseFn === 'function') {
         const result = await parseFn(buf)
@@ -169,10 +286,14 @@ async function extractRawText(file: File): Promise<string> {
         }
       }
     } catch (e) {
-      console.warn('[api/resume] pdf extraction failed:', e instanceof Error ? e.message : e)
+      console.warn('[api/resume] pdf-parse library failed:', e instanceof Error ? e.message : e)
     }
+
+    // NEVER read raw binary PDF via file.text()!
+    return ''
   }
 
+  // Text/Markdown files
   return await file.text()
 }
 
