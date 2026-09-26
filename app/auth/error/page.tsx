@@ -1,50 +1,60 @@
 import Link from 'next/link'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { BrainCircuit, AlertTriangle } from 'lucide-react'
+import { AlertTriangle, ArrowLeft } from 'lucide-react'
+import { LandingBackground } from '@/components/ui/landing-background'
 
 export default function AuthErrorPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <div className="w-full max-w-md">
-        <div className="flex items-center justify-center gap-2 mb-8">
-          <div className="p-2 bg-primary rounded-lg">
-            <BrainCircuit className="h-8 w-8 text-primary-foreground" />
-          </div>
-          <span className="text-2xl font-bold text-foreground">InterviewAI</span>
+    <main className="min-h-screen bg-[#000000] flex items-center justify-center p-6 relative overflow-hidden">
+      <LandingBackground />
+
+      <div className="relative z-10 w-full max-w-[420px]">
+        {/* Logo header */}
+        <div className="text-center mb-8">
+          <Link href="/" className="inline-flex items-center gap-2.5 mb-6">
+            <span className="led-pulse h-2 w-2 rounded-full bg-[#ef4444]" />
+            <span className="font-mono text-[14px] font-bold text-[#ffffff] uppercase tracking-[0.1em]">
+              InterviewAI
+            </span>
+          </Link>
+          <p className="font-mono text-[10px] text-[#ef4444] uppercase tracking-[0.2em] mb-2.5 font-semibold">
+            // AUTH PROTOCOL ERROR
+          </p>
+          <h1 className="font-display text-[28px] sm:text-[30px] font-bold text-[#ffffff] tracking-[-0.025em]">
+            Authentication Failed
+          </h1>
+          <p className="font-body text-[14px] text-[#9ca3af] mt-2">
+            The verification link may have expired or was already used
+          </p>
         </div>
 
-        <Card>
-          <CardHeader className="space-y-1 text-center">
-            <div className="mx-auto mb-4 p-3 bg-destructive/10 rounded-full w-fit">
-              <AlertTriangle className="h-8 w-8 text-destructive" />
-            </div>
-            <CardTitle className="text-2xl">Authentication Error</CardTitle>
-            <CardDescription>
-              Something went wrong during the authentication process
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-sm text-muted-foreground text-center">
-              This could happen if the link has expired or was already used. 
-              Please try signing in again or create a new account.
-            </p>
+        {/* Card */}
+        <div className="bg-[#09090e] border border-[#1e1e2f] rounded-xl shadow-[0_4px_30px_rgba(0,0,0,0.5)] p-7 space-y-6">
+          <div className="mx-auto w-14 h-14 rounded-2xl bg-[#2a0e15] border border-[#ef4444]/30 flex items-center justify-center text-[#ef4444] shadow-[0_0_25px_rgba(239,68,68,0.25)]">
+            <AlertTriangle className="h-7 w-7" />
+          </div>
 
-            <div className="flex flex-col gap-2">
-              <Button asChild className="w-full">
-                <Link href="/auth/login">
-                  Return to sign in
-                </Link>
-              </Button>
-              <Button asChild variant="outline" className="w-full">
-                <Link href="/auth/sign-up">
-                  Create new account
-                </Link>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+          <p className="text-xs font-mono text-[#9ca3af] text-center leading-relaxed bg-[#0c0d18] border border-[#1e2030] p-4 rounded-lg">
+            Security tokens expire after 60 minutes for your protection. Please generate a new link or sign in with your credentials.
+          </p>
+
+          <div className="space-y-3 pt-1">
+            <Link
+              href="/auth/login"
+              className="btn-neo-violet w-full font-mono text-[12px] font-bold uppercase tracking-[0.06em] py-3 rounded-md transition-all cursor-pointer inline-flex items-center justify-center gap-2"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Return to Sign In</span>
+            </Link>
+
+            <Link
+              href="/auth/sign-up"
+              className="w-full flex items-center justify-center gap-2 bg-[#000000] border border-[#27272a] hover:bg-[#121216] hover:border-[#3f3f46] text-[#f8fafc] font-mono text-[12px] uppercase tracking-[0.06em] py-2.5 rounded-md transition-colors"
+            >
+              <span>Create New Account</span>
+            </Link>
+          </div>
+        </div>
       </div>
-    </div>
+    </main>
   )
 }
