@@ -20,12 +20,12 @@ export function WelcomeEmail({ fullName, email }: WelcomeEmailProps): string {
         <td align="center">
           <table width="100%" style="max-width: 560px; background-color: #090912; border: 1px solid #1e1e2f; border-radius: 14px; overflow: hidden; box-shadow: 0 12px 48px rgba(0,0,0,0.85);">
             
-            {/* Top Electric Indigo Accent */}
+            <!-- Top Electric Indigo Accent -->
             <tr>
               <td style="height: 3px; background: linear-gradient(90deg, #4f46e5, #818cf8, #06b6d4);"></td>
             </tr>
 
-            {/* Apple Terminal Titlebar */}
+            <!-- Apple Terminal Titlebar -->
             <tr>
               <td style="background-color: #11121b; padding: 12px 20px; border-bottom: 1px solid #1e1e2f;">
                 <table width="100%" cellPadding="0" cellSpacing="0">
@@ -48,7 +48,7 @@ export function WelcomeEmail({ fullName, email }: WelcomeEmailProps): string {
               </td>
             </tr>
 
-            {/* Main Email Body */}
+            <!-- Main Email Body -->
             <tr>
               <td style="padding: 32px 30px 28px;">
                 <p style="margin: 0; font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; font-size: 11px; color: #818cf8; text-transform: uppercase; letter-spacing: 0.18em; font-weight: 600;">
@@ -58,7 +58,7 @@ export function WelcomeEmail({ fullName, email }: WelcomeEmailProps): string {
                   Welcome aboard, ${firstName}! 🚀
                 </h1>
                 
-                {/* Motivational Callout */}
+                <!-- Motivational Callout -->
                 <p style="margin: 18px 0 0; color: #cbd5e1; font-size: 15px; line-height: 1.7;">
                   You don&apos;t need another 6-month generic boot camp or endless video playlists to land your dream tech role. You just need to master what <strong style="color: #ffffff;">actually matters</strong> in the real interview room.
                 </p>
@@ -67,7 +67,7 @@ export function WelcomeEmail({ fullName, email }: WelcomeEmailProps): string {
                   InterviewAI isolates your exact skill gaps in real-time, builds a <strong style="color: #818cf8;">laser-focused quick roadmap</strong>, and gives you realistic AI-powered mock interviews — bridging the gap between you and your dream company in record time!
                 </p>
 
-                {/* Feature Highlights Grid */}
+                <!-- Feature Highlights Grid -->
                 <table width="100%" cellPadding="0" cellSpacing="0" style="margin: 24px 0; background-color: #0c0d18; border: 1px solid #1e1e35; border-radius: 10px;">
                   <tr>
                     <td style="padding: 16px 20px;">
@@ -92,7 +92,7 @@ export function WelcomeEmail({ fullName, email }: WelcomeEmailProps): string {
                   </tr>
                 </table>
 
-                {/* Primary CTA Button */}
+                <!-- Primary CTA Button -->
                 <table width="100%" cellPadding="0" cellSpacing="0" style="margin: 28px 0 10px 0;">
                   <tr>
                     <td align="center">
@@ -108,7 +108,7 @@ export function WelcomeEmail({ fullName, email }: WelcomeEmailProps): string {
               </td>
             </tr>
 
-            {/* Terminal Footer */}
+            <!-- Terminal Footer -->
             <tr>
               <td style="padding: 20px 30px; background-color: #07070d; border-top: 1px solid #1e1e2f;">
                 <table width="100%" cellPadding="0" cellSpacing="0">

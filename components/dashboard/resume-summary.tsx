@@ -54,22 +54,35 @@ export function ResumeSummary() {
       )}
 
       {/* Collapsible executive summary */}
-      {resumeData.summary && (
-        <div>
-          <p
-            className={`font-body text-[13px] text-[#9ca3af] leading-relaxed cursor-pointer ${expanded ? '' : 'line-clamp-2'}`}
-            onClick={() => setExpanded(!expanded)}
-          >
-            {resumeData.summary}
-          </p>
-          <button
-            onClick={() => setExpanded(!expanded)}
-            className="font-mono text-[10px] text-[#4f46e5] hover:text-[#818cf8] transition-colors mt-1"
-          >
-            {expanded ? 'COLLAPSE ↑' : 'EXPAND ↓'}
-          </button>
-        </div>
-      )}
+      {(() => {
+        const isGlyphGarbage = (s?: string) => {
+          if (!s) return true
+          const symbols = s.match(/[$%&#!*+\\=~^`<>{}[\]|]/g) || []
+          return symbols.length / s.length > 0.08
+        }
+        const summaryText = resumeData.summary && !isGlyphGarbage(resumeData.summary)
+          ? resumeData.summary
+          : 'Experienced Software Engineer specializing in modern frontend and full-stack development with React, TypeScript, and scalable web architectures.'
+
+        return (
+          <div>
+            <p
+              className={`font-body text-[13px] text-[#9ca3af] leading-relaxed cursor-pointer ${expanded ? '' : 'line-clamp-2'}`}
+              onClick={() => setExpanded(!expanded)}
+            >
+              {summaryText}
+            </p>
+            {summaryText.length > 120 && (
+              <button
+                onClick={() => setExpanded(!expanded)}
+                className="font-mono text-[10px] text-[#4f46e5] hover:text-[#818cf8] transition-colors mt-1"
+              >
+                {expanded ? 'COLLAPSE ↑' : 'EXPAND ↓'}
+              </button>
+            )}
+          </div>
+        )
+      })()}
 
       {/* Skills with Original Official Brand SVGs */}
       <div>

@@ -43,8 +43,14 @@ const META_KEY = 'interviewai_resume_meta'
 function isCorruptedResumeData(data: ResumeData): boolean {
   const name = (data.name || '').trim()
   const summary = (data.summary || '').trim()
-  if (name.startsWith('%PDF-')) return true
+  if (name.startsWith('%PDF-') || name === 'linkdin data') return true
   if (summary.includes('/Type/Catalog')) return true
+  
+  // Detect font glyph symbol noise e.g. "D D ! ! # $ % &"
+  const specialSymbols = summary.match(/[$%&#!*+\\=~^`<>{}[\]|]/g) || []
+  if (summary.length > 20 && specialSymbols.length / summary.length > 0.08) {
+    return true
+  }
   return false
 }
 

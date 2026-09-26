@@ -19,12 +19,12 @@ export function DeleteAccountEmail({ email, code }: DeleteAccountEmailProps): st
         <td align="center">
           <table width="100%" style="max-width: 540px; background-color: #090912; border: 1px solid #1e2030; border-radius: 14px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.8);">
             
-            {/* Top Glowing Ambient Accent */}
+            <!-- Top Glowing Ambient Accent -->
             <tr>
               <td style="height: 3px; background: linear-gradient(90deg, #ef4444, #f59e0b, #6366f1);"></td>
             </tr>
 
-            {/* Apple Terminal Titlebar */}
+            <!-- Apple Terminal Titlebar -->
             <tr>
               <td style="background-color: #11121b; padding: 12px 20px; border-bottom: 1px solid #1e2030;">
                 <table width="100%" cellPadding="0" cellSpacing="0">
@@ -47,7 +47,7 @@ export function DeleteAccountEmail({ email, code }: DeleteAccountEmailProps): st
               </td>
             </tr>
 
-            {/* Content Body */}
+            <!-- Content Body -->
             <tr>
               <td style="padding: 32px 28px 24px;">
                 <p style="margin: 0; font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; font-size: 11px; color: #f59e0b; text-transform: uppercase; letter-spacing: 0.15em; font-weight: 600;">
@@ -60,7 +60,7 @@ export function DeleteAccountEmail({ email, code }: DeleteAccountEmailProps): st
                   We received a formal request to permanently delete your <strong>InterviewAI</strong> account associated with <span style="color: #ffffff; font-family: monospace;">${email}</span>.
                 </p>
 
-                {/* Verification Code Box */}
+                <!-- Verification Code Box -->
                 <div style="margin: 26px 0; background-color: #0c0d18; border: 1px solid #3730a3; border-radius: 10px; padding: 24px 16px; text-align: center;">
                   <span style="display: block; font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; font-size: 11px; color: #818cf8; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 10px;">
                     6-DIGIT VERIFICATION CODE
@@ -73,7 +73,7 @@ export function DeleteAccountEmail({ email, code }: DeleteAccountEmailProps): st
                   </span>
                 </div>
 
-                {/* Warning notice */}
+                <!-- Warning notice -->
                 <div style="background-color: rgba(239, 68, 68, 0.08); border-left: 3px solid #ef4444; border-radius: 4px; padding: 12px 16px; margin-bottom: 20px;">
                   <p style="margin: 0; color: #fca5a5; font-size: 12px; line-height: 1.6;">
                     <strong>Permanent Data Purge:</strong> Entering this code will permanently erase all your interview telemetry records, custom roadmaps, uploaded resumes, and billing links. This action cannot be reversed.
@@ -86,7 +86,7 @@ export function DeleteAccountEmail({ email, code }: DeleteAccountEmailProps): st
               </td>
             </tr>
 
-            {/* Terminal Footer */}
+            <!-- Terminal Footer -->
             <tr>
               <td style="padding: 18px 28px; background-color: #07070d; border-top: 1px solid #1e2030; text-align: center;">
                 <p style="margin: 0; font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; font-size: 11px; color: #64748b;">

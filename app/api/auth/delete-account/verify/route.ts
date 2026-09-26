@@ -25,17 +25,24 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Please enter a valid 6-digit verification code.' }, { status: 400 })
     }
 
+    // 1. Check in-memory store
     const otpStore = global.__deleteAccountOtpStore
-    const stored = otpStore?.get(user.id)
+    const memoryStored = otpStore?.get(user.id)
 
-    if (!stored) {
+    // 2. Check Supabase user_metadata store (Vercel serverless persistence)
+    const metaOtp = user.user_metadata?.delete_account_otp as { code: string; expiresAt: number } | undefined
+
+    const storedCode = memoryStored?.code || metaOtp?.code
+    const expiresAt = memoryStored?.expiresAt || metaOtp?.expiresAt
+
+    if (!storedCode) {
       return NextResponse.json(
         { error: 'No verification code found. Please request a new code.' },
         { status: 400 }
       )
     }
 
-    if (Date.now() > stored.expiresAt) {
+    if (expiresAt && Date.now() > expiresAt) {
       otpStore?.delete(user.id)
       return NextResponse.json(
         { error: 'Verification code has expired. Please request a new code.' },
@@ -43,20 +50,28 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    if (stored.code !== code) {
+    if (storedCode !== code) {
       return NextResponse.json(
         { error: 'Invalid verification code. Please check your email and try again.' },
         { status: 400 }
       )
     }
 
-    // Code is valid -> Delete OTP
+    // Code is valid -> Clear OTP
     otpStore?.delete(user.id)
+    try {
+      await supabaseAdmin.auth.admin.updateUserById(user.id, {
+        user_metadata: {
+          ...user.user_metadata,
+          delete_account_otp: null,
+        },
+      })
+    } catch {}
 
-    console.log(`[Delete Account] Permanently purging user account and data for ID: ${user.id}`)
+    console.log(`[Delete Account] Permanently purging user account and telemetry for ID: ${user.id}`)
 
     // 1. Delete user from auth.users via supabaseAdmin
-    // (PostgreSQL foreign keys on profiles, interviews, roadmap_items, etc. will cascade delete all data)
+    // (PostgreSQL foreign keys on profiles, resumes, interviews, etc. will cascade delete all data)
     const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(user.id)
 
     if (deleteError) {
