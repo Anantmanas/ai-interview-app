@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { InterviewSetup } from '@/components/interview/interview-setup'
+import { MobileDeviceWarning } from '@/components/interview/mobile-device-warning'
 
 export default async function NewInterviewPage() {
   const supabase = await createClient()
@@ -24,6 +25,7 @@ export default async function NewInterviewPage() {
 
   return (
     <div className="h-screen bg-[#000000] text-[#f8fafc] flex flex-col font-sans relative overflow-hidden">
+      <MobileDeviceWarning />
       {/* ── Ambient Glow Atmosphere ── */}
       <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-0">
         <div className="absolute -top-40 left-1/4 h-[600px] w-[600px] rounded-full bg-[#4f46e5] opacity-[0.09] blur-[140px]" />

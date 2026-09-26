@@ -3,7 +3,20 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { CheckCircle2, Loader2, Save, X, Plus, Sparkles, Building2 } from 'lucide-react'
+import {
+  CheckCircle2,
+  Loader2,
+  Save,
+  X,
+  Plus,
+  Sparkles,
+  Building2,
+  Trash2,
+  AlertTriangle,
+  Mail,
+  ShieldAlert,
+  ArrowRight,
+} from 'lucide-react'
 import { toast } from 'sonner'
 import { MacTrafficLights } from '@/components/ui/terminal-card'
 import { motion, AnimatePresence } from 'motion/react'
@@ -28,6 +41,14 @@ export default function ProfilePage() {
   const [experienceLevel, setExperienceLevel] = useState('mid')
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
+
+  // ── Delete Account & Data Modal State ──
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [deleteCode, setDeleteCode] = useState('')
+  const [isSendingCode, setIsSendingCode] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [codeSent, setCodeSent] = useState(false)
+
   const supabase = createClient()
 
   useEffect(() => {
@@ -171,6 +192,69 @@ export default function ProfilePage() {
     }
   }
 
+  // ── Send Email Confirmation Code for Deletion ──
+  const handleSendDeleteCode = async () => {
+    setIsSendingCode(true)
+    try {
+      const res = await fetch('/api/auth/delete-account/send-code', {
+        method: 'POST',
+      })
+      const data = await res.json()
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to send confirmation code')
+      }
+
+      setCodeSent(true)
+      toast.success(data.message || `Confirmation code sent to ${profile?.email}`)
+    } catch (err: any) {
+      toast.error(err?.message || 'Failed to send verification code')
+    } finally {
+      setIsSendingCode(false)
+    }
+  }
+
+  // ── Verify Code & Permanently Purge Account ──
+  const handleVerifyAndDelete = async () => {
+    if (!deleteCode.trim() || deleteCode.trim().length !== 6) {
+      toast.error('Please enter the 6-digit confirmation code from your email')
+      return
+    }
+
+    setIsDeleting(true)
+    try {
+      const res = await fetch('/api/auth/delete-account/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: deleteCode.trim() }),
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to delete account')
+      }
+
+      toast.success('Account and all associated data permanently deleted.')
+
+      // Clear local storage and caches
+      if (typeof window !== 'undefined') {
+        localStorage.clear()
+        sessionStorage.clear()
+      }
+
+      // Sign out on client
+      await supabase.auth.signOut()
+
+      // Redirect to Home Page
+      setShowDeleteModal(false)
+      window.location.href = '/'
+    } catch (err: any) {
+      toast.error(err?.message || 'Failed to delete account')
+      setIsDeleting(false)
+    }
+  }
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-[60vh]">
@@ -182,12 +266,12 @@ export default function ProfilePage() {
   const calibrationScore = (fullName ? 35 : 0) + (targetRole ? 35 : 0) + (targetCompanies.length > 0 ? 30 : 0)
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-4xl mx-auto space-y-8 pb-16 font-sans">
       <div>
         <p className="font-mono text-[11px] text-[#818cf8] uppercase tracking-[0.15em] mb-1 font-semibold">// CANDIDATE CONFIG</p>
         <h1 className="font-display text-[32px] font-bold text-white leading-[1.1] tracking-[-0.02em]">Profile</h1>
         <p className="font-body text-[14px] text-[#9ca3af] mt-1">
-          Manage your target engineering goals and personal details for AI customization.
+          Manage your target engineering goals, calibration settings, and account controls.
         </p>
       </div>
 
@@ -257,6 +341,7 @@ export default function ProfilePage() {
                   </div>
                 </div>
 
+                {/* Target Role Section */}
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <label htmlFor="targetRole" className="font-mono text-[10px] text-[#9ca3af] uppercase tracking-[0.08em] block font-semibold">
@@ -511,6 +596,179 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
+
+      {/* ── DANGER ZONE: ACCOUNT DELETION & DATA PURGE ── */}
+      <div className="rounded-xl border border-rose-500/30 bg-[#0c090a] shadow-[0_8px_32px_rgba(244,63,94,0.1),inset_0_1px_0_rgba(255,255,255,0.05)] overflow-hidden">
+        {/* macOS Titlebar */}
+        <div className="flex items-center justify-between px-4 h-10 border-b border-rose-500/20 bg-[#160b0d] select-none">
+          <div className="flex items-center gap-3">
+            <MacTrafficLights size="sm" />
+            <span className="font-mono text-[11px] text-rose-300 font-medium tracking-wide">
+              danger-zone::purge-account.sh — root
+            </span>
+          </div>
+          <span className="font-mono text-[10px] text-rose-400 bg-rose-500/10 border border-rose-500/30 px-2 py-0.5 rounded-full uppercase tracking-wider font-semibold flex items-center gap-1">
+            <ShieldAlert className="h-3 w-3" />
+            DANGER ZONE
+          </span>
+        </div>
+
+        <div className="p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+          <div className="space-y-1 max-w-xl">
+            <h3 className="font-mono text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+              <Trash2 className="h-4 w-4 text-rose-400" />
+              Delete Account & Purge Data
+            </h3>
+            <p className="text-xs text-neutral-400 leading-relaxed font-sans">
+              Permanently delete your user profile, interview history, weakness evaluations, custom roadmaps, and resume files from the database. Requires 6-digit confirmation code sent to your email.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => {
+              setShowDeleteModal(true)
+              setCodeSent(false)
+              setDeleteCode('')
+            }}
+            className="px-5 py-2.5 rounded-lg bg-rose-600/20 hover:bg-rose-600 border border-rose-500/50 hover:border-rose-500 text-rose-300 hover:text-white font-mono text-xs font-bold uppercase tracking-wider transition-all shadow-lg shadow-rose-900/20 cursor-pointer shrink-0"
+          >
+            Delete Account...
+          </button>
+        </div>
+      </div>
+
+      {/* ── DELETE ACCOUNT CONFIRMATION MODAL ── */}
+      <AnimatePresence>
+        {showDeleteModal && (
+          <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              transition={{ duration: 0.2 }}
+              className="w-full max-w-md bg-[#0a0a0f] border border-rose-500/40 rounded-2xl shadow-[0_16px_48px_rgba(0,0,0,0.9),0_0_30px_rgba(244,63,94,0.15)] overflow-hidden"
+            >
+              {/* Modal Header */}
+              <div className="flex items-center justify-between px-5 h-11 border-b border-[#1e2030] bg-[#11121b]/90">
+                <div className="flex items-center gap-2">
+                  <ShieldAlert className="h-4 w-4 text-rose-400" />
+                  <span className="font-mono text-xs text-rose-300 font-bold uppercase tracking-wider">
+                    Confirm Account Purge
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowDeleteModal(false)}
+                  className="p-1 rounded-md text-neutral-400 hover:text-white hover:bg-white/10 transition-colors"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              {/* Modal Body */}
+              <div className="p-6 space-y-5">
+                <div className="space-y-2">
+                  <div className="p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl flex items-start gap-3">
+                    <AlertTriangle className="h-5 w-5 text-rose-400 shrink-0 mt-0.5" />
+                    <p className="text-xs text-rose-200 leading-relaxed font-sans">
+                      This action is <strong>irreversible</strong>. All your interview recordings, scores, roadmap milestones, and account records will be permanently deleted from the database.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Step 1: Send Verification Code */}
+                <div className="space-y-2 bg-[#050508] border border-[#1e2030] rounded-xl p-4">
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-[10px] uppercase tracking-wider text-neutral-400 font-semibold flex items-center gap-1.5">
+                      <Mail className="h-3.5 w-3.5 text-indigo-400" />
+                      1. Email Confirmation Code
+                    </span>
+                    {codeSent && (
+                      <span className="font-mono text-[10px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded">
+                        CODE SENT
+                      </span>
+                    )}
+                  </div>
+
+                  <p className="text-xs text-neutral-300 font-mono">
+                    Send to: <span className="text-white font-semibold">{profile?.email}</span>
+                  </p>
+
+                  <button
+                    type="button"
+                    onClick={handleSendDeleteCode}
+                    disabled={isSendingCode}
+                    className="w-full mt-2 py-2 rounded-lg bg-[#1a1b2e] hover:bg-[#252745] border border-indigo-500/30 hover:border-indigo-500/60 text-indigo-200 font-mono text-xs font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer disabled:opacity-50"
+                  >
+                    {isSendingCode ? (
+                      <>
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        <span>Sending 6-Digit Code...</span>
+                      </>
+                    ) : codeSent ? (
+                      <>
+                        <span>Resend Verification Code</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>Send 6-Digit Verification Code</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                {/* Step 2: Enter 6-Digit Code */}
+                <div className="space-y-2">
+                  <label className="font-mono text-[10px] uppercase tracking-wider text-neutral-400 font-semibold block">
+                    2. Enter 6-Digit Verification Code
+                  </label>
+                  <input
+                    type="text"
+                    maxLength={6}
+                    value={deleteCode}
+                    onChange={(e) => setDeleteCode(e.target.value.replace(/\D/g, ''))}
+                    placeholder="e.g. 849201"
+                    disabled={!codeSent}
+                    className="w-full h-12 bg-[#050508] border border-[#1e2030] focus:border-rose-500 focus:ring-1 focus:ring-rose-500/40 rounded-xl px-4 text-center font-mono text-xl tracking-[0.3em] text-white placeholder:text-neutral-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                  />
+                </div>
+
+                {/* Modal Footer Controls */}
+                <div className="pt-2 flex items-center justify-end gap-3 border-t border-[#1e2030]">
+                  <button
+                    type="button"
+                    onClick={() => setShowDeleteModal(false)}
+                    disabled={isDeleting}
+                    className="px-4 py-2.5 rounded-lg border border-[#1e2030] text-neutral-400 hover:text-white font-mono text-xs uppercase tracking-wider transition-colors cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleVerifyAndDelete}
+                    disabled={isDeleting || !codeSent || deleteCode.length !== 6}
+                    className="px-5 py-2.5 rounded-lg bg-rose-600 hover:bg-rose-500 disabled:opacity-40 disabled:hover:bg-rose-600 text-white font-mono text-xs font-bold uppercase tracking-wider shadow-lg shadow-rose-600/30 transition-all flex items-center gap-2 cursor-pointer disabled:cursor-not-allowed"
+                  >
+                    {isDeleting ? (
+                      <>
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        <span>Purging All Data...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Trash2 className="h-3.5 w-3.5" />
+                        <span>Permanently Delete Account</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

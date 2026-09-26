@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
 import { InterviewRoom } from '@/components/interview/interview-room'
+import { MobileDeviceWarning } from '@/components/interview/mobile-device-warning'
 
 interface InterviewPageProps {
   params: Promise<{ id: string }>
@@ -33,9 +34,12 @@ export default async function InterviewPage({ params }: InterviewPageProps) {
     .single()
 
   return (
-    <InterviewRoom 
-      interview={interview} 
-      profile={profile}
-    />
+    <>
+      <MobileDeviceWarning />
+      <InterviewRoom 
+        interview={interview} 
+        profile={profile}
+      />
+    </>
   )
 }

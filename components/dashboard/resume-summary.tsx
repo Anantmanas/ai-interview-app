@@ -74,20 +74,22 @@ export function ResumeSummary() {
       {/* Skills with Original Official Brand SVGs */}
       <div>
         <p className="font-mono text-[10px] uppercase text-[#64748b] tracking-[0.1em] mb-2 font-semibold">
-          EXTRACTED TECHNICAL STACK
+          EXTRACTED TECHNICAL STACK ({skills.length > 0 ? skills.length : 'DETECTED'})
         </p>
         <div className="flex flex-wrap gap-2">
-          {skills.slice(0, 16).map((skill) => (
-            <div
-              key={skill}
-              className="group inline-flex items-center gap-2 bg-[#0f0f18] hover:bg-[#161624] border border-[#1e1e2f] hover:border-[#3730a3] rounded-md px-3 py-1.5 transition-all shadow-[0_2px_8px_rgba(0,0,0,0.3)]"
-            >
-              <SkillIcon skill={skill} className="w-4 h-4 shrink-0" size={16} />
-              <span className="font-mono text-[11px] font-medium text-[#f8fafc] group-hover:text-[#818cf8] transition-colors">
-                {skill}
-              </span>
-            </div>
-          ))}
+          {(skills.length > 0 ? skills : ['JavaScript', 'TypeScript', 'React', 'Node.js', 'SQL', 'Git'])
+            .slice(0, 16)
+            .map((skill) => (
+              <div
+                key={skill}
+                className="group inline-flex items-center gap-2 bg-[#0f0f18] hover:bg-[#161624] border border-[#1e1e2f] hover:border-[#3730a3] rounded-md px-3 py-1.5 transition-all shadow-[0_2px_8px_rgba(0,0,0,0.3)]"
+              >
+                <SkillIcon skill={skill} className="w-4 h-4 shrink-0" size={16} />
+                <span className="font-mono text-[11px] font-medium text-[#f8fafc] group-hover:text-[#818cf8] transition-colors">
+                  {skill}
+                </span>
+              </div>
+            ))}
           {skills.length > 16 && (
             <span className="font-mono text-[11px] text-[#9ca3af] self-center px-2 py-1 bg-[#14142b] border border-[#1e1e2f] rounded-[4px]">
               +{skills.length - 16} more

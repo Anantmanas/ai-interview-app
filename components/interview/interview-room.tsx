@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { MacTrafficLights } from '@/components/ui/terminal-card';
+import { AntiCheatModal } from '@/components/interview/anti-cheat-modal';
 
 interface Question {
   id: string;
@@ -402,6 +403,42 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
   const [showEndModal, setShowEndModal] = useState(false);
   const [showHint, setShowHint] = useState(false);
   const [recordedHistory, setRecordedHistory] = useState<EvaluatedRecord[]>([]);
+
+  // Copy-Paste Anti-Cheat State (Restrict to max 2 pastes)
+  const [pasteCount, setPasteCount] = useState(0);
+  const [showAntiCheatModal, setShowAntiCheatModal] = useState(false);
+  const [pasteWarningToast, setPasteWarningToast] = useState<string | null>(null);
+  const pasteCountRef = useRef(0);
+  pasteCountRef.current = pasteCount;
+
+  const registerPasteAttempt = (e?: any) => {
+    if (pasteCountRef.current >= 2) {
+      if (e?.preventDefault) e.preventDefault();
+      if (e?.stopPropagation) e.stopPropagation();
+      setShowAntiCheatModal(true);
+      return false;
+    } else {
+      const next = pasteCountRef.current + 1;
+      setPasteCount(next);
+      setPasteWarningToast(`⚠️ Copy-Paste used (${next}/2 allowed). Keep it authentic!`);
+      setTimeout(() => setPasteWarningToast(null), 3500);
+      return true;
+    }
+  };
+
+  useEffect(() => {
+    const onGlobalPaste = (e: ClipboardEvent) => {
+      if (isInterviewEnded) return;
+      if (pasteCountRef.current >= 2) {
+        e.preventDefault();
+        e.stopPropagation();
+        setShowAntiCheatModal(true);
+      }
+    };
+
+    document.addEventListener('paste', onGlobalPaste, true);
+    return () => document.removeEventListener('paste', onGlobalPaste, true);
+  }, [isInterviewEnded]);
 
   async function fetchInterviewApi(body: Record<string, unknown>) {
     const response = await fetch('/api/interview/chat', {
@@ -934,6 +971,11 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
                 <textarea
                   value={textAnswer}
                   onChange={(e) => setTextAnswer(e.target.value)}
+                  onPaste={(e) => {
+                    if (!registerPasteAttempt(e)) {
+                      e.preventDefault();
+                    }
+                  }}
                   placeholder="Type your structured solution, architectural trade-offs, or explanations..."
                   className="flex-1 w-full bg-transparent p-4 text-[#f8fafc] font-mono text-sm leading-relaxed placeholder:text-[#64748b]/60 resize-none focus:outline-none"
                 />
@@ -953,6 +995,24 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
                     theme="vs-dark"
                     value={codeAnswer}
                     onChange={(val) => setCodeAnswer(val || '')}
+                    onMount={(editor, monaco) => {
+                      editor.onKeyDown((e) => {
+                        if ((e.ctrlKey || e.metaKey) && e.keyCode === monaco.KeyCode.KeyV) {
+                          if (pasteCountRef.current >= 2) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setShowAntiCheatModal(true);
+                          }
+                        }
+                      });
+                      editor.onDidPaste(() => {
+                        if (pasteCountRef.current >= 2) {
+                          setShowAntiCheatModal(true);
+                        } else {
+                          registerPasteAttempt();
+                        }
+                      });
+                    }}
                     options={{
                       minimap: { enabled: false },
                       fontSize: 14,
@@ -994,6 +1054,11 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
                   <textarea
                     value={textAnswer}
                     onChange={(e) => setTextAnswer(e.target.value)}
+                    onPaste={(e) => {
+                      if (!registerPasteAttempt(e)) {
+                        e.preventDefault();
+                      }
+                    }}
                     placeholder="Your spoken words will transcribe here in real-time. You can edit before submitting..."
                     className="flex-1 w-full bg-transparent p-4 text-[#f8fafc] font-mono text-sm leading-relaxed placeholder:text-[#64748b]/60 resize-none focus:outline-none"
                   />
@@ -1222,6 +1287,20 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
           </div>
         </div>
       )}
+
+      {/* Copy-Paste Toast Warning */}
+      {pasteWarningToast && (
+        <div className="fixed top-14 left-1/2 -translate-x-1/2 z-[115] bg-[#1a1308] border border-[#f59e0b]/50 text-[#fef3c7] font-mono text-xs px-4 py-2 rounded-full shadow-[0_0_25px_rgba(245,158,11,0.35)] flex items-center gap-2 animate-bounce select-none">
+          <span>{pasteWarningToast}</span>
+        </div>
+      )}
+
+      {/* Anti-Cheat Modal Warning on 3rd attempt */}
+      <AntiCheatModal
+        isOpen={showAntiCheatModal}
+        onClose={() => setShowAntiCheatModal(false)}
+        pasteCount={pasteCount}
+      />
     </div>
   );
 }

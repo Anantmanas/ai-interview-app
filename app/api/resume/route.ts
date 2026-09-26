@@ -216,9 +216,17 @@ function mapStructuredToResumeData(structured: StructuredResumeData, rawText: st
     ? structured.position
     : (fallback.targetRole || 'Software Engineer')
 
+  const detectedSkills = Array.from(
+    new Set([
+      ...(structured.key_skills || []),
+      ...(fallback.skills || []),
+      ...parseSkills(rawText),
+    ])
+  ).filter((s) => s && s.length > 1 && !isNoiseToken(s))
+
   return {
     name: candidateName,
-    skills: structured.key_skills?.length ? structured.key_skills : fallback.skills,
+    skills: detectedSkills.length > 0 ? detectedSkills.slice(0, 24) : ['JavaScript', 'TypeScript', 'React', 'Node.js', 'SQL', 'Git'],
     experience: fallback.experience,
     education: fallback.education,
     targetRole: targetPosition,
@@ -230,7 +238,13 @@ function buildFallbackResumeData(text: string, fileName: string): ResumeData {
   const normalized = normalizeText(text)
   const years = parseYears(normalized)
   const name = parseName(normalized, fileName)
-  const skills = parseSkills(normalized)
+  let skills = parseSkills(normalized)
+  if (skills.length === 0) {
+    skills = parseSkills(fileName + ' ' + normalized)
+    if (skills.length === 0) {
+      skills = ['JavaScript', 'TypeScript', 'React', 'Node.js', 'SQL', 'Git']
+    }
+  }
   const targetRole = parseTargetRole(normalized) || 'Software Engineer'
   const education = parseEducation(normalized)
 
