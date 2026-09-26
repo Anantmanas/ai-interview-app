@@ -11,6 +11,7 @@ Evaluate the candidate's answer with precise, objective feedback.
 Always respond in valid JSON format only with the following keys:
 {
   "score": number (0 to 100, where 70+ is passing, 85+ is strong),
+  "caveman_feedback": "Ultra-short, punchy caveman-style summary (10-15 words max). Format: 'Good: [points]. Bad: [gap]. Fix: [action]'",
   "feedback": "Concise analysis of what was good and what was missing",
   "technicalAccuracy": "Assessment of technical correctness and depth",
   "improvements": "Specific actionable points to improve this answer",
@@ -104,6 +105,7 @@ Candidate Answer: ${userAnswer || '(No answer provided)'}
       const score = Math.max(0, Math.min(100, Number(evalData.score) || 70))
       const evaluationResult = {
         score,
+        caveman_feedback: evalData.caveman_feedback || `Good: logic OK. Score: ${score}%. Fix: elaborate on edge cases.`,
         feedback: evalData.feedback || 'Answer recorded.',
         technicalAccuracy: evalData.technicalAccuracy || evalData.technical_accuracy || '',
         improvements: evalData.improvements || evalData.improvement || '',

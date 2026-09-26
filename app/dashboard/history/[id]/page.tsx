@@ -13,6 +13,7 @@ import {
   Trophy
 } from 'lucide-react'
 import { MacTrafficLights } from '@/components/ui/terminal-card'
+import { QuestionEvalCard } from '@/components/history/question-eval-card'
 
 export default async function InterviewDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -112,59 +113,11 @@ export default async function InterviewDetailPage({ params }: { params: Promise<
           {questions && questions.length > 0 ? (
             <div className="space-y-4">
               {questions.map((q, i) => (
-                <div
+                <QuestionEvalCard
                   key={q.id}
-                  className="rounded-xl border border-[#1e2030] bg-[#09090f] shadow-[0_8px_32px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.05)] overflow-hidden"
-                >
-                  <div className="flex items-center justify-between px-4 h-9 border-b border-[#1e2030] bg-[#11121b]/90 select-none">
-                    <div className="flex items-center gap-2.5">
-                      <MacTrafficLights size="sm" />
-                      <span className="font-mono text-[10px] text-[#9ca3af]">
-                        evaluation-q{i + 1}.json — bash
-                      </span>
-                    </div>
-                    {q.ai_evaluation?.score !== undefined && (
-                      <span className={`font-mono text-[10px] font-bold px-2 py-0.5 rounded ${
-                        q.ai_evaluation.score >= 70 
-                          ? 'text-[#818cf8] bg-[#14142b] border border-[#3730a3]' 
-                          : 'text-[#f87171] bg-[#2a0e15] border border-[#5c1d28]'
-                      }`}>
-                        {q.ai_evaluation.score}%
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="p-5 space-y-4">
-                    <div className="flex items-start gap-2.5">
-                      <span className="h-6 w-6 rounded-[4px] bg-[#14142b] border border-[#3730a3] text-[#818cf8] font-mono text-[11px] font-bold flex items-center justify-center shrink-0">
-                        {i + 1}
-                      </span>
-                      <h3 className="font-display text-[15px] font-semibold text-white leading-snug">{q.question_text}</h3>
-                    </div>
-
-                    <div className="bg-[#0c0d15] border border-[#1e1e2f] rounded-lg p-3.5">
-                      <p className="font-mono text-[10px] text-[#64748b] uppercase mb-1 flex items-center gap-1 font-semibold">
-                        <User className="h-3 w-3 text-[#818cf8]" /> Candidate Answer
-                      </p>
-                      <p className="font-body text-[13px] text-white leading-relaxed italic">{q.user_answer || "No answer provided"}</p>
-                    </div>
-                    
-                    {q.ai_evaluation && (
-                      <div className="bg-[#14142b]/40 border border-[#3730a3]/50 rounded-lg p-3.5">
-                        <p className="font-mono text-[10px] text-[#818cf8] uppercase mb-1 flex items-center gap-1 font-semibold">
-                          <BrainCircuit className="h-3 w-3 text-[#6366f1]" /> AI Diagnostic Feedback
-                        </p>
-                        <p className="font-body text-[13px] text-[#9ca3af] leading-relaxed">{q.ai_evaluation.feedback}</p>
-                        {q.ai_evaluation.technical_accuracy && (
-                          <div className="mt-2.5 pt-2.5 border-t border-[#1e1e2f]">
-                            <p className="font-mono text-[10px] text-[#64748b] uppercase font-semibold">Technical Accuracy</p>
-                            <p className="font-body text-[12px] text-[#9ca3af] mt-0.5">{q.ai_evaluation.technical_accuracy}</p>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </div>
+                  question={q}
+                  index={i}
+                />
               ))}
             </div>
           ) : (

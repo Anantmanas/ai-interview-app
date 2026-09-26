@@ -24,6 +24,7 @@ interface Question {
 
 interface EvaluationResult {
   score: number;
+  caveman_feedback?: string;
   feedback: string;
   improvement?: string;
   improvements?: string;
@@ -1103,10 +1104,23 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
                   />
                 </div>
 
+                {/* CAVEMAN LIVE FEEDBACK (Instant Scan for Candidate) */}
+                <div className="bg-gradient-to-r from-[#14142b] to-[#1e1b4b] border border-[#6366f1]/40 rounded-lg p-3 shadow-[0_0_15px_rgba(99,102,241,0.2)] space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-[10px] font-bold text-[#818cf8] uppercase tracking-wider flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#818cf8] animate-ping" />
+                      ⚡ CAVEMAN TAKE (QUICK EVAL)
+                    </span>
+                  </div>
+                  <p className="font-mono text-xs text-[#f8fafc] font-semibold leading-snug">
+                    {evaluation.caveman_feedback || evaluation.feedback}
+                  </p>
+                </div>
+
                 {/* Feedback Analysis */}
                 <div className="space-y-1.5">
                   <span className="text-[10px] text-[#64748b] font-mono uppercase tracking-wider block">
-                    ANALYSIS
+                    DETAILED ANALYSIS
                   </span>
                   <p className="text-xs text-[#cbd5e1] leading-relaxed font-sans bg-[#0c0d15] border border-[#1e2030] rounded-lg p-3">
                     {evaluation.feedback}
@@ -1117,7 +1131,7 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
                 {(evaluation.improvements || evaluation.improvement) && (
                   <div className="space-y-1.5">
                     <span className="text-[10px] text-[#818cf8] font-mono uppercase tracking-wider block">
-                      IMPROVEMENTS
+                      KEY SUGGESTIONS
                     </span>
                     <p className="text-xs text-[#cbd5e1] leading-relaxed font-sans bg-[#0c0d15] border border-[#1e2030] rounded-lg p-3">
                       {evaluation.improvements || evaluation.improvement}

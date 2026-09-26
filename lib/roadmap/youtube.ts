@@ -15,16 +15,17 @@ export interface YouTubeResource {
 }
 
 /**
- * Search YouTube for the best tutorial video on a given topic.
- * Returns null if the API key is missing or the quota is exhausted.
+ * Search YouTube for 2-4 best tutorial videos on a given topic.
+ * Returns empty array if the API key is missing or the quota is exhausted.
  */
-export async function searchYouTube(
-  query: string
-): Promise<YouTubeResource | null> {
+export async function searchYouTubeMulti(
+  query: string,
+  maxResults: number = 3
+): Promise<YouTubeResource[]> {
   const apiKey = process.env.YOUTUBE_API_KEY
   if (!apiKey) {
     console.warn('[YouTube] YOUTUBE_API_KEY not set — skipping YouTube search')
-    return null
+    return []
   }
 
   try {
@@ -32,7 +33,7 @@ export async function searchYouTube(
     searchUrl.searchParams.set('part', 'snippet')
     searchUrl.searchParams.set('q', query)
     searchUrl.searchParams.set('type', 'video')
-    searchUrl.searchParams.set('maxResults', '1')
+    searchUrl.searchParams.set('maxResults', String(Math.min(4, Math.max(1, maxResults))))
     searchUrl.searchParams.set('relevanceLanguage', 'en')
     searchUrl.searchParams.set('videoDuration', 'medium') // 4–20 min — best for tutorials
     searchUrl.searchParams.set('order', 'relevance')
@@ -42,56 +43,72 @@ export async function searchYouTube(
 
     if (!searchRes.ok) {
       const errorText = await searchRes.text()
-      // 403 = quota exceeded, 400 = bad key
       console.error(`[YouTube] Search failed (${searchRes.status}):`, errorText)
-      return null
+      return []
     }
 
     const searchData = await searchRes.json()
-    const item = searchData.items?.[0]
-    if (!item) return null
+    const items = searchData.items || []
+    if (items.length === 0) return []
 
-    const videoId: string = item.id?.videoId
-    const snippet = item.snippet
-    if (!videoId || !snippet) return null
+    const videoIds = items
+      .map((item: any) => item.id?.videoId)
+      .filter(Boolean)
 
-    // Optionally fetch duration via videos endpoint (costs 1 extra unit)
-    let duration: string | undefined
-    try {
-      const videoUrl = new URL('https://www.googleapis.com/youtube/v3/videos')
-      videoUrl.searchParams.set('part', 'contentDetails')
-      videoUrl.searchParams.set('id', videoId)
-      videoUrl.searchParams.set('key', apiKey)
+    // Optionally fetch durations for all videos in batch (costs 1 unit total)
+    const durationMap: Record<string, string> = {}
+    if (videoIds.length > 0) {
+      try {
+        const videoUrl = new URL('https://www.googleapis.com/youtube/v3/videos')
+        videoUrl.searchParams.set('part', 'contentDetails')
+        videoUrl.searchParams.set('id', videoIds.join(','))
+        videoUrl.searchParams.set('key', apiKey)
 
-      const videoRes = await fetch(videoUrl.toString())
-      if (videoRes.ok) {
-        const videoData = await videoRes.json()
-        const iso = videoData.items?.[0]?.contentDetails?.duration as
-          | string
-          | undefined
-        if (iso) {
-          duration = parseDuration(iso)
+        const videoRes = await fetch(videoUrl.toString())
+        if (videoRes.ok) {
+          const videoData = await videoRes.json()
+          for (const v of videoData.items || []) {
+            if (v.id && v.contentDetails?.duration) {
+              durationMap[v.id] = parseDuration(v.contentDetails.duration)
+            }
+          }
         }
+      } catch {
+        // Duration is optional — swallow errors
       }
-    } catch {
-      // Duration is optional — swallow errors
     }
 
-    return {
-      type: 'video',
-      title: snippet.title as string,
-      url: `https://www.youtube.com/watch?v=${videoId}`,
-      thumbnail:
-        (snippet.thumbnails?.medium?.url as string) ||
-        (snippet.thumbnails?.default?.url as string) ||
-        '',
-      channel: snippet.channelTitle as string,
-      duration,
-    }
+    return items
+      .map((item: any): YouTubeResource | null => {
+        const videoId = item.id?.videoId
+        const snippet = item.snippet
+        if (!videoId || !snippet) return null
+
+        return {
+          type: 'video',
+          title: snippet.title as string,
+          url: `https://www.youtube.com/watch?v=${videoId}`,
+          thumbnail:
+            (snippet.thumbnails?.high?.url as string) ||
+            (snippet.thumbnails?.medium?.url as string) ||
+            (snippet.thumbnails?.default?.url as string) ||
+            `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
+          channel: snippet.channelTitle as string,
+          duration: durationMap[videoId] || '10:00',
+        }
+      })
+      .filter(Boolean) as YouTubeResource[]
   } catch (err) {
     console.error('[YouTube] Unexpected error during search:', err)
-    return null
+    return []
   }
+}
+
+export async function searchYouTube(
+  query: string
+): Promise<YouTubeResource | null> {
+  const list = await searchYouTubeMulti(query, 1)
+  return list[0] || null
 }
 
 /**
