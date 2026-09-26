@@ -10,7 +10,23 @@ export async function GET(request: NextRequest) {
     const supabase = await createClient()
     const { error } = await supabase.auth.exchangeCodeForSession(code)
     if (!error) {
-      return NextResponse.redirect(`${origin}${next}`)
+      const { data: { user } } = await supabase.auth.getUser()
+
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('target_role')
+          .eq('id', user.id)
+          .maybeSingle()
+
+        // If user has no profile record or has not set target_role, route to onboarding welcome
+        if (!profile || !profile.target_role || !profile.target_role.trim()) {
+          return NextResponse.redirect(`${origin}/auth/onboarding/welcome`)
+        }
+      }
+
+      const destination = next === '/' ? '/dashboard' : next
+      return NextResponse.redirect(`${origin}${destination}`)
     }
   }
 

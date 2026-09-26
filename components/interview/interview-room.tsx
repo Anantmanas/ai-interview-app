@@ -225,7 +225,18 @@ function VoiceRecorder({
   const [isRecording, setIsRecording] = useState(false);
   const recognitionRef = useRef<any>(null);
   const isRecordingRef = useRef(false);
+
+  // Keep live references to prevent closures from holding stale text
   const transcriptRef = useRef(transcript);
+  const committedTextRef = useRef(transcript);
+
+  useEffect(() => {
+    transcriptRef.current = transcript;
+    // If not recording, sync the committed baseline to the updated transcript (e.g. from typing or clear)
+    if (!isRecordingRef.current) {
+      committedTextRef.current = transcript;
+    }
+  }, [transcript]);
 
   useEffect(() => {
     const SpeechRecognition =
@@ -250,6 +261,9 @@ function VoiceRecorder({
 
     recognition.onend = () => {
       if (isRecordingRef.current) {
+        // When silence/pause triggers an auto-restart, commit the latest accumulated text
+        // so the subsequent recognition session appends rather than clears!
+        committedTextRef.current = transcriptRef.current;
         try {
           recognition.start();
         } catch (err) {
@@ -269,10 +283,11 @@ function VoiceRecorder({
     };
 
     recognition.onresult = (event: any) => {
-      let interimTranscript = '';
-      let baseFinal = transcriptRef.current;
+      let sessionFinal = '';
+      let sessionInterim = '';
 
-      for (let i = event.resultIndex; i < event.results.length; i++) {
+      // Iterate through all results for this recognition session
+      for (let i = 0; i < event.results.length; i++) {
         const res = event.results[i];
         if (res.isFinal) {
           const alternatives = Array.from(res as any[])
@@ -283,13 +298,22 @@ function VoiceRecorder({
             .sort((a, b) => b.confidence - a.confidence);
 
           const bestSegment = alternatives[0]?.transcript || '';
-          baseFinal = (baseFinal ? baseFinal.trim() + ' ' : '') + bestSegment.trim();
+          if (bestSegment.trim()) {
+            sessionFinal = (sessionFinal ? sessionFinal.trim() + ' ' : '') + bestSegment.trim();
+          }
         } else {
-          interimTranscript += res[0]?.transcript || '';
+          sessionInterim += res[0]?.transcript || '';
         }
       }
 
-      const combined = (baseFinal + (interimTranscript ? ' ' + interimTranscript : '')).trim();
+      // Combine base (committed from prior pauses/sessions) with current session text
+      const base = committedTextRef.current ? committedTextRef.current.trim() : '';
+      const currentSpoken = (sessionFinal + (sessionInterim ? ' ' + sessionInterim : '')).trim();
+      const combined = base
+        ? (currentSpoken ? `${base} ${currentSpoken}` : base)
+        : currentSpoken;
+
+      transcriptRef.current = combined;
       onTranscript(combined);
     };
 
@@ -314,9 +338,13 @@ function VoiceRecorder({
       try {
         recognitionRef.current.stop();
       } catch {}
+      // Freeze committed text
+      committedTextRef.current = transcriptRef.current;
     } else {
       isRecordingRef.current = true;
       setIsRecording(true);
+      // Initialize committed text to whatever is currently in the transcript
+      committedTextRef.current = transcriptRef.current;
       try {
         recognitionRef.current.start();
       } catch (err) {
@@ -326,7 +354,14 @@ function VoiceRecorder({
   };
 
   const clearTranscript = () => {
+    committedTextRef.current = '';
+    transcriptRef.current = '';
     onTranscript('');
+    if (isRecordingRef.current && recognitionRef.current) {
+      try {
+        recognitionRef.current.abort();
+      } catch {}
+    }
   };
 
   return (

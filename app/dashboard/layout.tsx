@@ -21,7 +21,11 @@ export default async function DashboardLayout({
     .from('profiles')
     .select('*')
     .eq('id', user.id)
-    .single()
+    .maybeSingle()
+
+  if (!profile || !profile.target_role || !profile.target_role.trim()) {
+    redirect('/auth/onboarding/welcome')
+  }
 
   return (
     <SidebarProvider>
