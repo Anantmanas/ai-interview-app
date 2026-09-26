@@ -8,6 +8,9 @@ export function normalizeExperienceLevel(value: unknown): ExperienceLevel {
 }
 
 export function formatResumeMarkdown(data: StructuredResumeData) {
+  const experienceJson = data.experience && data.experience.length > 0 ? JSON.stringify(data.experience) : ''
+  const educationJson = data.education && data.education.length > 0 ? JSON.stringify(data.education) : ''
+
   return `# ${data.name || 'Resume Profile'}
 **Target Role / Position:** ${data.position || 'N/A'}
 **Experience Level:** ${data.experience_level || 'N/A'}
@@ -17,6 +20,15 @@ ${data.overview_summarized || 'N/A'}
 
 ## Key Skills & Technologies
 ${Array.isArray(data.key_skills) && data.key_skills.length > 0 ? data.key_skills.map((skill) => `- ${skill}`).join('\n') : 'N/A'}
+
+## Professional Experience
+${Array.isArray(data.experience) && data.experience.length > 0 ? data.experience.map((exp) => `- **${exp.role}** at ${exp.company}${exp.duration ? ` (${exp.duration})` : ''}`).join('\n') : 'N/A'}
+
+## Education & Certifications
+${Array.isArray(data.education) && data.education.length > 0 ? data.education.map((edu) => `- ${edu}`).join('\n') : 'N/A'}
+
+<!-- META_DATA_EXP:${experienceJson} -->
+<!-- META_DATA_EDU:${educationJson} -->
 
 ---
 ### Raw Parsed Resume Text
@@ -31,8 +43,25 @@ export function parseResumeMarkdown(markdown: string | null): StructuredResumeDa
   const posMatch = markdown.match(/^\*\*Target Role \/ Position:\*\*\s*(.+)$/m)
   const levelMatch = markdown.match(/^\*\*Experience Level:\*\*\s*(.+)$/m)
   const overviewMatch = markdown.match(/## Professional Overview\s*\n+([\s\S]*?)\n*(?=## Key Skills|\n*---)/)
-  const skillsSectionMatch = markdown.match(/## Key Skills & Technologies\s*\n+([\s\S]*?)\n*(?=---)/)
+  const skillsSectionMatch = markdown.match(/## Key Skills & Technologies\s*\n+([\s\S]*?)\n*(?=## Professional Experience|\n*---)/)
   const rawTextMatch = markdown.match(/### Raw Parsed Resume Text\s*\n([\s\S]*)$/)
+
+  const expMetaMatch = markdown.match(/<!-- META_DATA_EXP:(.*?) -->/)
+  const eduMetaMatch = markdown.match(/<!-- META_DATA_EDU:(.*?) -->/)
+
+  let experience: any[] = []
+  if (expMetaMatch?.[1]) {
+    try {
+      experience = JSON.parse(expMetaMatch[1])
+    } catch {}
+  }
+
+  let education: string[] = []
+  if (eduMetaMatch?.[1]) {
+    try {
+      education = JSON.parse(eduMetaMatch[1])
+    } catch {}
+  }
 
   const skills = skillsSectionMatch
     ? skillsSectionMatch[1]
@@ -47,6 +76,8 @@ export function parseResumeMarkdown(markdown: string | null): StructuredResumeDa
     experience_level: levelMatch?.[1] ? normalizeExperienceLevel(levelMatch[1].trim()) : null,
     overview_summarized: overviewMatch?.[1]?.trim() || null,
     key_skills: skills,
+    experience: experience.length > 0 ? experience : undefined,
+    education: education.length > 0 ? education : undefined,
     raw_text: rawTextMatch?.[1]?.trim(),
   }
 }
@@ -55,8 +86,8 @@ export function structuredToDashboardResume(structured: StructuredResumeData) {
   return {
     name: structured.name || '',
     skills: structured.key_skills || [],
-    experience: [] as { role: string; company: string; years: number }[],
-    education: [] as string[],
+    experience: structured.experience || [],
+    education: structured.education || [],
     targetRole: structured.position || undefined,
     summary: structured.overview_summarized || undefined,
   }

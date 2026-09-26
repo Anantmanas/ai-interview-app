@@ -46,23 +46,34 @@ export class ResumeParsingService {
 
   private async extractStructuredData(resumeText: string): Promise<StructuredResumeData> {
     const prompt = `
-      You are a professional technical recruiter and resume analyzer.
-      Analyze the following resume text and extract the key details as a JSON object.
+      You are an expert technical recruiter and resume analyzer.
+      Analyze the following resume text and extract all details accurately into the requested JSON schema.
       You MUST return your response as a valid JSON object ONLY. Do not include markdown code block ticks or comments outside the JSON.
 
       JSON schema to return:
       {
-        "name": "Full Name — MUST be a human full name (2-4 words, letters only). If you cannot confidently identify a real human name from the text, return null for name.",
-        "position": "Current or Target Professional Title/Position",
+        "name": "Candidate's real full name (letters and spaces only). If unclear, extract candidate name from header or contact info.",
+        "position": "Current or target job title (e.g. Software Engineer, Full Stack Developer, Frontend Engineer)",
         "experience_level": "junior" | "mid" | "senior" | "staff" | "principal",
-        "overview_summarized": "A 2-3 sentence overview of experience and career focus",
-        "key_skills": ["List", "of", "top", "skills", "languages", "frameworks", "tools"]
+        "overview_summarized": "A concise 2-3 sentence professional summary highlighting their core strengths, domain, and experience.",
+        "key_skills": ["List", "of", "all", "technical", "skills", "languages", "frameworks", "libraries", "databases", "tools", "cloud"],
+        "experience": [
+          {
+            "role": "Job Title / Position",
+            "company": "Company / Organization Name",
+            "years": 2,
+            "duration": "e.g. Jun 2022 - Present or 2 years",
+            "highlights": ["Key achievement or project 1", "Key achievement 2"]
+          }
+        ],
+        "education": [
+          "Degree, Major, Institution / University, Year"
+        ]
       }
 
       Resume text:
       ${resumeText}
     `
-
 
     const rawContent = await createChatCompletion({
       system: 'You are a professional technical recruiter and resume analyzer. You only respond with JSON matching the specified schema.',
@@ -82,6 +93,20 @@ export class ResumeParsingService {
 
       const analysis = JSON.parse(content.trim())
       const rawSkills = analysis.key_skills ?? analysis.skills ?? []
+      const rawExperience = Array.isArray(analysis.experience) ? analysis.experience : []
+      const rawEducation = Array.isArray(analysis.education) ? analysis.education : []
+
+      const cleanedExperience = rawExperience.map((item: any) => ({
+        role: String(item.role || item.position || item.title || 'Software Engineer'),
+        company: String(item.company || item.organization || item.employer || 'Company'),
+        years: typeof item.years === 'number' ? item.years : 1,
+        duration: typeof item.duration === 'string' ? item.duration : undefined,
+        highlights: Array.isArray(item.highlights) ? item.highlights.map(String) : [],
+      }))
+
+      const cleanedEducation = rawEducation
+        .map((edu: any) => typeof edu === 'string' ? edu : edu.degree ? `${edu.degree}${edu.institution ? ` at ${edu.institution}` : ''}` : String(edu))
+        .filter(Boolean)
 
       return {
         name: typeof analysis.name === 'string' ? analysis.name : null,
@@ -91,6 +116,8 @@ export class ResumeParsingService {
         key_skills: Array.isArray(rawSkills)
           ? rawSkills.filter((skill: unknown) => typeof skill === 'string' && skill.trim().length > 0)
           : [],
+        experience: cleanedExperience.length > 0 ? cleanedExperience : undefined,
+        education: cleanedEducation.length > 0 ? cleanedEducation : undefined,
       }
     } catch (error) {
       console.error('[ResumeParsingService] Failed to parse resume analysis JSON response:', error)

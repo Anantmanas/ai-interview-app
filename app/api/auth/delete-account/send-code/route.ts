@@ -57,14 +57,20 @@ export async function POST(req: NextRequest) {
     })
 
     if (emailResult.error) {
-      console.warn('[Delete Account] Email send notice:', emailResult.error.message)
+      console.error('[Delete Account] Resend email send failed:', emailResult.error.message)
+    } else {
+      console.log(`[Delete Account] Verification email sent to ${user.email} (ID: ${emailResult.data?.id})`)
     }
+
+    const isApiKeyConfigured = Boolean(process.env.RESEND_API_KEY)
 
     return NextResponse.json({
       success: true,
-      message: `Verification code sent to ${user.email}`,
-      // For easy local development if SMTP is not hooked up:
-      ...(process.env.NODE_ENV === 'development' ? { devCode: code } : {}),
+      message: isApiKeyConfigured && !emailResult.error
+        ? `Verification code sent to ${user.email}`
+        : `Verification code generated for ${user.email}`,
+      // Provide devCode fallback if API key is not configured or in dev
+      ...((!isApiKeyConfigured || Boolean(emailResult.error) || process.env.NODE_ENV === 'development') ? { devCode: code } : {}),
     })
   } catch (err: any) {
     console.error('[send-code] error:', err)

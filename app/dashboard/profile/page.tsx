@@ -48,6 +48,7 @@ export default function ProfilePage() {
   const [isSendingCode, setIsSendingCode] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [codeSent, setCodeSent] = useState(false)
+  const [devCodeHint, setDevCodeHint] = useState<string | null>(null)
 
   const supabase = createClient()
 
@@ -195,6 +196,7 @@ export default function ProfilePage() {
   // ── Send Email Confirmation Code for Deletion ──
   const handleSendDeleteCode = async () => {
     setIsSendingCode(true)
+    setDevCodeHint(null)
     try {
       const res = await fetch('/api/auth/delete-account/send-code', {
         method: 'POST',
@@ -206,6 +208,9 @@ export default function ProfilePage() {
       }
 
       setCodeSent(true)
+      if (data.devCode) {
+        setDevCodeHint(data.devCode)
+      }
       toast.success(data.message || `Confirmation code sent to ${profile?.email}`)
     } catch (err: any) {
       toast.error(err?.message || 'Failed to send verification code')
@@ -716,6 +721,19 @@ export default function ProfilePage() {
                       </>
                     )}
                   </button>
+
+                  {devCodeHint && (
+                    <div className="p-2.5 rounded-lg bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-xs font-mono flex items-center justify-between">
+                      <span>Testing Code: <strong className="text-white tracking-widest text-sm">{devCodeHint}</strong></span>
+                      <button
+                        type="button"
+                        onClick={() => setDeleteCode(devCodeHint)}
+                        className="text-[10px] text-indigo-400 hover:text-white underline cursor-pointer"
+                      >
+                        Auto-fill
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 {/* Step 2: Enter 6-Digit Code */}

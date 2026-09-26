@@ -16,9 +16,9 @@ function createResendClient() {
   return {
     emails: {
       async send(options: SendEmailOptions): Promise<ResendResponse> {
-        if (!apiKey) {
-          console.warn('RESEND_API_KEY is not configured. Email skipped:', options.subject)
-          return { data: { id: 'mock-id' }, error: null }
+        if (!apiKey || apiKey === 'your-resend-api-key' || apiKey === 're_...') {
+          console.warn('[Resend] RESEND_API_KEY is missing or unconfigured. Email will not be delivered to inbox:', options.subject)
+          return { data: null, error: { message: 'RESEND_API_KEY is not configured in .env file' } }
         }
 
         try {
@@ -50,6 +50,6 @@ function createResendClient() {
 }
 
 export const resend = createResendClient()
-export const FROM_EMAIL = process.env.RESEND_FROM_EMAIL ?? 'noreply@interviewai.app'
+export const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev'
 export const FROM_NAME = 'InterviewAI'
 

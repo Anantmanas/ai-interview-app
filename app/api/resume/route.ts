@@ -2,13 +2,14 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { formatResumeMarkdown, parseResumeMarkdown, structuredToDashboardResume } from '@/lib/resume/format'
 import { ResumeParsingService } from '@/lib/resume/parser-service'
-import type { StructuredResumeData } from '@/lib/resume/types'
+import { deleteFromUploadThing } from '@/lib/resume/storage'
+import type { StructuredResumeData, StoredResumeItem } from '@/lib/resume/types'
 import zlib from 'zlib'
 
 type ResumeData = {
   name: string
   skills: string[]
-  experience: { role: string; company: string; years: number }[]
+  experience: { role: string; company: string; years?: number; duration?: string; highlights?: string[] }[]
   education: string[]
   targetRole?: string
   summary?: string
@@ -34,7 +35,6 @@ const KNOWN_TECH_SKILLS = [
   'Django', 'Flask', 'Spring Boot', 'Angular', 'Vue.js', 'Svelte', 'WebSockets'
 ]
 
-
 function cleanPdfString(str: string): string {
   return str
     .replace(/\\([()\\])/g, '$1')
@@ -50,11 +50,23 @@ function cleanPdfString(str: string): string {
     })
 }
 
+function decodePdfHex(hex: string): string {
+  const clean = hex.replace(/[^0-9a-fA-F]/g, '')
+  let res = ''
+  for (let i = 0; i < clean.length; i += 2) {
+    const byte = parseInt(clean.substring(i, i + 2), 16)
+    if (!isNaN(byte) && byte >= 32 && byte <= 126) {
+      res += String.fromCharCode(byte)
+    } else if (byte === 10 || byte === 13 || byte === 9) {
+      res += ' '
+    }
+  }
+  return res
+}
+
 /**
  * Pure Node/JS stream decompressor.
- * Extracts text from PDF content streams (BT...ET blocks, Tj and TJ operators).
- * Requires zero native dependencies, zero canvas, zero DOMMatrix.
- * 100% reliable on Vercel Serverless / AWS Lambda.
+ * Extracts text from PDF content streams (BT...ET blocks, Tj, TJ, hex strings).
  */
 function extractTextFromPdfStreams(buffer: Buffer): string {
   const binary = buffer.toString('binary')
@@ -72,33 +84,40 @@ function extractTextFromPdfStreams(buffer: Buffer): string {
       try {
         text = zlib.inflateRawSync(rawStream).toString('latin1')
       } catch {
-        // Stream might be uncompressed ASCII/latin1
         text = match[1]
       }
     }
 
     if (text) {
-      // 1. Text array operator: [(...) 10 (...) -20] TJ
-      const tjMatches = text.matchAll(/\[(.*?)\]\s*TJ/gi)
+      // 1. Text array operator: [(...) 10 (...) -20] TJ or [<48656c6c6f> 10 <576f726c64>] TJ
+      const tjMatches = text.matchAll(/\[([\s\S]*?)\]\s*TJ/gi)
       for (const m of tjMatches) {
-        const parts = m[1].matchAll(/\((.*?)(?<!\\)\)/g)
-        const combined = Array.from(parts, (p) => cleanPdfString(p[1])).join('')
+        const parts = m[1].matchAll(/\((.*?)(?<!\\)\)|<([0-9a-fA-F]+)>/g)
+        const combined = Array.from(parts, (p) => {
+          if (p[1] !== undefined) return cleanPdfString(p[1])
+          if (p[2] !== undefined) return decodePdfHex(p[2])
+          return ''
+        }).join('')
         if (combined.trim()) chunks.push(combined)
       }
 
-      // 2. Single string operators: (string) Tj, ', "
-      const singleMatches = text.matchAll(/\((.*?)(?<!\\)\)\s*(?:Tj|'|")/gi)
+      // 2. Single string operators: (string) Tj or <hex> Tj
+      const singleMatches = text.matchAll(/(?:\((.*?)(?<!\\)\)|<([0-9a-fA-F]+)>)\s*(?:Tj|'|")/gi)
       for (const m of singleMatches) {
-        const cleaned = cleanPdfString(m[1])
+        let cleaned = ''
+        if (m[1] !== undefined) cleaned = cleanPdfString(m[1])
+        else if (m[2] !== undefined) cleaned = decodePdfHex(m[2])
         if (cleaned.trim()) chunks.push(cleaned)
       }
 
       // 3. Plain text inside text blocks
       const btMatches = text.matchAll(/BT\s+([\s\S]*?)\s+ET/gi)
       for (const m of btMatches) {
-        const innerStrings = m[1].matchAll(/\((.*?)(?<!\\)\)/g)
+        const innerStrings = m[1].matchAll(/\((.*?)(?<!\\)\)|<([0-9a-fA-F]+)>/g)
         for (const s of innerStrings) {
-          const cleaned = cleanPdfString(s[1])
+          let cleaned = ''
+          if (s[1] !== undefined) cleaned = cleanPdfString(s[1])
+          else if (s[2] !== undefined) cleaned = decodePdfHex(s[2])
           if (cleaned.trim()) chunks.push(cleaned)
         }
       }
@@ -121,7 +140,6 @@ function isNoiseToken(word: string): boolean {
 function parseSkills(text: string): string[] {
   const detected = new Set<string>()
 
-  // Skip if input looks like raw PDF binary
   if (text.startsWith('%PDF-') && !text.includes(' ') && !text.includes('\n')) {
     return []
   }
@@ -146,10 +164,8 @@ function parseSkills(text: string): string[] {
       .forEach((s) => detected.add(s))
   }
 
-  // Scan against known tech skills with strict word-boundary matching
   for (const tech of KNOWN_TECH_SKILLS) {
     const escaped = tech.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-    // Short 2-letter skills like "Go" or "C" MUST be case-sensitive to avoid matching English words or PDF tokens
     const flags = tech.length <= 2 ? '' : 'i'
     const regex = new RegExp(`(^|[^a-zA-Z0-9_#+])${escaped}([^a-zA-Z0-9_#+]|$)`, flags)
     if (regex.test(text)) {
@@ -162,7 +178,6 @@ function parseSkills(text: string): string[] {
 }
 
 function parseName(text: string, fileName: string): string {
-  // Check for explicit "Name: John Doe"
   const nameLabelMatch = text.match(/(?:name|candidate(?:\s+name)?)\s*[:\-]\s*([A-Za-z][A-Za-z\s.'-]{2,40})/i)
   if (nameLabelMatch?.[1] && !isNoiseToken(nameLabelMatch[1])) {
     return nameLabelMatch[1].trim()
@@ -180,7 +195,6 @@ function parseName(text: string, fileName: string): string {
   )
   if (candidate) return candidate
 
-  // Clean filename: "Anant_Resume[2026].pdf" -> "Anant" or "Anant Manas"
   return fileName
     .replace(/\.[^.]+$/, '')
     .replace(/\[\d+\]|\(\d+\)|\d{4}/g, '')
@@ -227,8 +241,8 @@ function mapStructuredToResumeData(structured: StructuredResumeData, rawText: st
   return {
     name: candidateName,
     skills: detectedSkills.length > 0 ? detectedSkills.slice(0, 24) : ['JavaScript', 'TypeScript', 'React', 'Node.js', 'SQL', 'Git'],
-    experience: fallback.experience,
-    education: fallback.education,
+    experience: structured.experience && structured.experience.length > 0 ? structured.experience : fallback.experience,
+    education: structured.education && structured.education.length > 0 ? structured.education : fallback.education,
     targetRole: targetPosition,
     summary: structured.overview_summarized || fallback.summary,
   }
@@ -265,7 +279,7 @@ async function extractRawText(file: File): Promise<string> {
     const ab = await file.arrayBuffer()
     const buf = Buffer.from(ab)
 
-    // Stage 1: Try native zlib PDF stream extraction (pure JS, 0 native dependencies, fast & reliable on Vercel)
+    // Stage 1: Try native zlib PDF stream extraction (pure JS, 0 native dependencies, fast & reliable)
     try {
       const streamText = extractTextFromPdfStreams(buf)
       if (streamText && streamText.length > 50) {
@@ -303,7 +317,6 @@ async function extractRawText(file: File): Promise<string> {
       console.warn('[api/resume] pdf-parse library failed:', e instanceof Error ? e.message : e)
     }
 
-    // NEVER read raw binary PDF via file.text()!
     return ''
   }
 
@@ -311,14 +324,167 @@ async function extractRawText(file: File): Promise<string> {
   return await file.text()
 }
 
+function sanitizeFullName(raw: string): string {
+  if (!raw) return ''
+
+  const PDF_ARTIFACTS = [
+    'endobj', 'endstream', 'stream', 'xref', 'trailer',
+    'startxref', 'obj', '>>', 'BT', 'ET', 'Tf', 'Td', 'Tj',
+  ]
+
+  const lower = raw.toLowerCase().trim()
+  if (PDF_ARTIFACTS.some(token => lower === token.toLowerCase())) return ''
+  if (/^\d+\s+\d+\s+obj/.test(raw)) return ''
+  if (/^%PDF/.test(raw)) return ''
+  if (raw.length < 2 || raw.length > 80) return ''
+
+  const cleaned = raw.replace(/[^a-zA-Z\s\-'.]/g, '').trim()
+  if (cleaned.length < 2) return ''
+  if (/\d{3,}/.test(cleaned)) return ''
+
+  return cleaned
+}
+
+/**
+ * Loads all stored resumes for a user (up to 2).
+ */
+async function fetchUserResumes(supabase: any, userId: string): Promise<StoredResumeItem[]> {
+  try {
+    const { data: versions, error: versionsError } = await supabase
+      .from('resume_versions')
+      .select('id, resume_id, file_url, file_name, created_at, status')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(2)
+
+    if (!versionsError && versions && versions.length > 0) {
+      const items: StoredResumeItem[] = []
+
+      for (const v of versions) {
+        const { data: parsed } = await supabase
+          .from('parsed_resume_data')
+          .select('structured_data, markdown')
+          .eq('resume_version_id', v.id)
+          .maybeSingle()
+
+        const { data: parentResume } = await supabase
+          .from('resumes')
+          .select('is_active')
+          .eq('id', v.resume_id)
+          .maybeSingle()
+
+        const structured = parsed?.structured_data || (parsed?.markdown ? parseResumeMarkdown(parsed.markdown) : null)
+        const dashboardData = structured ? structuredToDashboardResume(structured) : {
+          name: '',
+          skills: [],
+          experience: [],
+          education: [],
+          targetRole: undefined,
+          summary: undefined,
+        }
+
+        items.push({
+          id: v.resume_id || v.id,
+          versionId: v.id,
+          fileName: v.file_name || 'Uploaded Resume.pdf',
+          fileUrl: v.file_url,
+          uploadedAt: v.created_at,
+          isActive: Boolean(parentResume?.is_active),
+          skillsCount: dashboardData.skills.length,
+          targetRole: dashboardData.targetRole,
+          candidateName: dashboardData.name,
+          data: dashboardData,
+        })
+      }
+
+      // If at least one resume exists but none is marked active, mark the first as active
+      if (items.length > 0 && !items.some(i => i.isActive)) {
+        items[0].isActive = true
+      }
+
+      return items
+    }
+  } catch (err) {
+    console.warn('[api/resume] fetchUserResumes db query failed:', err)
+  }
+
+  // Fallback: Check profile
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('resume_text, resume_url, full_name, target_role, updated_at')
+    .eq('id', userId)
+    .single()
+
+  if (profile?.resume_text) {
+    const structured = parseResumeMarkdown(profile.resume_text)
+    if (structured) {
+      const dashboardData = structuredToDashboardResume(structured)
+      if (!dashboardData.name && profile.full_name) dashboardData.name = profile.full_name
+      if (!dashboardData.targetRole && profile.target_role) dashboardData.targetRole = profile.target_role
+
+      return [
+        {
+          id: 'primary-resume',
+          fileName: 'Primary Resume.pdf',
+          fileUrl: profile.resume_url || null,
+          uploadedAt: profile.updated_at || new Date().toISOString(),
+          isActive: true,
+          skillsCount: dashboardData.skills.length,
+          targetRole: dashboardData.targetRole,
+          candidateName: dashboardData.name,
+          data: dashboardData,
+        }
+      ]
+    }
+  }
+
+  return []
+}
+
+export async function GET() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  const resumes = await fetchUserResumes(supabase, user.id)
+  const activeResume = resumes.find(r => r.isActive) || resumes[0] || null
+
+  return NextResponse.json({
+    resumes,
+    activeResume,
+    resume: activeResume?.data || null,
+    meta: activeResume ? {
+      uploadedAt: activeResume.uploadedAt,
+      fileName: activeResume.fileName,
+      source: 'dashboard' as const,
+    } : null,
+  })
+}
+
 export async function POST(req: NextRequest) {
   try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+    // Check existing count — limit is strictly 2 resumes
+    const existingResumes = await fetchUserResumes(supabase, user.id)
+    if (existingResumes.length >= 2) {
+      return NextResponse.json(
+        {
+          error: 'Resume limit reached (2/2). Please remove at least 1 previous resume to upload a new one.',
+          limitReached: true,
+          currentCount: existingResumes.length,
+        },
+        { status: 400 }
+      )
+    }
+
     const formData = await req.formData()
     const file = formData.get('file') as File | null
 
     if (!file) return NextResponse.json({ error: 'No file provided' }, { status: 400 })
 
-    // File type allowlist — reject non-PDF/text before processing
     const ALLOWED_TYPES = ['application/pdf', 'text/plain']
     const ALLOWED_EXTENSIONS = ['.pdf', '.txt', '.md']
     const ext = '.' + (file.name.split('.').pop() ?? '').toLowerCase()
@@ -327,7 +493,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Only PDF and text files are supported' }, { status: 415 })
     }
 
-    // Size cap — 10MB hard limit
     if (file.size > 10 * 1024 * 1024) {
       return NextResponse.json({ error: 'File must be under 10MB' }, { status: 413 })
     }
@@ -340,115 +505,295 @@ export async function POST(req: NextRequest) {
     }
 
     const normalized = normalizeText(resumeText)
+    let resumeData: ResumeData
+    let markdown = ''
 
     if (normalized.length < 20) {
-      const fallback = buildFallbackResumeData(normalized, file.name)
-      return NextResponse.json(fallback)
-    }
-
-    try {
-      const parsingService = new ResumeParsingService()
-      const parsed = await parsingService.parseFromText(normalized)
-      const resumeData = mapStructuredToResumeData(parsed.structuredData, normalized, file.name)
-      await persistResumeProfile(resumeData, parsed.markdown)
-      return NextResponse.json(resumeData)
-    } catch (modelError) {
-      console.warn('[api/resume] model parse failed, fallback:', modelError)
-      const fallback = buildFallbackResumeData(normalized, file.name)
-      const markdown = formatResumeMarkdown({
-        name: fallback.name,
-        position: fallback.targetRole || null,
+      resumeData = buildFallbackResumeData(normalized, file.name)
+      markdown = formatResumeMarkdown({
+        name: resumeData.name,
+        position: resumeData.targetRole || null,
         experience_level: null,
-        overview_summarized: fallback.summary || null,
-        key_skills: fallback.skills,
+        overview_summarized: resumeData.summary || null,
+        key_skills: resumeData.skills,
+        experience: resumeData.experience,
+        education: resumeData.education,
         raw_text: normalized,
       })
-      await persistResumeProfile(fallback, markdown)
-      return NextResponse.json(fallback)
+    } else {
+      try {
+        const parsingService = new ResumeParsingService()
+        const parsed = await parsingService.parseFromText(normalized)
+        resumeData = mapStructuredToResumeData(parsed.structuredData, normalized, file.name)
+        markdown = parsed.markdown
+      } catch (modelError) {
+        console.warn('[api/resume] model parse failed, using fallback:', modelError)
+        resumeData = buildFallbackResumeData(normalized, file.name)
+        markdown = formatResumeMarkdown({
+          name: resumeData.name,
+          position: resumeData.targetRole || null,
+          experience_level: null,
+          overview_summarized: resumeData.summary || null,
+          key_skills: resumeData.skills,
+          experience: resumeData.experience,
+          education: resumeData.education,
+          raw_text: normalized,
+        })
+      }
     }
+
+    // Persist into DB: mark previous resumes inactive so new one is active
+    try {
+      await supabase.from('resumes').update({ is_active: false }).eq('user_id', user.id)
+
+      const { data: newResume, error: resumeErr } = await supabase
+        .from('resumes')
+        .insert({
+          user_id: user.id,
+          is_active: true,
+          status: 'READY',
+        })
+        .select('id')
+        .single()
+
+      if (newResume?.id) {
+        const { data: newVersion } = await supabase
+          .from('resume_versions')
+          .insert({
+            resume_id: newResume.id,
+            user_id: user.id,
+            file_url: 'local-upload',
+            file_name: file.name,
+            file_size: file.size,
+            version_number: 1,
+            status: 'READY',
+            parsed_at: new Date().toISOString(),
+          })
+          .select('id')
+          .single()
+
+        if (newVersion?.id) {
+          await supabase.from('resumes').update({ active_version_id: newVersion.id }).eq('id', newResume.id)
+
+          await supabase.from('parsed_resume_data').insert({
+            resume_version_id: newVersion.id,
+            user_id: user.id,
+            raw_text: normalized,
+            structured_data: {
+              name: resumeData.name,
+              position: resumeData.targetRole || null,
+              experience_level: null,
+              overview_summarized: resumeData.summary || null,
+              key_skills: resumeData.skills,
+              experience: resumeData.experience,
+              education: resumeData.education,
+            },
+            markdown,
+          })
+        }
+      }
+    } catch (dbErr) {
+      console.warn('[api/resume] direct table insert error:', dbErr)
+    }
+
+    // Sync profile as active grounding
+    const safeName = sanitizeFullName(resumeData.name || '')
+    await supabase
+      .from('profiles')
+      .update({
+        resume_text: markdown,
+        full_name: safeName || null,
+        target_role: resumeData.targetRole || null,
+      })
+      .eq('id', user.id)
+
+    const updatedResumes = await fetchUserResumes(supabase, user.id)
+
+    return NextResponse.json({
+      ...resumeData,
+      resumes: updatedResumes,
+    })
   } catch (err) {
-    console.error('[api/resume] error:', err)
+    console.error('[api/resume] POST error:', err)
     return NextResponse.json({ error: 'Resume extraction failed' }, { status: 500 })
   }
 }
 
+/**
+ * DELETE /api/resume?id=...
+ * Deletes from Supabase AND purges from UploadThing storage.
+ */
+export async function DELETE(req: NextRequest) {
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-function sanitizeFullName(raw: string): string {
-  if (!raw) return ''
+    const { searchParams } = new URL(req.url)
+    let targetId = searchParams.get('id')
 
-  // PDF binary artifact tokens to reject entirely
-  const PDF_ARTIFACTS = [
-    'endobj', 'endstream', 'stream', 'xref', 'trailer',
-    'startxref', 'obj', '>>', 'BT', 'ET', 'Tf', 'Td', 'Tj',
-  ]
+    if (!targetId) {
+      try {
+        const body = await req.json()
+        targetId = body?.id
+      } catch {}
+    }
 
-  const lower = raw.toLowerCase().trim()
+    if (!targetId) {
+      return NextResponse.json({ error: 'No resume ID provided for deletion' }, { status: 400 })
+    }
 
-  // Reject if it IS a known artifact
-  if (PDF_ARTIFACTS.some(token => lower === token.toLowerCase())) return ''
+    // 1. Locate file_url to purge from UploadThing
+    let fileUrl: string | null = null
 
-  // Reject if it contains PDF-specific patterns
-  if (/^\d+\s+\d+\s+obj/.test(raw)) return ''
-  if (/^%PDF/.test(raw)) return ''
-  if (raw.length < 2 || raw.length > 80) return ''
+    const { data: version } = await supabase
+      .from('resume_versions')
+      .select('id, file_url, resume_id')
+      .or(`id.eq.${targetId},resume_id.eq.${targetId}`)
+      .eq('user_id', user.id)
+      .maybeSingle()
 
-  // Allow only: letters, spaces, hyphens, apostrophes, dots
-  const cleaned = raw.replace(/[^a-zA-Z\s\-'.]/g, '').trim()
+    if (version?.file_url) {
+      fileUrl = version.file_url
+    }
 
-  // Must look like a real name: at least 2 chars, no digit sequences
-  if (cleaned.length < 2) return ''
-  if (/\d{3,}/.test(cleaned)) return ''
+    // Also check profile's resume_url if matched
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('resume_url, resume_text')
+      .eq('id', user.id)
+      .single()
 
-  return cleaned
-}
+    if (!fileUrl && profile?.resume_url) {
+      fileUrl = profile.resume_url
+    }
 
-async function persistResumeProfile(resumeData: ResumeData, markdown: string) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return
+    // 2. Purge from UploadThing
+    if (fileUrl && fileUrl.startsWith('http')) {
+      await deleteFromUploadThing(fileUrl)
+    }
 
-  const safeName = sanitizeFullName(resumeData.name || '')
+    // 3. Delete from Supabase DB
+    try {
+      if (version?.id) {
+        await supabase.from('parsed_resume_data').delete().eq('resume_version_id', version.id)
+        await supabase.from('resume_versions').delete().eq('id', version.id)
+      }
+      if (version?.resume_id) {
+        await supabase.from('resumes').delete().eq('id', version.resume_id)
+      } else {
+        await supabase.from('resumes').delete().eq('id', targetId).eq('user_id', user.id)
+      }
+    } catch (dbErr) {
+      console.warn('[api/resume] db delete warning:', dbErr)
+    }
 
-  await supabase
-    .from('profiles')
-    .update({
-      resume_text: markdown,
-      full_name: safeName || null,   // null if sanitizer rejects it — never write garbage
-      target_role: resumeData.targetRole || null,
+    // 4. Update remaining resumes and profile
+    const remaining = await fetchUserResumes(supabase, user.id)
+
+    if (remaining.length > 0) {
+      // Activate the first remaining resume
+      const nextActive = remaining[0]
+      try {
+        await supabase.from('resumes').update({ is_active: true }).eq('id', nextActive.id)
+        const activeData = nextActive.data
+        const nextMarkdown = formatResumeMarkdown({
+          name: activeData.name,
+          position: activeData.targetRole || null,
+          experience_level: null,
+          overview_summarized: activeData.summary || null,
+          key_skills: activeData.skills,
+          experience: activeData.experience,
+          education: activeData.education,
+        })
+        await supabase
+          .from('profiles')
+          .update({
+            resume_text: nextMarkdown,
+            resume_url: nextActive.fileUrl || null,
+            full_name: sanitizeFullName(activeData.name) || null,
+            target_role: activeData.targetRole || null,
+          })
+          .eq('id', user.id)
+      } catch {}
+    } else {
+      // No resumes left — clear profile resume grounding
+      await supabase
+        .from('profiles')
+        .update({
+          resume_text: null,
+          resume_url: null,
+        })
+        .eq('id', user.id)
+    }
+
+    const updatedResumes = await fetchUserResumes(supabase, user.id)
+
+    return NextResponse.json({
+      success: true,
+      resumes: updatedResumes,
     })
-    .eq('id', user.id)
-}
-
-
-export async function GET() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('resume_text, full_name, target_role, updated_at')
-    .eq('id', user.id)
-    .single()
-
-  if (!profile?.resume_text) {
-    return NextResponse.json(null)
+  } catch (err) {
+    console.error('[api/resume] DELETE error:', err)
+    return NextResponse.json({ error: 'Failed to delete resume' }, { status: 500 })
   }
-
-  const structured = parseResumeMarkdown(profile.resume_text)
-  if (!structured) return NextResponse.json(null)
-
-  const resumeData = structuredToDashboardResume(structured)
-  if (!resumeData.name && profile.full_name) resumeData.name = profile.full_name
-  if (!resumeData.targetRole && profile.target_role) resumeData.targetRole = profile.target_role
-
-  return NextResponse.json({
-    resume: resumeData,
-    meta: {
-      uploadedAt: profile.updated_at || new Date().toISOString(),
-      fileName: 'Saved resume',
-      source: 'dashboard' as const,
-    },
-  })
 }
 
+/**
+ * PATCH /api/resume
+ * Set active grounding resume.
+ */
+export async function PATCH(req: NextRequest) {
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+    const body = await req.json()
+    const targetId = body?.id
+
+    if (!targetId) {
+      return NextResponse.json({ error: 'Target resume ID required' }, { status: 400 })
+    }
+
+    // Mark all inactive, then activate target
+    await supabase.from('resumes').update({ is_active: false }).eq('user_id', user.id)
+    await supabase.from('resumes').update({ is_active: true }).eq('id', targetId).eq('user_id', user.id)
+
+    // Sync profile with the newly activated resume
+    const allResumes = await fetchUserResumes(supabase, user.id)
+    const active = allResumes.find(r => r.id === targetId || r.versionId === targetId)
+
+    if (active) {
+      const activeData = active.data
+      const nextMarkdown = formatResumeMarkdown({
+        name: activeData.name,
+        position: activeData.targetRole || null,
+        experience_level: null,
+        overview_summarized: activeData.summary || null,
+        key_skills: activeData.skills,
+        experience: activeData.experience,
+        education: activeData.education,
+      })
+
+      await supabase
+        .from('profiles')
+        .update({
+          resume_text: nextMarkdown,
+          resume_url: active.fileUrl || null,
+          full_name: sanitizeFullName(activeData.name) || null,
+          target_role: activeData.targetRole || null,
+        })
+        .eq('id', user.id)
+    }
+
+    return NextResponse.json({
+      success: true,
+      activeId: targetId,
+      resumes: allResumes,
+    })
+  } catch (err) {
+    console.error('[api/resume] PATCH error:', err)
+    return NextResponse.json({ error: 'Failed to switch active resume' }, { status: 500 })
+  }
+}
