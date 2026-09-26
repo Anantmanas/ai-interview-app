@@ -24,6 +24,9 @@ create table if not exists public.profiles (
   updated_at timestamptz default now()
 );
 
+-- Migration for existing installations
+alter table public.profiles add column if not exists target_companies text[];
+
 -- 2. Interviews Table
 create table if not exists public.interviews (
   id uuid primary key default gen_random_uuid(),
@@ -80,9 +83,15 @@ create table if not exists public.roadmap_items (
   resources jsonb,
   priority integer default 1,
   estimated_hours numeric,
+  weakness_score integer,
   status text default 'pending',
+  completed_at timestamptz,
   created_at timestamptz default now()
 );
+
+-- Migration: add weakness_score and completed_at if table already exists
+alter table public.roadmap_items add column if not exists weakness_score integer;
+alter table public.roadmap_items add column if not exists completed_at timestamptz;
 
 -- 6. Resumes & Document Tables
 create table if not exists public.resumes (

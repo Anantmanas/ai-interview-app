@@ -84,11 +84,11 @@ export async function createChatCompletion({
     if (isOpenRouter) {
       console.warn(`[AI Client] OpenRouter model ${chosenModel} error (${err?.status || err?.message}):`, err?.message)
       const freeModels = [
-        'meta-llama/llama-3.3-70b-instruct:free',
+        'google/gemini-2.0-flash-exp:free',
         'qwen/qwen-2.5-coder-32b-instruct:free',
         'mistralai/mistral-7b-instruct:free',
-        'google/gemini-2.0-flash-exp:free',
-        'deepseek/deepseek-r1:free',
+        'meta-llama/llama-3.1-8b-instruct:free',
+        'microsoft/phi-3-mini-128k-instruct:free',
       ]
 
       for (const fallbackModel of freeModels) {
