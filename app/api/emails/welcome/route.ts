@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
     const { error } = await resend.emails.send({
       from: `${FROM_NAME} <${FROM_EMAIL}>`,
       to: email,
-      subject: '🎯 Your InterviewAI account is ready — start practicing',
+      subject: '🚀 Welcome to InterviewAI — Fast-Track Your Dream Tech Role',
       html,
     })
 

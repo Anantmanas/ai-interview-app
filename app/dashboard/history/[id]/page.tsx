@@ -48,7 +48,7 @@ export default async function InterviewDetailPage({ params }: { params: Promise<
   }
 
   return (
-    <div className="max-w-[1300px] space-y-6 pb-12">
+    <div className="p-4 sm:p-6 md:p-8 max-w-[1300px] space-y-6 pb-12">
       <div className="flex items-center gap-4">
         <Link 
           href="/dashboard/history"

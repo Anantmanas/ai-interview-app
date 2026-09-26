@@ -31,17 +31,17 @@ export function ReferralsClient({ referralCode, referralLink, credits, referrals
   const pending = referrals.filter(r => r.status === 'pending').length
 
   return (
-    <div className="p-6 max-w-[800px] mx-auto">
-      <div className="mb-8">
+    <div className="p-4 sm:p-6 md:p-8 max-w-[800px] mx-auto">
+      <div className="mb-6 sm:mb-8">
         <p className="font-mono text-[10px] text-[#818cf8] uppercase tracking-[0.2em] mb-1">// REFERRALS</p>
         <h1 className="font-display text-[28px] font-bold text-white tracking-[-0.02em]">Refer & Earn</h1>
-        <p className="font-body text-[14px] text-[#9ca3af] mt-1">
+        <p className="font-body text-[13px] sm:text-[14px] text-[#9ca3af] mt-1">
           Share InterviewAI and earn 1 free Pro month for every 3 referrals that upgrade.
         </p>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         {[
           { icon: Users, label: 'Total Referrals', value: referrals.length },
           { icon: CheckCircle, label: 'Converted', value: converted },

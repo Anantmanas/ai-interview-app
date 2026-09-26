@@ -125,6 +125,20 @@ export default function QuestionsPage() {
         .update({ target_role: finalRoleString })
         .eq('id', user.id)
 
+      // Send welcoming email to user
+      try {
+        await fetch('/api/emails/welcome', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: user.email,
+            fullName: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Engineer',
+          }),
+        })
+      } catch (emailErr) {
+        console.warn('Welcome email trigger notice:', emailErr)
+      }
+
       router.push('/dashboard')
     } finally {
       setLoading(false)

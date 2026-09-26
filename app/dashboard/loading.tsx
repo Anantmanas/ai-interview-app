@@ -4,7 +4,7 @@
  */
 export default function DashboardLoading() {
   return (
-    <div className="p-6 md:p-8 max-w-[1400px] space-y-6">
+    <div className="p-4 sm:p-6 md:p-8 max-w-[1400px] space-y-6">
       {/* Header row skeleton */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="space-y-2">

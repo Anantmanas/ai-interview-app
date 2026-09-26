@@ -119,17 +119,17 @@ export default function AnalyticsPage() {
   }
 
   return (
-    <div className="p-6 max-w-[1100px] mx-auto">
-      <div className="mb-8">
+    <div className="p-4 sm:p-6 md:p-8 max-w-[1100px] mx-auto">
+      <div className="mb-6 sm:mb-8">
         <p className="font-mono text-[10px] text-[#818cf8] uppercase tracking-[0.2em] mb-1">// ANALYTICS</p>
         <h1 className="font-display text-[28px] font-bold text-[#ffffff] tracking-[-0.02em]">
           Performance Analytics
         </h1>
-        <p className="font-body text-[14px] text-[#9ca3af] mt-1">Track your interview progress and improvement over time.</p>
+        <p className="font-body text-[13px] sm:text-[14px] text-[#9ca3af] mt-1">Track your interview progress and improvement over time.</p>
       </div>
 
       {/* KPI cards */}
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
         <StatCard label="Total Interviews" value={data?.totalInterviews ?? 0} icon={BarChart3} />
         <StatCard label="Average Score" value={data?.avgScore ?? 0} icon={Target} sub="out of 100" />
         <StatCard label="Best Score" value={data?.bestScore ?? 0} icon={TrendingUp} sub="personal best" />

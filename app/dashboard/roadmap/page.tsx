@@ -147,7 +147,7 @@ function VideoCarousel({ videos, topicTitle }: { videos: Resource[]; topicTitle:
             target="_blank"
             rel="noopener noreferrer"
             whileHover={{ y: -3 }}
-            className="flex-shrink-0 w-[260px] sm:w-[280px] snap-start bg-[#0c0d15] hover:bg-[#12131f] border border-[#1e2030] hover:border-[#6366f1]/60 rounded-xl overflow-hidden shadow-lg transition-all group flex flex-col justify-between"
+            className="flex-shrink-0 w-[240px] sm:w-[280px] max-w-[78vw] snap-start bg-[#0c0d15] hover:bg-[#12131f] border border-[#1e2030] hover:border-[#6366f1]/60 rounded-xl overflow-hidden shadow-lg transition-all group flex flex-col justify-between"
           >
             {/* Thumbnail Box */}
             <div className="relative aspect-video w-full bg-[#14142b] overflow-hidden">
@@ -476,13 +476,13 @@ export default function RoadmapPage() {
   const progressPercent = items.length > 0 ? Math.round((completedCount / items.length) * 100) : 0
 
   return (
-    <div className="max-w-[1200px] space-y-6 pb-16 font-sans">
+    <div className="p-4 sm:p-6 md:p-8 max-w-[1200px] space-y-6 pb-16 font-sans">
       {/* Page Header */}
       <div>
         <p className="font-mono text-[11px] text-[#818cf8] uppercase tracking-[0.15em] mb-1 font-semibold">
           // AI LEARNING ROADMAP & VIDEO CURATION
         </p>
-        <h1 className="font-display text-[32px] font-bold text-white leading-[1.1] tracking-[-0.02em]">
+        <h1 className="font-display text-[28px] sm:text-[32px] font-bold text-white leading-[1.1] tracking-[-0.02em]">
           Adaptive Video Roadmap
         </h1>
         <p className="font-body text-[14px] text-[#9ca3af] mt-1 max-w-2xl">

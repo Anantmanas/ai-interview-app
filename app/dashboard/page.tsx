@@ -50,15 +50,15 @@ export default async function DashboardPage() {
   const name = profile?.full_name?.split(' ')[0] || user.email?.split('@')[0] || 'Engineer'
 
   return (
-    <div className="p-6 md:p-8 max-w-[1400px] space-y-6">
+    <div className="p-4 sm:p-6 md:p-8 max-w-[1400px] space-y-6">
       {/* ── Header row ── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <p className="font-mono text-[11px] text-[#818cf8] uppercase tracking-[0.15em] mb-1 font-semibold">// DASHBOARD CONSOLE</p>
-          <h1 className="font-display text-[32px] sm:text-[36px] font-bold text-[#ffffff] leading-[1.1] tracking-[-0.02em]">
+          <h1 className="font-display text-[26px] sm:text-[36px] font-bold text-[#ffffff] leading-[1.1] tracking-[-0.02em]">
             Welcome back, <span className="bg-gradient-to-r from-[#6366f1] to-[#818cf8] bg-clip-text text-transparent">{name}</span>
           </h1>
-          <p className="font-body text-[14px] text-[#9ca3af] mt-1">Ready to practice? Start a new interview or review your progress.</p>
+          <p className="font-body text-[13px] sm:text-[14px] text-[#9ca3af] mt-1">Ready to practice? Start a new interview or review your progress.</p>
         </div>
         {/* Start Interview CTA */}
         <Link 

@@ -101,9 +101,9 @@ export function BillingClient({ profile, subscriptions }: BillingClientProps) {
 
 
   return (
-    <div className="p-6 max-w-[800px] mx-auto">
+    <div className="p-4 sm:p-6 md:p-8 max-w-[800px] mx-auto">
       {/* Header */}
-      <div className="mb-8">
+      <div className="mb-6 sm:mb-8">
         <p className="font-mono text-[10px] text-[#818cf8] uppercase tracking-[0.2em] mb-1">
           // BILLING
         </p>

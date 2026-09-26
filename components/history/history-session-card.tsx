@@ -85,39 +85,41 @@ export function HistorySessionCard({ interview, index, totalCount }: HistorySess
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="text-right mr-2">
+          <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 w-full sm:w-auto justify-between sm:justify-end pt-2 sm:pt-0 border-t sm:border-t-0 border-[#1e2030]/60">
+            <div className="text-left sm:text-right mr-1 sm:mr-2">
               {interview.overall_score !== null && interview.overall_score > 0 ? (
                 <>
-                  <div className="font-display text-[26px] font-bold bg-gradient-to-r from-[#6366f1] to-[#818cf8] bg-clip-text text-transparent leading-none">
+                  <div className="font-display text-[22px] sm:text-[26px] font-bold bg-gradient-to-r from-[#6366f1] to-[#818cf8] bg-clip-text text-transparent leading-none">
                     {interview.overall_score}%
                   </div>
-                  <div className="font-mono text-[10px] text-[#64748b] uppercase mt-0.5">Score</div>
+                  <div className="font-mono text-[9px] sm:text-[10px] text-[#64748b] uppercase mt-0.5">Score</div>
                 </>
               ) : interview.status === 'completed' ? (
-                <span className="font-mono text-[11px] text-[#64748b] bg-[#0f0f18] border border-[#1e1e2f] rounded-[2px] px-2 py-0.5">
+                <span className="font-mono text-[10px] sm:text-[11px] text-[#64748b] bg-[#0f0f18] border border-[#1e1e2f] rounded-[2px] px-2 py-0.5">
                   — PENDING
                 </span>
               ) : null}
             </div>
 
-            {/* Collapsible Dropdown Toggle */}
-            <button
-              onClick={() => setIsExpanded(!isExpanded)}
-              className="inline-flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.05em] text-[#9ca3af] hover:text-white transition-colors bg-[#0c0d15] hover:bg-[#14142b] border border-[#1e2030] hover:border-[#3730a3] px-3 py-2 rounded-lg cursor-pointer"
-            >
-              <Sparkles className="h-3.5 w-3.5 text-[#818cf8]" />
-              <span>{isExpanded ? 'Hide Suggestions' : 'View Suggestions'}</span>
-              {isExpanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
-            </button>
+            <div className="flex items-center gap-2">
+              {/* Collapsible Dropdown Toggle */}
+              <button
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="inline-flex items-center gap-1.5 font-mono text-[10px] sm:text-[11px] uppercase tracking-[0.05em] text-[#9ca3af] hover:text-white transition-colors bg-[#0c0d15] hover:bg-[#14142b] border border-[#1e2030] hover:border-[#3730a3] px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg cursor-pointer"
+              >
+                <Sparkles className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-[#818cf8]" />
+                <span>{isExpanded ? 'Hide' : 'Suggestions'}</span>
+                {isExpanded ? <ChevronUp className="h-3 w-3 sm:h-3.5 sm:w-3.5" /> : <ChevronDown className="h-3 w-3 sm:h-3.5 sm:w-3.5" />}
+              </button>
 
-            <Link
-              href={interview.status === 'completed' ? `/dashboard/history/${interview.id}` : `/interview/${interview.id}`}
-              className="inline-flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.05em] text-[#818cf8] hover:text-white transition-colors bg-[#14142b] border border-[#3730a3]/60 hover:border-[#4f46e5] px-4 py-2 rounded-lg"
-            >
-              <span>{interview.status === 'completed' ? 'Details' : 'Resume'}</span>
-              <ArrowRight className="h-3.5 w-3.5" />
-            </Link>
+              <Link
+                href={interview.status === 'completed' ? `/dashboard/history/${interview.id}` : `/interview/${interview.id}`}
+                className="inline-flex items-center gap-1.5 font-mono text-[10px] sm:text-[11px] uppercase tracking-[0.05em] text-[#818cf8] hover:text-white transition-colors bg-[#14142b] border border-[#3730a3]/60 hover:border-[#4f46e5] px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg"
+              >
+                <span>{interview.status === 'completed' ? 'Details' : 'Resume'}</span>
+                <ArrowRight className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+              </Link>
+            </div>
           </div>
         </div>
 

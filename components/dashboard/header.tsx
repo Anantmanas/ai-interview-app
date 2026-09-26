@@ -57,28 +57,33 @@ export function DashboardHeader({ user, profile }: DashboardHeaderProps) {
   const breadcrumbs = getBreadcrumbs()
 
   return (
-    <header className="sticky top-0 z-20 flex h-12 shrink-0 items-center gap-2 border-b border-[#1e1e2f] bg-[#000000]/90 backdrop-blur-md px-5">
-      <SidebarTrigger className="-ml-1 text-[#9ca3af] hover:text-[#818cf8] hover:bg-[#14142b]" />
-      <div className="h-3.5 w-px bg-[#1e1e2f] mx-2" />
-      <Breadcrumb>
-        <BreadcrumbList className="font-mono text-[11px] text-[#9ca3af]">
-          {breadcrumbs.map((crumb, index) => (
-            <Fragment key={crumb.href}>
-              <BreadcrumbItem>
-                {index === breadcrumbs.length - 1 ? (
-                  <BreadcrumbPage className="text-[#f8fafc] font-semibold">{crumb.label}</BreadcrumbPage>
-                ) : (
-                  <BreadcrumbLink href={crumb.href} className="text-[#9ca3af] hover:text-[#818cf8] transition-colors">
-                    {crumb.label}
-                  </BreadcrumbLink>
-                )}
-              </BreadcrumbItem>
-              {index < breadcrumbs.length - 1 && <BreadcrumbSeparator className="text-[#64748b]" />}
-            </Fragment>
-          ))}
-        </BreadcrumbList>
-      </Breadcrumb>
-      <div className="ml-auto">
+    <header className="sticky top-0 z-20 flex h-12 shrink-0 items-center gap-2 border-b border-[#1e1e2f] bg-[#000000]/90 backdrop-blur-md px-3 sm:px-5">
+      <SidebarTrigger className="-ml-1 text-[#9ca3af] hover:text-[#818cf8] hover:bg-[#14142b] shrink-0" />
+      <div className="h-3.5 w-px bg-[#1e1e2f] mx-1 sm:mx-2 shrink-0" />
+      <div className="min-w-0 flex-1 overflow-hidden">
+        <Breadcrumb>
+          <BreadcrumbList className="font-mono text-[10px] sm:text-[11px] text-[#9ca3af] flex-nowrap overflow-hidden">
+            {breadcrumbs.map((crumb, index) => {
+              const isLast = index === breadcrumbs.length - 1
+              return (
+                <Fragment key={crumb.href}>
+                  <BreadcrumbItem className={!isLast ? 'hidden sm:inline-flex' : 'inline-flex truncate'}>
+                    {isLast ? (
+                      <BreadcrumbPage className="text-[#f8fafc] font-semibold truncate">{crumb.label}</BreadcrumbPage>
+                    ) : (
+                      <BreadcrumbLink href={crumb.href} className="text-[#9ca3af] hover:text-[#818cf8] transition-colors truncate">
+                        {crumb.label}
+                      </BreadcrumbLink>
+                    )}
+                  </BreadcrumbItem>
+                  {index < breadcrumbs.length - 1 && <BreadcrumbSeparator className="text-[#64748b] hidden sm:inline-flex" />}
+                </Fragment>
+              )
+            })}
+          </BreadcrumbList>
+        </Breadcrumb>
+      </div>
+      <div className="ml-auto shrink-0 flex items-center gap-2">
         <NotificationBell />
       </div>
     </header>
