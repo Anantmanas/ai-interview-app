@@ -1,23 +1,99 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
-import { createChatCompletion, EVALUATION_MODEL } from '@/lib/ai/client'
+import { createChatCompletion, streamChatCompletion, EVALUATION_MODEL } from '@/lib/ai/client'
 import { updateWeaknessScores } from '@/lib/ai/weakness-tracker'
 import { checkRateLimit } from '@/lib/middleware/rate-limit'
 
+function isNonAnswer(text?: string | null): boolean {
+  if (!text) return true
+  const trimmed = text.trim()
+  if (trimmed.length === 0) return true
+  const cleaned = trimmed.toLowerCase().replace(/[^a-z0-9]/g, '')
+  const nonAnswerKeywords = [
+    '',
+    'na',
+    'none',
+    'no',
+    'idk',
+    'dontknow',
+    'donotknow',
+    'skip',
+    'pass',
+    'noidea',
+    'nothing',
+    'nil',
+    'null',
+    'undefined',
+    'blank',
+    'asdf',
+    'test',
+    'nope',
+    'notanswered',
+    'noanswer',
+    'idontknow',
+  ]
+  if (cleaned.length <= 2) return true
+  if (nonAnswerKeywords.includes(cleaned)) return true
+  if (trimmed.length < 5 && !/[0-9]/.test(trimmed)) return true
+  return false
+}
+
 const EVALUATION_SYSTEM_PROMPT = `
-You are a senior technical interviewer and engineering leader.
+You are a rigorous technical interviewer and engineering leader.
 Evaluate the candidate's answer with precise, objective feedback.
+
+SCORING CRITERIA:
+- 0: Unanswered, "NA", "skip", gibberish, or irrelevant dismissal.
+- 1-25: Fundamentally incorrect with major misconceptions.
+- 26-50: Minimal understanding, poor complexity, or critical omissions.
+- 51-69: Partially correct but suboptimal or missing key edge cases.
+- 70-84: Good passing solution with sound reasoning and minor gaps.
+- 85-100: Senior/Staff level mastery with optimal time/space complexity, clean architecture, and robust edge-case handling.
+BE HONEST AND CRITICAL. NEVER give passing scores (70+) to low-effort, incomplete, or incorrect answers.
+
 Always respond in valid JSON format only with the following keys:
 {
-  "score": number (0 to 100, where 70+ is passing, 85+ is strong),
-  "caveman_feedback": "Ultra-short, punchy caveman-style summary (10-15 words max). Format: 'Good: [points]. Bad: [gap]. Fix: [action]'",
+  "score": number (0 to 100),
+  "caveman_feedback": "Ultra-short, punchy summary (10-15 words max). Format: 'Good: [points]. Bad: [gap]. Fix: [action]'",
   "feedback": "Concise analysis of what was good and what was missing",
   "technicalAccuracy": "Assessment of technical correctness and depth",
   "improvements": "Specific actionable points to improve this answer",
-  "topic": "The core topic or skill tested (e.g. System Design, React, Algorithms, Concurrency)"
+  "topic": "The core topic or skill tested"
 }
 `
+
+async function upsertQuestionRecord(interviewId: string, sequenceOrder: number, data: any) {
+  const { data: existing } = await supabaseAdmin
+    .from('interview_questions')
+    .select('id')
+    .eq('interview_id', interviewId)
+    .eq('sequence_order', sequenceOrder)
+    .maybeSingle()
+
+  if (existing) {
+    const { data: updated, error } = await supabaseAdmin
+      .from('interview_questions')
+      .update(data)
+      .eq('id', existing.id)
+      .select()
+      .single()
+    if (error) console.error('[upsertQuestionRecord update error]:', error)
+    return updated
+  } else {
+    const { data: inserted, error } = await supabaseAdmin
+      .from('interview_questions')
+      .insert({
+        interview_id: interviewId,
+        sequence_order: sequenceOrder,
+        ...data,
+      })
+      .select()
+      .single()
+    if (error) console.error('[upsertQuestionRecord insert error]:', error)
+    return inserted
+  }
+}
 
 export async function POST(
   req: NextRequest,
@@ -68,7 +144,7 @@ export async function POST(
     }
 
     // Check if this is a single question evaluation call from interview room
-    const isSingleQuestion = !!body.question || !!body.currentQuestion
+    const isSingleQuestion = !!body.currentQuestion || (!!body.question && !body.finalize)
 
     if (isSingleQuestion) {
       const q = body.currentQuestion || body.question
@@ -88,6 +164,136 @@ Difficulty: ${difficulty}
 Candidate Answer: ${userAnswer || '(No answer provided)'}
 `
 
+      // Strict validation: Non-answer / "NA" / empty detection -> Immediate 0 score
+      if (isNonAnswer(userAnswer)) {
+        const nonAnswerResult = {
+          score: 0,
+          caveman_feedback: 'Bad: No solution provided. Score: 0%. Fix: Attempt solution or explain thought process.',
+          feedback: "No substantive answer or technical reasoning was provided for this question. In an interview, submitting 'NA', skipping, or giving non-answers yields 0 points.",
+          technicalAccuracy: 'Unanswered / Zero technical concepts demonstrated.',
+          improvements: 'Always attempt the problem. Even if unsure, clarify requirements, state edge cases, or write a naive brute-force solution. An interviewer can only score what you communicate.',
+          topic,
+        }
+
+        await upsertQuestionRecord(id, sequenceOrder, {
+          question_text: questionText,
+          question_type: questionType,
+          topic,
+          difficulty,
+          user_answer: userAnswer || '(No answer provided)',
+          ai_evaluation: nonAnswerResult,
+          time_taken_seconds: elapsedSeconds,
+        })
+
+        try {
+          await updateWeaknessScores(user.id, [
+            {
+              topic,
+              score: 0,
+              feedback: nonAnswerResult.feedback,
+            },
+          ])
+        } catch {}
+
+        if (body.stream) {
+          const encoder = new TextEncoder()
+          const stream = new ReadableStream({
+            start(controller) {
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ chunk: nonAnswerResult.feedback })}\n\n`))
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ done: true, evaluation: nonAnswerResult })}\n\n`))
+              controller.close()
+            },
+          })
+          return new Response(stream, {
+            headers: {
+              'Content-Type': 'text/event-stream',
+              'Cache-Control': 'no-cache',
+              'Connection': 'keep-alive',
+            },
+          })
+        }
+
+        return NextResponse.json({ evaluation: nonAnswerResult, mode: 'evaluate' })
+      }
+
+      if (body.stream) {
+        const encoder = new TextEncoder()
+        const stream = new ReadableStream({
+          async start(controller) {
+            let accumulated = ''
+            try {
+              const tokenGenerator = streamChatCompletion({
+                system: EVALUATION_SYSTEM_PROMPT,
+                messages: [{ role: 'user', content: userContent }],
+                model: EVALUATION_MODEL,
+                maxTokens: 1000,
+              })
+
+              for await (const token of tokenGenerator) {
+                accumulated += token
+                controller.enqueue(encoder.encode(`data: ${JSON.stringify({ chunk: token })}\n\n`))
+              }
+
+              // Parse final evaluation payload
+              let evalData: any = {}
+              try {
+                evalData = JSON.parse(accumulated)
+              } catch {
+                const match = accumulated.match(/\{[\s\S]*\}/)?.[0]
+                evalData = match ? JSON.parse(match) : { score: 30, feedback: accumulated.slice(0, 300), improvements: '' }
+              }
+
+              const parsedScore = Number(evalData?.score)
+              const score = Math.max(0, Math.min(100, !isNaN(parsedScore) ? parsedScore : (isNonAnswer(userAnswer) ? 0 : 35)))
+              const evaluationResult = {
+                score,
+                caveman_feedback: evalData.caveman_feedback || (score === 0 ? 'Bad: no solution. Score: 0%.' : `Score: ${score}%. Fix: elaborate on edge cases.`),
+                feedback: evalData.feedback || accumulated.slice(0, 300) || 'Answer recorded.',
+                technicalAccuracy: evalData.technicalAccuracy || evalData.technical_accuracy || '',
+                improvements: evalData.improvements || evalData.improvement || '',
+                topic: evalData.topic || topic,
+              }
+
+              // Persist to database via upsert
+              await upsertQuestionRecord(id, sequenceOrder, {
+                question_text: questionText,
+                question_type: questionType,
+                topic: evaluationResult.topic,
+                difficulty,
+                user_answer: userAnswer,
+                ai_evaluation: evaluationResult,
+                time_taken_seconds: elapsedSeconds,
+              })
+
+              try {
+                await updateWeaknessScores(user.id, [
+                  {
+                    topic: evaluationResult.topic,
+                    score: evaluationResult.score,
+                    feedback: evaluationResult.feedback,
+                  },
+                ])
+              } catch {}
+
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ done: true, evaluation: evaluationResult })}\n\n`))
+              controller.close()
+            } catch (err: any) {
+              console.error('[evaluate streaming] Error:', err)
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ error: err.message })}\n\n`))
+              controller.close()
+            }
+          },
+        })
+
+        return new Response(stream, {
+          headers: {
+            'Content-Type': 'text/event-stream',
+            'Cache-Control': 'no-cache',
+            'Connection': 'keep-alive',
+          },
+        })
+      }
+
       const rawContent = await createChatCompletion({
         system: EVALUATION_SYSTEM_PROMPT,
         messages: [{ role: 'user', content: userContent }],
@@ -99,39 +305,30 @@ Candidate Answer: ${userAnswer || '(No answer provided)'}
         evalData = JSON.parse(rawContent)
       } catch {
         const match = rawContent.match(/\{[\s\S]*\}/)?.[0]
-        evalData = match ? JSON.parse(match) : { score: 70, feedback: 'Evaluated', improvements: '' }
+        evalData = match ? JSON.parse(match) : { score: 30, feedback: 'Evaluated with gaps.', improvements: '' }
       }
 
-      const score = Math.max(0, Math.min(100, Number(evalData.score) || 70))
+      const parsedScore = Number(evalData?.score)
+      const score = Math.max(0, Math.min(100, !isNaN(parsedScore) ? parsedScore : (isNonAnswer(userAnswer) ? 0 : 35)))
       const evaluationResult = {
         score,
-        caveman_feedback: evalData.caveman_feedback || `Good: logic OK. Score: ${score}%. Fix: elaborate on edge cases.`,
+        caveman_feedback: evalData.caveman_feedback || (score === 0 ? 'Bad: no solution. Score: 0%.' : `Score: ${score}%. Fix: elaborate on edge cases.`),
         feedback: evalData.feedback || 'Answer recorded.',
         technicalAccuracy: evalData.technicalAccuracy || evalData.technical_accuracy || '',
         improvements: evalData.improvements || evalData.improvement || '',
         topic: evalData.topic || topic,
       }
 
-      // Persist to interview_questions table using supabaseAdmin
-      const { data: insertedQuestion, error: insertError } = await supabaseAdmin
-        .from('interview_questions')
-        .insert({
-          interview_id: id,
-          question_text: questionText,
-          question_type: questionType,
-          topic: evaluationResult.topic,
-          difficulty: difficulty,
-          user_answer: userAnswer,
-          ai_evaluation: evaluationResult,
-          time_taken_seconds: elapsedSeconds,
-          sequence_order: sequenceOrder,
-        })
-        .select()
-        .single()
-
-      if (insertError) {
-        console.error('[evaluate] Error inserting into interview_questions:', insertError)
-      }
+      // Persist to interview_questions table via upsert
+      const savedQuestion = await upsertQuestionRecord(id, sequenceOrder, {
+        question_text: questionText,
+        question_type: questionType,
+        topic: evaluationResult.topic,
+        difficulty,
+        user_answer: userAnswer,
+        ai_evaluation: evaluationResult,
+        time_taken_seconds: elapsedSeconds,
+      })
 
       // Update weakness scores immediately
       await updateWeaknessScores(user.id, [
@@ -145,57 +342,212 @@ Candidate Answer: ${userAnswer || '(No answer provided)'}
       return NextResponse.json({
         success: true,
         evaluation: evaluationResult,
-        question: insertedQuestion,
+        question: savedQuestion,
       })
     }
 
-    // Fallback: Full interview session evaluation
+    // =========================================================================
+    // FULL SESSION FINAL EVALUATION & WEAKNESS SYNTHESIS
+    // =========================================================================
+
+    // If client supplied questions from client state, ensure they are stored
+    if (Array.isArray(body.questions) && body.questions.length > 0) {
+      for (let i = 0; i < body.questions.length; i++) {
+        const q = body.questions[i]
+        const order = q.sequence_order !== undefined ? q.sequence_order : i
+        await upsertQuestionRecord(id, order, {
+          question_text: q.text || q.question_text || '',
+          question_type: q.type || q.question_type || interview.type || 'technical',
+          topic: q.topic || q.topicTag || 'General',
+          difficulty: q.difficulty || interview.difficulty || 'medium',
+        })
+      }
+    }
+
+    // Retrieve all recorded questions for this interview
     const { data: existingQuestions } = await supabaseAdmin
       .from('interview_questions')
       .select('*')
       .eq('interview_id', id)
       .order('sequence_order', { ascending: true })
 
-    const questions = (existingQuestions || []).filter((q) => (q.user_answer || '').trim().length > 0)
+    let allQuestions = existingQuestions || []
 
-    if (questions.length === 0) {
-      return NextResponse.json({ error: 'No answered questions to evaluate' }, { status: 400 })
+    // If still no questions in DB, check if title or body hints at topic
+    if (allQuestions.length === 0) {
+      const topicFromTitle = interview.title?.replace('Targeted: ', '').split('—')[0].split('[')[0].trim() || 'General Technical'
+      const defaultQuestions = [
+        {
+          text: `Explain the fundamental principles of ${topicFromTitle} and walk through how you would apply it in a high-scale production system.`,
+          topic: topicFromTitle,
+        },
+        {
+          text: `What are the most common performance bottlenecks or edge-case failures when working with ${topicFromTitle}?`,
+          topic: topicFromTitle,
+        },
+        {
+          text: `Compare and contrast alternative approaches or paradigms to ${topicFromTitle}. What are the trade-offs?`,
+          topic: topicFromTitle,
+        },
+      ]
+
+      for (let i = 0; i < defaultQuestions.length; i++) {
+        const q = defaultQuestions[i]
+        const inserted = await upsertQuestionRecord(id, i, {
+          question_text: q.text,
+          question_type: interview.type || 'technical',
+          topic: q.topic,
+          difficulty: interview.difficulty || 'medium',
+          user_answer: '(No answer provided)',
+          ai_evaluation: {
+            score: 0,
+            caveman_feedback: 'Bad: Unanswered question. Score: 0%. Fix: Attempt solution.',
+            feedback: `Candidate did not provide an answer for ${q.topic} in this session.`,
+            technicalAccuracy: 'Unanswered.',
+            improvements: 'Answer all technical questions to demonstrate competency.',
+            topic: q.topic,
+          },
+        })
+        if (inserted) allQuestions.push(inserted)
+      }
     }
 
+    // Ensure all unattempted questions have an evaluation with score 0
+    const weaknessRecordsToUpdate: any[] = []
+
+    for (let i = 0; i < allQuestions.length; i++) {
+      const q = allQuestions[i]
+      if (!q.ai_evaluation || q.ai_evaluation.score === undefined) {
+        const hasAnswer = (q.user_answer || '').trim().length > 0
+        const isSkipped = !hasAnswer || isNonAnswer(q.user_answer)
+        const unattemptedEval = {
+          score: isSkipped ? 0 : 35,
+          caveman_feedback: isSkipped ? 'Bad: Unanswered question. Score: 0%. Fix: Attempt solution.' : 'Score: 35%. Fix: Add technical depth.',
+          feedback: isSkipped
+            ? 'Candidate did not complete or submit this question before finishing the interview.'
+            : 'Candidate attempted this question with partial technical depth.',
+          technicalAccuracy: isSkipped ? 'Unanswered.' : 'Partially attempted.',
+          improvements: 'Work through technical problems systematically under timed pressure.',
+          topic: q.topic || 'General',
+        }
+
+        await supabaseAdmin
+          .from('interview_questions')
+          .update({
+            user_answer: q.user_answer || '(No answer provided)',
+            ai_evaluation: unattemptedEval,
+          })
+          .eq('id', q.id)
+
+        q.user_answer = q.user_answer || '(No answer provided)'
+        q.ai_evaluation = unattemptedEval
+
+        weaknessRecordsToUpdate.push({
+          topic: q.topic || 'General',
+          score: unattemptedEval.score,
+          feedback: unattemptedEval.feedback,
+        })
+      } else {
+        weaknessRecordsToUpdate.push({
+          topic: q.topic || 'General',
+          score: Number(q.ai_evaluation.score) || 0,
+          feedback: q.ai_evaluation.feedback || '',
+        })
+      }
+    }
+
+    // Compute actual overall score from all questions
+    const totalScore = allQuestions.reduce((sum, q) => sum + (Number(q.ai_evaluation?.score) || 0), 0)
+    const computedOverallScore = allQuestions.length > 0 ? Math.round(totalScore / allQuestions.length) : 0
+
+    // Construct Context for Strengths, Weaknesses and Overall Summary
     const interviewContext = `
+Interview Title: ${interview.title}
 Interview Type: ${interview.type}
 Difficulty: ${interview.difficulty}
-Target Role: ${interview.target_role || 'Software Engineer'}
+Computed Score: ${computedOverallScore}%
 
-Questions and Answers:
-${questions.map((q, i) => `Q${i + 1} (${q.topic}): ${q.question_text}\nA${i + 1}: ${q.user_answer}`).join('\n\n')}
+Questions & Evaluations:
+${allQuestions.map((q, i) => `
+Q${i + 1} [Topic: ${q.topic}]: ${q.question_text}
+Candidate Answer: ${q.user_answer}
+Score: ${q.ai_evaluation?.score}%
+Feedback: ${q.ai_evaluation?.feedback}
+`).join('\n')}
 `
 
     const batchPrompt = `
-Evaluate this full technical interview session.
+You are a senior engineering manager conducting a technical debrief.
+Analyze this candidate's performance across all questions.
+Identify key strengths (skills where they demonstrated competence, score >= 65),
+and key weaknesses (skills where they struggled, lacked depth, or failed to answer).
+
+CRITICAL REQUIREMENT:
+For weaknesses, provide the specific technical topic (e.g. "JavaScript Data Types", "System Design", "Dynamic Programming"),
+a weakness score (0-100 where higher means weaker, e.g. score of 0 gives weakness 100), and constructive actionable feedback.
+
 Return valid JSON with:
 {
-  "overall_score": number (0-100),
+  "overall_score": ${computedOverallScore},
   "strengths": string[],
-  "weaknesses": [{ "topic": string, "subtopic": string, "score": number (0-100, higher=weaker), "feedback": string }],
+  "weaknesses": [
+    {
+      "topic": string,
+      "subtopic": string,
+      "score": number,
+      "feedback": string
+    }
+  ],
   "summary": string
 }
 `
 
-    const rawEvaluation = await createChatCompletion({
-      system: 'You are an expert technical interviewer.',
-      messages: [{ role: 'user', content: batchPrompt + '\n\n' + interviewContext }],
-      model: EVALUATION_MODEL,
-      responseFormat: { type: 'json_object' },
-    })
-    let evaluation: any = {}
+    let evaluation: any = null
+
     try {
-      evaluation = JSON.parse(rawEvaluation)
-    } catch {
-      evaluation = { overall_score: 75, strengths: [], weaknesses: [], summary: '' }
+      const rawEvaluation = await createChatCompletion({
+        system: 'You are an expert technical interviewer and engineering career coach.',
+        messages: [{ role: 'user', content: batchPrompt + '\n\n' + interviewContext }],
+        model: EVALUATION_MODEL,
+        responseFormat: { type: 'json_object' },
+        maxTokens: 1200,
+      })
+
+      const cleaned = (rawEvaluation || '').replace(/```json/gi, '').replace(/```/g, '').trim()
+      const match = cleaned.match(/\{[\s\S]*\}/)?.[0] || cleaned
+      evaluation = JSON.parse(match || '{}')
+    } catch (err) {
+      console.warn('[Full Session Evaluate] AI completion failed, using deterministic summary:', err)
     }
 
-    const overallScore = Math.max(0, Math.min(100, Number(evaluation.overall_score) || 75))
+    // Deterministic fallback if AI response missing or failed
+    if (!evaluation || !Array.isArray(evaluation.weaknesses)) {
+      const weakTopics = allQuestions
+        .filter((q) => (Number(q.ai_evaluation?.score) || 0) < 70)
+        .map((q) => ({
+          topic: q.topic || 'General',
+          subtopic: 'Core Principles & Edge Cases',
+          score: Math.max(40, 100 - (Number(q.ai_evaluation?.score) || 0)),
+          feedback: q.ai_evaluation?.feedback || `Candidate demonstrated weakness in ${q.topic}. Further practice recommended.`,
+        }))
+
+      const strongTopics = allQuestions
+        .filter((q) => (Number(q.ai_evaluation?.score) || 0) >= 70)
+        .map((q) => `${q.topic}: Demonstrated solid technical foundation.`)
+
+      evaluation = {
+        overall_score: computedOverallScore,
+        strengths: strongTopics.length > 0 ? strongTopics : ['Demonstrated willingness to tackle technical interview challenges under timed constraints.'],
+        weaknesses: weakTopics.length > 0 ? weakTopics : [{
+          topic: allQuestions[0]?.topic || 'Technical Fundamentals',
+          subtopic: 'General Mastery',
+          score: 80,
+          feedback: 'Candidate needs to practice answering under timed interview conditions with concrete examples.',
+        }],
+        summary: `Candidate completed interview with an overall score of ${computedOverallScore}%. Identified key focus areas for targeted improvement.`,
+      }
+    }
+
     const strengths = Array.isArray(evaluation.strengths) ? evaluation.strengths : []
     const weaknesses = Array.isArray(evaluation.weaknesses) ? evaluation.weaknesses : []
 
@@ -203,7 +555,7 @@ Return valid JSON with:
     await supabaseAdmin
       .from('interviews')
       .update({
-        overall_score: overallScore,
+        overall_score: computedOverallScore,
         feedback_summary: evaluation.summary || null,
         strengths,
         weaknesses,
@@ -212,7 +564,7 @@ Return valid JSON with:
       })
       .eq('id', id)
 
-    // Update weakness tracking
+    // Update weakness tracking table (user_weaknesses) for roadmap generation!
     const weaknessEvaluations = weaknesses.map((w: any) => ({
       topic: w.topic || 'General',
       subtopic: w.subtopic || undefined,
@@ -220,11 +572,30 @@ Return valid JSON with:
       feedback: w.feedback || '',
     }))
 
+    // Also include any individually scored questions
+    for (const wr of weaknessRecordsToUpdate) {
+      if (!weaknessEvaluations.some((we) => we.topic.toLowerCase() === wr.topic.toLowerCase())) {
+        weaknessEvaluations.push({
+          topic: wr.topic,
+          subtopic: undefined,
+          score: wr.score,
+          feedback: wr.feedback,
+        })
+      }
+    }
+
     if (weaknessEvaluations.length > 0) {
       await updateWeaknessScores(user.id, weaknessEvaluations)
     }
 
-    return NextResponse.json({ success: true, evaluation })
+    return NextResponse.json({
+      success: true,
+      overall_score: computedOverallScore,
+      strengths,
+      weaknesses,
+      summary: evaluation.summary,
+      questions: allQuestions,
+    })
   } catch (error: any) {
     console.error('[POST /api/interviews/[id]/evaluate] Error:', error)
     return NextResponse.json({ error: error.message || 'Evaluation failed' }, { status: 500 })

@@ -80,28 +80,40 @@ export async function createChatCompletion({
     })
     return res.choices[0]?.message?.content || ''
   } catch (err: any) {
-    // If OpenRouter error (e.g. 402 out of credits or 400 unsupported format), fallback through free models
+    // If OpenRouter error (e.g. 404 slug deprecated, 402 out of credits or 400 unsupported format), fallback through free models
     if (isOpenRouter) {
       console.warn(`[AI Client] OpenRouter model ${chosenModel} error (${err?.status || err?.message}):`, err?.message)
+
+      // 1. Check if OpenRouter suggested a replacement slug in the error message
+      const suggestedMatch = (err?.message || '').match(/use this slug instead:\s*([^\s,']+)/i)
+      const suggestedSlug = suggestedMatch?.[1]?.trim()
+
       const freeModels = [
+        ...(suggestedSlug ? [suggestedSlug] : []),
         'meta-llama/llama-3.3-70b-instruct:free',
+        'meta-llama/llama-3.3-70b-instruct',
         'qwen/qwen-2.5-coder-32b-instruct:free',
+        'qwen/qwen-2.5-coder-32b-instruct',
         'meta-llama/llama-3.1-8b-instruct:free',
         'mistralai/mistral-7b-instruct:free',
         'microsoft/phi-3-mini-128k-instruct:free',
       ]
 
+      const tried = new Set<string>([chosenModel])
+
       for (const fallbackModel of freeModels) {
-        if (fallbackModel === chosenModel) continue
+        if (tried.has(fallbackModel)) continue
+        tried.add(fallbackModel)
+
         // Try with responseFormat first, then fallback without responseFormat
         for (const format of [responseFormat, undefined]) {
           try {
-            console.log(`[AI Client] Retrying with OpenRouter free model: ${fallbackModel}${format ? ' (with json_object)' : ''}`)
+            console.log(`[AI Client] Retrying with OpenRouter fallback model: ${fallbackModel}${format ? ' (with json_object)' : ''}`)
             const fallbackRes = await openai.chat.completions.create({
               model: fallbackModel,
               messages: allMessages,
               response_format: format,
-              max_tokens: 800,
+              max_tokens: maxTokens,
             })
             const content = fallbackRes.choices[0]?.message?.content || ''
             if (content) return content
@@ -171,3 +183,52 @@ export async function createChatCompletion({
     return data?.candidates?.[0]?.content?.parts?.[0]?.text || ''
   }
 }
+
+/**
+ * Universal streaming completion helper using SSE / async generator.
+ */
+export async function* streamChatCompletion({
+  messages,
+  system,
+  model,
+  maxTokens = 1000,
+}: {
+  messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>
+  system?: string
+  model?: string
+  maxTokens?: number
+}): AsyncGenerator<string, void, unknown> {
+  if (!apiKey) {
+    throw new Error('AI API key is missing.')
+  }
+
+  const chosenModel = model || EVALUATION_MODEL
+  const allMessages = system
+    ? [{ role: 'system' as const, content: system }, ...messages]
+    : messages
+
+  try {
+    const stream = await openai.chat.completions.create({
+      model: chosenModel,
+      messages: allMessages,
+      max_tokens: maxTokens,
+      stream: true,
+    })
+
+    for await (const chunk of stream) {
+      const token = chunk.choices[0]?.delta?.content || ''
+      if (token) yield token
+    }
+  } catch (err: any) {
+    console.warn(`[AI Client] Streaming error with ${chosenModel}:`, err?.message)
+    // Fallback to non-streaming createChatCompletion if stream fails
+    const fullText = await createChatCompletion({
+      messages,
+      system,
+      model: chosenModel,
+      maxTokens,
+    })
+    yield fullText
+  }
+}
+

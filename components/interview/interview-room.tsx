@@ -432,6 +432,7 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
   const [answersCount, setAnswersCount] = useState(0);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isEvaluating, setIsEvaluating] = useState(false);
+  const [streamingFeedback, setStreamingFeedback] = useState('');
   const [isChatting, setIsChatting] = useState(false);
 
   // Additional UI states
@@ -496,17 +497,33 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
     async function loadQuestions() {
       setIsGenerating(true);
       try {
+        const targetTopic = interview?.target_role?.startsWith('Topic: ')
+          ? interview.target_role.replace('Topic: ', '').trim()
+          : (interview?.title?.startsWith('Targeted: ')
+              ? interview.title.replace('Targeted: ', '').split('—')[0].split('[')[0].trim()
+              : undefined)
+
         const data = await fetchInterviewApi({
           mode: 'generate',
           interviewType,
           difficulty,
           resumeContext,
+          topic: targetTopic,
           count: 5,
         });
 
         if (mounted && Array.isArray(data.questions)) {
           setQuestions(data.questions as Question[]);
           setQuestionStartTime(Date.now());
+
+          // Persist generated questions immediately so they exist in DB even if user ends early
+          if (interviewId) {
+            fetch(`/api/interviews/${interviewId}/questions`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ questions: data.questions }),
+            }).catch((err) => console.warn('Failed to pre-persist questions:', err));
+          }
         }
       } catch (error) {
         console.error('Failed to generate questions:', error);
@@ -520,7 +537,7 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
     return () => {
       mounted = false;
     };
-  }, [interviewType, difficulty, resumeContext]);
+  }, [interviewType, difficulty, resumeContext, interviewId]);
 
   const handleSubmitAnswer = async () => {
     if ((!textAnswer.trim() && !codeAnswer.trim()) || !questions[currentQIndex]) return;
@@ -530,6 +547,8 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
     const submittedAnswer = answerMode === 'code' ? codeAnswer : textAnswer;
 
     setIsEvaluating(true);
+    setStreamingFeedback('');
+
     try {
       const res = await fetch(`/api/interviews/${interviewId}/evaluate`, {
         method: 'POST',
@@ -543,6 +562,7 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
           language: selectedLanguage,
           elapsedSeconds,
           sequence_order: currentQIndex,
+          stream: true,
         }),
       });
 
@@ -550,29 +570,90 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
         throw new Error('Evaluation request failed');
       }
 
-      const result = await res.json();
-      const evalResult = result.evaluation as EvaluationResult;
-      setEvaluation(evalResult);
-      setTotalScore((prev) => prev + (evalResult?.score ?? 0));
-      setAnswersCount((prev) => prev + 1);
+      const contentType = res.headers.get('content-type') || '';
 
-      setRecordedHistory((prev) => [
-        ...prev,
-        {
-          question: q,
-          userAnswer: submittedAnswer,
-          evaluation: evalResult,
-        },
-      ]);
+      if (contentType.includes('text/event-stream') && res.body) {
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+        let finalEvalResult: EvaluationResult | null = null;
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const parts = buffer.split('\n\n');
+          buffer = parts.pop() || '';
+
+          for (const part of parts) {
+            const trimmed = part.trim();
+            if (!trimmed.startsWith('data: ')) continue;
+            try {
+              const data = JSON.parse(trimmed.slice(6));
+              if (data.chunk) {
+                setStreamingFeedback((prev) => prev + data.chunk);
+              }
+              if (data.done && data.evaluation) {
+                finalEvalResult = data.evaluation;
+              }
+            } catch {}
+          }
+        }
+
+        const isSkipped = !submittedAnswer || submittedAnswer.trim().length < 5 || ['na', 'none', 'idk', 'skip', 'pass', 'nil', 'null'].includes(submittedAnswer.trim().toLowerCase().replace(/[^a-z0-9]/g, ''));
+        const evalResult = finalEvalResult || {
+          score: isSkipped ? 0 : 30,
+          feedback: isSkipped
+            ? "No substantive technical answer was provided. In an interview, submitting 'NA' or skipping yields 0 points."
+            : 'Answer evaluated with incomplete technical depth.',
+          caveman_feedback: isSkipped
+            ? 'Bad: no answer provided. Score: 0%. Fix: communicate solution.'
+            : 'Score: 30%. Fix: elaborate on edge cases.',
+          technicalAccuracy: isSkipped ? 'Unanswered.' : 'Partially attempted.',
+          improvements: isSkipped ? 'Always attempt a solution or discuss trade-offs.' : 'Add concrete examples.',
+          topic: q.topic || 'General',
+        };
+
+        setEvaluation(evalResult);
+        setTotalScore((prev) => prev + (evalResult?.score ?? 0));
+        setAnswersCount((prev) => prev + 1);
+
+        setRecordedHistory((prev) => [
+          ...prev,
+          {
+            question: q,
+            userAnswer: submittedAnswer,
+            evaluation: evalResult,
+          },
+        ]);
+        setStreamingFeedback('');
+      } else {
+        const result = await res.json();
+        const evalResult = result.evaluation as EvaluationResult;
+        setEvaluation(evalResult);
+        setTotalScore((prev) => prev + (evalResult?.score ?? 0));
+        setAnswersCount((prev) => prev + 1);
+
+        setRecordedHistory((prev) => [
+          ...prev,
+          {
+            question: q,
+            userAnswer: submittedAnswer,
+            evaluation: evalResult,
+          },
+        ]);
+      }
     } catch (error) {
       console.error('Failed to evaluate answer:', error);
     } finally {
       setIsEvaluating(false);
+      setStreamingFeedback('');
     }
   };
 
   const handleNextQuestion = () => {
     setEvaluation(null);
+    setStreamingFeedback('');
     setTextAnswer('');
     setCodeAnswer('');
     setShowHint(false);
@@ -584,16 +665,51 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
     setIsInterviewEnded(true);
 
     try {
-      const avgScore = answersCount > 0 ? Math.round(totalScore / answersCount) : 0;
       const totalElapsedSeconds = Math.max(1, Math.floor((Date.now() - interviewStartTime) / 1000));
+
+      // Trigger full evaluation and weakness calculation
+      const res = await fetch(`/api/interviews/${interviewId}/evaluate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          finalize: true,
+          questions: questions,
+          recordedHistory: recordedHistory,
+          elapsedSeconds: totalElapsedSeconds,
+        }),
+      });
+
+      const evalData = await res.json().catch(() => null);
+
+      if (evalData?.questions && Array.isArray(evalData.questions)) {
+        // Hydrate recordedHistory from DB questions so results screen shows every question & score
+        const mappedRecords: EvaluatedRecord[] = evalData.questions.map((q: any) => ({
+          question: {
+            id: q.id,
+            text: q.question_text,
+            type: q.question_type,
+            difficulty: q.difficulty,
+            topic: q.topic,
+          },
+          userAnswer: q.user_answer || '(No answer provided)',
+          evaluation: q.ai_evaluation || {
+            score: 0,
+            feedback: 'No answer provided.',
+            caveman_feedback: 'Bad: skipped question.',
+          },
+        }));
+        setRecordedHistory(mappedRecords);
+        if (evalData.overall_score !== undefined) {
+          setTotalScore(evalData.overall_score);
+          setAnswersCount(1);
+        }
+      }
 
       await fetch(`/api/interviews/${interviewId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           status: 'completed',
-          overall_score: avgScore,
-          completed_at: new Date().toISOString(),
           duration_seconds: totalElapsedSeconds,
         }),
       });
@@ -1168,12 +1284,26 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
           <div className="p-5 overflow-y-auto space-y-5 flex-1">
             {/* Content Area */}
             {isEvaluating ? (
-              <div className="py-12 flex flex-col items-center justify-center text-center space-y-3">
-                <div className="w-8 h-8 rounded-full border-2 border-[#1e2030] border-t-[#818cf8] animate-spin" />
-                <div className="space-y-1">
-                  <p className="text-xs font-mono font-medium text-white uppercase tracking-wider">ANALYZING_BUFFER...</p>
-                  <p className="text-[10px] text-[#64748b] font-mono uppercase">SCORING TECHNICAL ACCURACY</p>
+              <div className="space-y-4 animate-in fade-in duration-150">
+                <div className="flex items-center gap-2 text-[#818cf8] font-mono text-[11px] uppercase tracking-wider font-semibold">
+                  <span className="w-2 h-2 rounded-full bg-[#818cf8] animate-ping" />
+                  <span>AI Telemetry Streaming...</span>
                 </div>
+
+                {streamingFeedback ? (
+                  <div className="bg-[#0c0d15] border border-[#3730a3]/60 rounded-xl p-3.5 font-mono text-xs text-[#f8fafc] leading-relaxed max-h-[420px] overflow-y-auto whitespace-pre-wrap">
+                    {streamingFeedback}
+                    <span className="inline-block w-1.5 h-3.5 bg-[#818cf8] animate-pulse ml-1 align-middle" />
+                  </div>
+                ) : (
+                  <div className="py-12 flex flex-col items-center justify-center text-center space-y-3">
+                    <div className="w-8 h-8 rounded-full border-2 border-[#1e2030] border-t-[#818cf8] animate-spin" />
+                    <div className="space-y-1">
+                      <p className="text-xs font-mono font-medium text-white uppercase tracking-wider">ANALYZING_BUFFER...</p>
+                      <p className="text-[10px] text-[#64748b] font-mono uppercase">SCORING TECHNICAL ACCURACY</p>
+                    </div>
+                  </div>
+                )}
               </div>
             ) : evaluation ? (
               <div className="space-y-5 animate-in fade-in duration-200">

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
 import {
@@ -275,17 +276,27 @@ function RoadmapCard({
             </p>
           </div>
 
-          <button
-            onClick={() => onToggle(item.id, item.status)}
-            className={`font-mono text-xs font-semibold px-3 py-1.5 rounded-lg border transition-all shrink-0 flex items-center gap-1.5 cursor-pointer ${
-              completed
-                ? 'bg-[#052016] border-[#065f46] text-[#34d399]'
-                : 'bg-[#14142b] border-[#3730a3] text-[#818cf8] hover:bg-[#1e1b4b] hover:text-white'
-            }`}
-          >
-            <Check className="h-3.5 w-3.5" />
-            <span>{completed ? 'Completed' : 'Mark Done'}</span>
-          </button>
+          <div className="flex items-center gap-2 shrink-0">
+            <Link
+              href={`/interview/new?topic=${encodeURIComponent(item.topic)}&type=technical&mode=targeted`}
+              className="font-mono text-xs font-semibold px-3 py-1.5 rounded-lg border border-[#6366f1]/50 bg-[#4f46e5]/20 text-[#818cf8] hover:bg-[#4f46e5] hover:text-white transition-all flex items-center gap-1.5 cursor-pointer shadow-[0_0_15px_rgba(79,70,229,0.2)]"
+            >
+              <Zap className="h-3.5 w-3.5 text-[#fbbf24]" />
+              <span>Practice Topic</span>
+            </Link>
+
+            <button
+              onClick={() => onToggle(item.id, item.status)}
+              className={`font-mono text-xs font-semibold px-3 py-1.5 rounded-lg border transition-all flex items-center gap-1.5 cursor-pointer ${
+                completed
+                  ? 'bg-[#052016] border-[#065f46] text-[#34d399]'
+                  : 'bg-[#14142b] border-[#3730a3] text-[#818cf8] hover:bg-[#1e1b4b] hover:text-white'
+              }`}
+            >
+              <Check className="h-3.5 w-3.5" />
+              <span>{completed ? 'Completed' : 'Mark Done'}</span>
+            </button>
+          </div>
         </div>
 
         {/* YouTube Video Carousel */}
@@ -400,11 +411,32 @@ export default function RoadmapPage() {
           .select('topic, weakness_score')
           .eq('user_id', user.id)
           .order('weakness_score', { ascending: false })
-          .limit(6)
+          .limit(10)
 
-        if (weaknesses && weaknesses.length > 0) {
-          const uniqueTopics = Array.from(new Set(weaknesses.map((w) => w.topic).filter(Boolean)))
-          setFocusTopics(uniqueTopics)
+        // Also fetch weaknesses recorded directly from recent interview sessions
+        const { data: recentInterviews } = await supabase
+          .from('interviews')
+          .select('weaknesses, title')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(5)
+
+        const extractedInterviewTopics: string[] = []
+        if (recentInterviews) {
+          for (const inv of recentInterviews) {
+            if (Array.isArray(inv.weaknesses)) {
+              for (const w of inv.weaknesses) {
+                if (w?.topic) extractedInterviewTopics.push(w.topic)
+              }
+            }
+          }
+        }
+
+        const dbWeaknessTopics = (weaknesses || []).map((w) => w.topic).filter(Boolean)
+        const combined = Array.from(new Set([...extractedInterviewTopics, ...dbWeaknessTopics]))
+
+        if (combined.length > 0) {
+          setFocusTopics(combined.slice(0, 6))
         } else {
           // Default starter weak topics if no interview recorded yet
           setFocusTopics([

@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { InterviewSetup } from '@/components/interview/interview-setup'
@@ -62,7 +63,9 @@ export default async function NewInterviewPage() {
       {/* Main Configuration Content - Smooth vertical scroll with ample bottom padding */}
       <main className="flex-1 overflow-y-auto px-4 py-8 sm:py-12 pb-24 flex justify-center items-start relative z-10">
         <div className="w-full max-w-3xl">
-          <InterviewSetup profile={profile} existingCount={existingCount ?? 0} />
+          <Suspense fallback={<div className="p-8 text-center font-mono text-xs text-[#9ca3af]">Loading session configuration...</div>}>
+            <InterviewSetup profile={profile} existingCount={existingCount ?? 0} />
+          </Suspense>
         </div>
       </main>
     </div>

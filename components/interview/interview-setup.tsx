@@ -1,13 +1,14 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { toast } from 'sonner'
 import type { Profile, InterviewType, Difficulty } from '@/lib/types'
 import { useResume } from '@/components/resume/resume-provider'
 import { SkillIcon } from '@/components/resume/skill-icon'
 import { ResumeDropzone } from '@/components/resume/resume-dropzone'
-import { Code, Users, Network, Sparkles, ArrowRight, ArrowLeft } from 'lucide-react'
+import { Code, Users, Network, Sparkles, ArrowRight, ArrowLeft, Target } from 'lucide-react'
 import { MacTrafficLights } from '@/components/ui/terminal-card'
 
 interface InterviewSetupProps {
@@ -59,32 +60,69 @@ const DIFFICULTY_OPTIONS: { id: Difficulty; label: string; level: string; desc: 
 
 export function InterviewSetup({ profile, existingCount = 0 }: InterviewSetupProps) {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const paramTopic = searchParams.get('topic') || ''
+  const paramType = searchParams.get('type') as InterviewType | null
+  const paramDifficulty = searchParams.get('difficulty') as Difficulty | null
+
   const { resumeData, isResumeReady } = useResume()
 
-  const defaultSessionName = `Mock_Test ${String(existingCount + 1).padStart(2, '0')}`
+  const defaultSessionName = paramTopic
+    ? `Targeted: ${paramTopic}`
+    : `Mock_Test ${String(existingCount + 1).padStart(2, '0')}`
 
   const [title, setTitle] = useState(defaultSessionName)
-  const [type, setType] = useState<InterviewType>('technical')
-  const [difficulty, setDifficulty] = useState<Difficulty>('medium')
+  const [type, setType] = useState<InterviewType>(paramType || 'technical')
+  const [difficulty, setDifficulty] = useState<Difficulty>(paramDifficulty || 'medium')
   const [loading, setLoading] = useState(false)
-  const [showCustomTitle, setShowCustomTitle] = useState(false)
+  const [showCustomTitle, setShowCustomTitle] = useState(Boolean(paramTopic))
 
   useEffect(() => {
-    if (!showCustomTitle) {
+    if (!showCustomTitle && !paramTopic) {
       setTitle(`Mock_Test ${String(existingCount + 1).padStart(2, '0')}`)
     }
-  }, [existingCount, showCustomTitle])
+  }, [existingCount, showCustomTitle, paramTopic])
 
   const handleStartInterview = async () => {
     setLoading(true)
     try {
-      const supabase = createClient()
       const sessionTitle = title.trim() || defaultSessionName
+      const targetRoleValue = paramTopic ? `Topic: ${paramTopic}` : profile?.target_role
+
+      // Call dedicated API route with server-side authentication & admin fallback
+      const res = await fetch('/api/interviews/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: sessionTitle,
+          type,
+          difficulty,
+          target_role: targetRoleValue,
+        }),
+      })
+
+      const data = await res.json().catch(() => ({}))
+
+      if (res.ok && data?.interview?.id) {
+        router.push(`/interview/${data.interview.id}`)
+        return
+      }
+
+      // Client-side fallback if API returned non-ok
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      const effectiveUserId = user?.id || profile?.id
+
+      if (!effectiveUserId) {
+        toast.error('Session expired. Please log in again.')
+        router.push('/auth/login')
+        return
+      }
 
       const { data: interview, error } = await supabase
         .from('interviews')
         .insert({
-          user_id: profile?.id,
+          user_id: effectiveUserId,
           title: sessionTitle,
           type,
           difficulty,
@@ -93,10 +131,14 @@ export function InterviewSetup({ profile, existingCount = 0 }: InterviewSetupPro
         .select()
         .single()
 
-      if (error) throw error
+      if (error) {
+        throw new Error(error.message || 'Failed to initialize interview database record')
+      }
+
       router.push(`/interview/${interview.id}`)
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to create interview:', err)
+      toast.error(err.message || 'Could not start interview. Please try again.')
       setLoading(false)
     }
   }
@@ -148,6 +190,31 @@ export function InterviewSetup({ profile, existingCount = 0 }: InterviewSetupPro
             <span className="text-xs font-mono font-bold text-[#818cf8]">{title}</span>
           </div>
         </div>
+
+        {/* Targeted Topic Alert if opened from Roadmap */}
+        {paramTopic && (
+          <div className="bg-gradient-to-r from-[#1e1b4b]/90 to-[#14142b] border border-[#6366f1]/50 rounded-xl p-4 flex items-center justify-between gap-4 shadow-[0_0_20px_rgba(99,102,241,0.15)]">
+            <div className="flex items-center gap-3">
+              <span className="p-2 rounded-lg bg-[#4f46e5]/30 text-[#818cf8] border border-[#6366f1]/40">
+                <Target className="h-5 w-5 text-[#818cf8]" />
+              </span>
+              <div>
+                <p className="font-mono text-[10px] uppercase font-bold text-[#818cf8] tracking-widest">
+                  ROADMAP TARGETED DRILL ACTIVE
+                </p>
+                <p className="text-sm text-white font-semibold flex items-center gap-2">
+                  Focusing on: <span className="text-[#38bdf8] font-bold">{paramTopic}</span>
+                </p>
+                <p className="text-[11px] text-[#9ca3af] mt-0.5">
+                  Interview questions will be specifically calibrated to evaluate this skill.
+                </p>
+              </div>
+            </div>
+            <span className="font-mono text-[10px] bg-[#22c55e]/15 text-[#4ade80] border border-[#22c55e]/30 px-2.5 py-1 rounded-full uppercase tracking-wider shrink-0 font-semibold">
+              PRE-CONFIGURED
+            </span>
+          </div>
+        )}
 
         {/* 1. Session Naming Section */}
         <div className="space-y-3">

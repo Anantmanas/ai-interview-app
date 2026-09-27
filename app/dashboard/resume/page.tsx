@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { ResumeDropzone } from '@/components/resume/resume-dropzone'
 import { useResume } from '@/components/resume/resume-provider'
 import { SkillIcon } from '@/components/resume/skill-icon'
+import { ATSMatcherCard } from '@/components/resume/ats-matcher-card'
 import { MacTrafficLights } from '@/components/ui/terminal-card'
 import {
   CheckCircle2,
@@ -324,6 +325,9 @@ export default function ResumePage() {
           </div>
         )}
       </div>
+
+      {/* Target Job Description ATS Matcher */}
+      <ATSMatcherCard />
 
       {/* Storage Limit Exceeded Popup Modal */}
       {limitModalOpen && (
