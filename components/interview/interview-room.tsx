@@ -49,6 +49,40 @@ interface EvaluatedRecord {
   evaluation: EvaluationResult;
 }
 
+function parseSuggestions(input?: string | string[]): string[] {
+  if (!input) return [];
+  if (Array.isArray(input)) return input.filter(Boolean).map((s) => String(s).trim());
+  const trimmed = String(input).trim();
+  if (!trimmed) return [];
+
+  // Split on newlines, numbered list markers (1. / 1) / (1)), bullets, or punctuation followed by capital letters
+  const parts = trimmed
+    .split(/(?:\r?\n)+|(?<=[.!?])\s*(?=\d+[\.\)])|(?<=[.!?])\s+(?=[A-Z])|(?<=\))\s*(?=[A-Z])/)
+    .map((s) => s.trim().replace(/^(?:\d+[\.\)]|•|\*|-)\s*/, ''))
+    .filter((s) => s.length > 0);
+
+  return parts.length > 0 ? parts : [trimmed];
+}
+
+function cleanFeedbackText(fb: any): string {
+  if (!fb) return '';
+  if (typeof fb === 'string') {
+    const trimmed = fb.trim();
+    if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
+      try {
+        const parsed = JSON.parse(trimmed);
+        return parsed.feedback || parsed.caveman_feedback || '';
+      } catch {}
+    }
+    return trimmed;
+  }
+  if (typeof fb === 'object') {
+    return fb.feedback || fb.caveman_feedback || '';
+  }
+  return String(fb);
+}
+
+
 const INTERVIEW_DURATION_MS = 30 * 60 * 1000; // 30 minutes
 const URGENT_THRESHOLD_MS = 5 * 60 * 1000; // 5 minutes
 
@@ -436,6 +470,7 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
   const [isChatting, setIsChatting] = useState(false);
 
   // Additional UI states
+  const [mobileTab, setMobileTab] = useState<'briefing' | 'workspace' | 'coach'>('workspace');
   const [showEndModal, setShowEndModal] = useState(false);
   const [showHint, setShowHint] = useState(false);
   const [recordedHistory, setRecordedHistory] = useState<EvaluatedRecord[]>([]);
@@ -601,7 +636,7 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
         }
 
         const isSkipped = !submittedAnswer || submittedAnswer.trim().length < 5 || ['na', 'none', 'idk', 'skip', 'pass', 'nil', 'null'].includes(submittedAnswer.trim().toLowerCase().replace(/[^a-z0-9]/g, ''));
-        const evalResult = finalEvalResult || {
+        const rawEvalResult = finalEvalResult || {
           score: isSkipped ? 0 : 30,
           feedback: isSkipped
             ? "No substantive technical answer was provided. In an interview, submitting 'NA' or skipping yields 0 points."
@@ -614,9 +649,15 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
           topic: q.topic || 'General',
         };
 
+        const evalResult: EvaluationResult = {
+          ...rawEvalResult,
+          feedback: cleanFeedbackText(rawEvalResult.feedback),
+        };
+
         setEvaluation(evalResult);
         setTotalScore((prev) => prev + (evalResult?.score ?? 0));
         setAnswersCount((prev) => prev + 1);
+        setMobileTab('coach');
 
         setRecordedHistory((prev) => [
           ...prev,
@@ -629,10 +670,15 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
         setStreamingFeedback('');
       } else {
         const result = await res.json();
-        const evalResult = result.evaluation as EvaluationResult;
+        const rawEval = (result.evaluation || {}) as EvaluationResult;
+        const evalResult: EvaluationResult = {
+          ...rawEval,
+          feedback: cleanFeedbackText(rawEval.feedback),
+        };
         setEvaluation(evalResult);
         setTotalScore((prev) => prev + (evalResult?.score ?? 0));
         setAnswersCount((prev) => prev + 1);
+        setMobileTab('coach');
 
         setRecordedHistory((prev) => [
           ...prev,
@@ -659,6 +705,7 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
     setShowHint(false);
     setQuestionStartTime(Date.now());
     setCurrentQIndex((i) => Math.min(i + 1, questions.length - 1));
+    setMobileTab('workspace');
   };
 
   const handleEndInterview = async () => {
@@ -692,17 +739,30 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
             topic: q.topic,
           },
           userAnswer: q.user_answer || '(No answer provided)',
-          evaluation: q.ai_evaluation || {
+          evaluation: q.ai_evaluation ? {
+            ...q.ai_evaluation,
+            feedback: cleanFeedbackText(q.ai_evaluation.feedback),
+          } : {
             score: 0,
             feedback: 'No answer provided.',
             caveman_feedback: 'Bad: skipped question.',
           },
         }));
+
+        const realCompleted = mappedRecords.filter(
+          (r) =>
+            r.userAnswer &&
+            r.userAnswer !== '(No answer provided)' &&
+            !['na', 'none', 'idk', 'skip', 'pass', 'nil', 'null'].includes(
+              r.userAnswer.trim().toLowerCase().replace(/[^a-z0-9]/g, '')
+            )
+        );
+
         setRecordedHistory(mappedRecords);
         if (evalData.overall_score !== undefined) {
-          setTotalScore(evalData.overall_score);
-          setAnswersCount(1);
+          setTotalScore(realCompleted.length > 0 ? evalData.overall_score : 0);
         }
+        setAnswersCount(realCompleted.length);
       }
 
       await fetch(`/api/interviews/${interviewId}`, {
@@ -785,7 +845,7 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
                 <div className="space-y-0.5">
                   <span className="text-[10px] text-[#9ca3af] uppercase tracking-wider font-mono block">FINAL SCORE</span>
                   <p className="text-xl font-bold font-mono text-white">
-                    {avgScore >= 80 ? 'EXCEPTIONAL' : avgScore >= 65 ? 'STRONG' : 'NEEDS PRACTICE'}
+                    {answersCount === 0 ? 'NO ATTEMPTS' : avgScore >= 80 ? 'EXCEPTIONAL' : avgScore >= 65 ? 'STRONG' : 'NEEDS PRACTICE'}
                   </p>
                   <span className="text-xs text-[#22c55e] font-mono">{answersCount} OF {questions.length || 5} COMPLETED</span>
                 </div>
@@ -823,19 +883,20 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
                   <span className="text-[10px] text-[#9ca3af] font-mono uppercase tracking-wider">ACCURACY</span>
                   <span className="w-1.5 h-1.5 rounded-full bg-[#a855f7]" />
                 </div>
-                <p className="text-lg font-bold text-white font-mono">{avgScore}%</p>
+                <p className="text-lg font-bold text-white font-mono">{answersCount > 0 ? `${avgScore}%` : '--'}</p>
               </div>
             </div>
 
             {/* Question Breakdown List */}
             <div className="space-y-3">
               <h2 className="text-xs font-mono font-semibold uppercase tracking-wider text-[#9ca3af]">
-                QUESTION BREAKDOWN ({recordedHistory.length})
+                QUESTION BREAKDOWN ({answersCount})
               </h2>
 
-              {recordedHistory.length === 0 ? (
-                <div className="text-center py-8 border border-dashed border-[#1e2030] rounded-lg text-[#64748b] text-xs font-mono">
-                  NO ANSWERS EVALUATED IN THIS SESSION
+              {answersCount === 0 ? (
+                <div className="text-center py-10 border border-dashed border-[#1e2030] rounded-lg text-[#64748b] text-xs font-mono space-y-1.5">
+                  <p className="text-white font-semibold">NO ANSWERS EVALUATED IN THIS SESSION</p>
+                  <p className="text-[11px] text-[#64748b]">Session terminated early before submitting answers.</p>
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -868,12 +929,25 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
                           <strong className="text-white font-mono text-[11px] uppercase tracking-wider">Feedback: </strong>
                           {item.evaluation.feedback}
                         </p>
-                        {(item.evaluation.improvements || item.evaluation.improvement) && (
-                          <p className="text-[#9ca3af] leading-relaxed">
-                            <strong className="text-[#818cf8] font-mono text-[11px] uppercase tracking-wider">Suggestion: </strong>
-                            {item.evaluation.improvements || item.evaluation.improvement}
-                          </p>
-                        )}
+                        {(() => {
+                          const suggestions = parseSuggestions(item.evaluation.improvements || item.evaluation.improvement);
+                          if (suggestions.length === 0) return null;
+                          return (
+                            <div className="space-y-1">
+                              <strong className="text-[#818cf8] font-mono text-[11px] uppercase tracking-wider block">
+                                Suggestions ({suggestions.length}):
+                              </strong>
+                              <ul className="space-y-1 pl-1">
+                                {suggestions.map((s, sIdx) => (
+                                  <li key={sIdx} className="flex items-start gap-1.5 text-[#9ca3af] leading-relaxed">
+                                    <span className="text-[#818cf8] font-mono shrink-0">•</span>
+                                    <span>{s}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          );
+                        })()}
                       </div>
                     </div>
                   ))}
@@ -955,12 +1029,49 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
         />
       </div>
 
+      {/* Mobile Tab Switcher (Visible on < lg screens) */}
+      <div className="lg:hidden flex items-center border-b border-[#1e2030] bg-[#0c0d15] shrink-0">
+        <button
+          onClick={() => setMobileTab('briefing')}
+          className={`flex-1 py-2.5 text-center font-mono text-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer ${
+            mobileTab === 'briefing'
+              ? 'text-[#818cf8] border-b-2 border-[#818cf8] bg-[#14142b]/60 font-semibold'
+              : 'text-[#64748b] hover:text-[#9ca3af]'
+          }`}
+        >
+          <span>1. Briefing</span>
+          {mobileTab === 'briefing' && <span className="w-1.5 h-1.5 rounded-full bg-[#818cf8]" />}
+        </button>
+        <button
+          onClick={() => setMobileTab('workspace')}
+          className={`flex-1 py-2.5 text-center font-mono text-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer ${
+            mobileTab === 'workspace'
+              ? 'text-[#22c55e] border-b-2 border-[#22c55e] bg-[#14142b]/60 font-semibold'
+              : 'text-[#64748b] hover:text-[#9ca3af]'
+          }`}
+        >
+          <span>2. Workspace</span>
+          {mobileTab === 'workspace' && <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e]" />}
+        </button>
+        <button
+          onClick={() => setMobileTab('coach')}
+          className={`flex-1 py-2.5 text-center font-mono text-xs transition-colors flex items-center justify-center gap-1.5 relative cursor-pointer ${
+            mobileTab === 'coach'
+              ? 'text-[#818cf8] border-b-2 border-[#818cf8] bg-[#14142b]/60 font-semibold'
+              : 'text-[#64748b] hover:text-[#9ca3af]'
+          }`}
+        >
+          <span>3. Coach</span>
+          {evaluation && <span className="w-2 h-2 rounded-full bg-[#818cf8] animate-pulse" />}
+        </button>
+      </div>
+
       {/* 3-COLUMN COCKPIT BODY */}
-      <div className="flex-1 min-h-0 grid grid-cols-[330px_1fr_300px] overflow-hidden bg-[#050508]">
+      <div className="flex-1 min-h-0 flex flex-col lg:grid lg:grid-cols-[330px_1fr_300px] overflow-hidden bg-[#050508]">
         {/* ========================================================= */}
         {/* LEFT PANEL: Technical Briefing Rail (w-[330px]) */}
         {/* ========================================================= */}
-        <aside className="w-[330px] border-r border-[#1e2030] bg-[#09090f] flex flex-col justify-between overflow-hidden select-text">
+        <aside className={`${mobileTab === 'briefing' ? 'flex flex-1 min-h-0 w-full' : 'hidden'} lg:flex lg:w-[330px] border-r border-[#1e2030] bg-[#09090f] flex-col justify-between overflow-hidden select-text shrink-0`}>
           {/* Apple Terminal Titlebar */}
           <div className="flex items-center justify-between px-4 h-10 border-b border-[#1e2030] bg-[#11121b]/90 select-none shrink-0">
             <div className="flex items-center gap-2.5">
@@ -1021,9 +1132,11 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
                     STRATEGY GUIDANCE
                   </p>
                   <p className="font-sans pl-2 border-l border-[#3730a3] text-[#cbd5e1]">
-                    {currentQuestion?.topic
-                      ? `Focus on core principles of ${currentQuestion.topic}. Outline assumptions, time/space complexity, and practical trade-offs.`
-                      : 'State your high-level approach first before diving into details. Outline constraints and edge cases.'}
+                    {currentQuestion?.type === 'behavioral' || interviewType === 'behavioral'
+                      ? 'Use the STAR method (Situation, Task, Action, Result). State the context clearly, focus on your individual contributions, and quantify the outcome with real metrics.'
+                      : currentQuestion?.topic
+                        ? `Focus on core principles of ${currentQuestion.topic}. Outline assumptions, time/space complexity, and practical trade-offs.`
+                        : 'State your high-level approach first before diving into details. Outline constraints and edge cases.'}
                   </p>
                 </div>
               )}
@@ -1055,17 +1168,17 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
         {/* ========================================================= */}
         {/* CENTER PANEL: IDE / Editor Workspace (flex-1) */}
         {/* ========================================================= */}
-        <main className="flex-1 min-w-0 flex flex-col overflow-hidden bg-[#050508]">
+        <main className={`${mobileTab === 'workspace' ? 'flex flex-1 min-h-0' : 'hidden'} lg:flex flex-col min-w-0 overflow-hidden bg-[#050508]`}>
           {/* Apple Terminal Titlebar & Mode Switcher */}
-          <div className="h-10 shrink-0 border-b border-[#1e2030] bg-[#11121b]/90 px-4 flex items-center justify-between select-none">
-            <div className="flex items-center gap-3">
+          <div className="h-10 shrink-0 border-b border-[#1e2030] bg-[#11121b]/90 px-3 sm:px-4 flex items-center justify-between gap-2 select-none">
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0">
               <MacTrafficLights size="sm" />
-              <span className="font-mono text-[11px] text-[#9ca3af] font-medium tracking-wide">
-                workspace::answer_buffer.{answerMode === 'code' ? (selectedLanguage === 'python' ? 'py' : selectedLanguage === 'javascript' ? 'js' : 'ts') : 'txt'} — editor
+              <span className="font-mono text-[10px] sm:text-[11px] text-[#9ca3af] font-medium tracking-wide truncate max-w-[120px] sm:max-w-none">
+                workspace::answer_buffer.{answerMode === 'code' ? (selectedLanguage === 'python' ? 'py' : selectedLanguage === 'javascript' ? 'js' : 'ts') : 'txt'}
               </span>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
               <div className="flex items-center gap-1 bg-[#09090f] border border-[#1e2030] rounded-md p-0.5">
                 {(['text', 'code', 'voice'] as const).map((mode) => {
                   const isActive = answerMode === mode;
@@ -1219,17 +1332,17 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
           </div>
 
           {/* Action Bar */}
-          <div className="h-12 shrink-0 border-t border-[#1e2030] bg-[#09090f] px-5 flex items-center justify-between">
-            <div className="text-xs text-[#64748b] font-mono">
+          <div className="min-h-12 py-2 shrink-0 border-t border-[#1e2030] bg-[#09090f] px-3 sm:px-5 flex flex-wrap items-center justify-between gap-2">
+            <div className="text-[11px] sm:text-xs text-[#64748b] font-mono">
               {wordCount} WORDS · {charCount} CHARS
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
               {!evaluation ? (
                 <button
                   onClick={handleSubmitAnswer}
                   disabled={isEvaluating || (!textAnswer.trim() && !codeAnswer.trim())}
-                  className="rounded-md bg-[#4f46e5] hover:bg-[#5865f2] text-white font-mono text-xs font-bold uppercase tracking-wider px-6 py-2 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-[0_0_20px_rgba(79,70,229,0.35)] cursor-pointer"
+                  className="rounded-md bg-[#4f46e5] hover:bg-[#5865f2] text-white font-mono text-xs font-bold uppercase tracking-wider px-4 sm:px-6 py-2 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-[0_0_20px_rgba(79,70,229,0.35)] cursor-pointer"
                 >
                   {isEvaluating ? (
                     <span className="flex items-center gap-2">
@@ -1241,18 +1354,18 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
                   )}
                 </button>
               ) : (
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 sm:gap-3">
                   {currentQIndex < questions.length - 1 ? (
                     <button
                       onClick={handleNextQuestion}
-                      className="rounded-md bg-[#4f46e5] hover:bg-[#5865f2] text-white font-mono text-xs font-bold uppercase tracking-wider px-6 py-2 transition-all shadow-[0_0_20px_rgba(79,70,229,0.35)] cursor-pointer"
+                      className="rounded-md bg-[#4f46e5] hover:bg-[#5865f2] text-white font-mono text-xs font-bold uppercase tracking-wider px-4 sm:px-6 py-2 transition-all shadow-[0_0_20px_rgba(79,70,229,0.35)] cursor-pointer"
                     >
                       NEXT QUESTION →
                     </button>
                   ) : (
                     <button
                       onClick={handleEndInterview}
-                      className="rounded-md bg-[#4f46e5] hover:bg-[#5865f2] text-white font-mono text-xs font-bold uppercase tracking-wider px-6 py-2 transition-all shadow-[0_0_20px_rgba(79,70,229,0.35)] cursor-pointer"
+                      className="rounded-md bg-[#4f46e5] hover:bg-[#5865f2] text-white font-mono text-xs font-bold uppercase tracking-wider px-4 sm:px-6 py-2 transition-all shadow-[0_0_20px_rgba(79,70,229,0.35)] cursor-pointer"
                     >
                       FINISH INTERVIEW →
                     </button>
@@ -1266,7 +1379,7 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
         {/* ========================================================= */}
         {/* RIGHT PANEL: AI Coach Live Evaluation Console (w-[300px]) */}
         {/* ========================================================= */}
-        <aside className="w-[300px] border-l border-[#1e2030] bg-[#09090f] flex flex-col justify-between overflow-hidden select-text">
+        <aside className={`${mobileTab === 'coach' ? 'flex flex-1 min-h-0 w-full' : 'hidden'} lg:flex lg:w-[300px] border-l border-[#1e2030] bg-[#09090f] flex-col justify-between overflow-hidden select-text shrink-0`}>
           {/* Apple Terminal Titlebar */}
           <div className="flex items-center justify-between px-4 h-10 border-b border-[#1e2030] bg-[#11121b]/90 select-none shrink-0">
             <div className="flex items-center gap-2.5">
@@ -1363,11 +1476,43 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
                     <span className="text-[10px] text-[#818cf8] font-mono uppercase tracking-wider block">
                       KEY SUGGESTIONS
                     </span>
-                    <p className="text-xs text-[#cbd5e1] leading-relaxed font-sans bg-[#0c0d15] border border-[#1e2030] rounded-lg p-3">
-                      {evaluation.improvements || evaluation.improvement}
-                    </p>
+                    <div className="bg-[#0c0d15] border border-[#1e2030] rounded-lg p-3">
+                      {parseSuggestions(evaluation.improvements || evaluation.improvement).length > 1 ? (
+                        <ul className="space-y-2 text-xs text-[#cbd5e1] font-sans">
+                          {parseSuggestions(evaluation.improvements || evaluation.improvement).map((item, i) => (
+                            <li key={i} className="flex items-start gap-2">
+                              <span className="text-[#818cf8] font-mono text-[10px] mt-0.5 shrink-0">►</span>
+                              <span className="leading-relaxed">{item}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p className="text-xs text-[#cbd5e1] leading-relaxed font-sans">
+                          {evaluation.improvements || evaluation.improvement}
+                        </p>
+                      )}
+                    </div>
                   </div>
                 )}
+
+                {/* Mobile Next / Finish Action CTA */}
+                <div className="lg:hidden pt-2 border-t border-[#1e2030]/60">
+                  {currentQIndex < (questions.length - 1) ? (
+                    <button
+                      onClick={handleNextQuestion}
+                      className="w-full py-2.5 rounded-lg bg-[#818cf8] hover:bg-[#6366f1] text-white font-mono text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg transition-colors cursor-pointer"
+                    >
+                      <span>NEXT QUESTION →</span>
+                    </button>
+                  ) : (
+                    <button
+                      onClick={handleEndInterview}
+                      className="w-full py-2.5 rounded-lg bg-[#22c55e] hover:bg-[#16a34a] text-black font-mono text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg transition-colors cursor-pointer"
+                    >
+                      <span>COMPLETE INTERVIEW →</span>
+                    </button>
+                  )}
+                </div>
               </div>
             ) : (
               /* Idle State */

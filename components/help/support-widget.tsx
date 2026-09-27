@@ -27,17 +27,17 @@ export function SupportWidget() {
         onClick={() => setOpen(o => !o)}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        className="fixed bottom-6 right-6 z-40 h-12 w-12 rounded-full bg-[#4f46e5] text-white shadow-[0_4px_24px_rgba(79,70,229,0.4)] flex items-center justify-center border border-[#3730a3] hover:bg-[#5865f2] transition-colors"
+        className="fixed bottom-3 right-3 sm:bottom-6 sm:right-6 z-40 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-[#4f46e5] text-white shadow-[0_4px_24px_rgba(79,70,229,0.4)] flex items-center justify-center border border-[#3730a3] hover:bg-[#5865f2] transition-colors"
         aria-label="Get help"
       >
         <AnimatePresence mode="wait">
           {open ? (
             <motion.div key="close" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }} transition={{ duration: 0.15 }}>
-              <X className="h-5 w-5" />
+              <X className="h-4 w-4 sm:h-5 sm:w-5" />
             </motion.div>
           ) : (
             <motion.div key="open" initial={{ rotate: 90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -90, opacity: 0 }} transition={{ duration: 0.15 }}>
-              <HelpCircle className="h-5 w-5" />
+              <HelpCircle className="h-4 w-4 sm:h-5 sm:w-5" />
             </motion.div>
           )}
         </AnimatePresence>
@@ -51,7 +51,7 @@ export function SupportWidget() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.96 }}
             transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-            className="fixed bottom-24 right-6 z-40 w-[300px] bg-[#09090e] border border-[#1e1e2f] rounded-[8px] shadow-2xl overflow-hidden"
+            className="fixed bottom-16 right-3 sm:bottom-24 sm:right-6 z-40 w-[calc(100vw-24px)] max-w-[310px] bg-[#09090e] border border-[#1e1e2f] rounded-[8px] shadow-2xl overflow-hidden"
           >
             {/* Header */}
             <div className="p-4 border-b border-[#1e1e2f] bg-[#000000]">

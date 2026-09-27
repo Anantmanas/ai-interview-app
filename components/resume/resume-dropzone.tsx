@@ -74,22 +74,22 @@ export function ResumeDropzone({ source, onSuccess }: ResumeDropzoneProps) {
             </span>
           ) : (
             <span className="font-mono text-[10px] text-[#22c55e] bg-[#22c55e]/10 border border-[#22c55e]/20 px-2 py-0.5 rounded-full uppercase tracking-wider">
-              {storedResumes.length}/2 SLOTS AVAILABLE
+              {Math.max(0, 2 - storedResumes.length)}/2 SLOTS AVAILABLE
             </span>
           )}
         </div>
       </div>
 
       {/* Terminal Command Cue */}
-      <div className="px-5 py-2.5 border-b border-[#1e2030]/40 bg-[#0c0d15]/50 flex items-center justify-between gap-2 font-mono text-[12px]">
-        <div className="flex items-center gap-2">
+      <div className="px-3 sm:px-5 py-2.5 border-b border-[#1e2030]/40 bg-[#0c0d15]/50 flex flex-wrap items-center justify-between gap-2 font-mono text-[11px] sm:text-[12px]">
+        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
           <span className="text-[#38bdf8] font-semibold">engineer@interviewai</span>
           <span className="text-[#94a3b8]">:</span>
           <span className="text-[#818cf8]">~/resume</span>
           <span className="text-[#f8fafc]">$</span>
-          <span className="text-[#22c55e]">upload --extract-skills</span>
+          <span className="text-[#22c55e] break-all">upload --extract-skills</span>
         </div>
-        <span className="text-[11px] text-[#64748b] hidden sm:inline-block">Limit: Max 2 Resumes</span>
+        <span className="text-[10px] sm:text-[11px] text-[#64748b]">Limit: Max 2 Resumes</span>
       </div>
 
       <div className="p-7 sm:p-8 text-center flex flex-col items-center justify-center space-y-4">

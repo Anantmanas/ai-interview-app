@@ -10,12 +10,29 @@ interface QuestionEvalCardProps {
   index: number
 }
 
+function parseSuggestions(input?: string | string[]): string[] {
+  if (!input) return []
+  if (Array.isArray(input)) return input.filter(Boolean).map(s => String(s).trim())
+  const trimmed = String(input).trim()
+  if (!trimmed) return []
+
+  // Handle sentences running together without spaces or standard delimiters
+  // Split on newlines, numbered list markers (1. / 1) / (1)), bullets, or punctuation followed by capital letters
+  const parts = trimmed
+    .split(/(?:\r?\n)+|(?<=[.!?])\s*(?=\d+[\.\)])|(?<=[.!?])\s+(?=[A-Z])|(?<=\))\s*(?=[A-Z])/)
+    .map(s => s.trim().replace(/^(?:\d+[\.\)]|•|\*|-)\s*/, ''))
+    .filter(s => s.length > 0)
+
+  return parts.length > 0 ? parts : [trimmed]
+}
+
 export function QuestionEvalCard({ question, index }: QuestionEvalCardProps) {
   const [isExpanded, setIsExpanded] = useState(false)
   const evalData = question.ai_evaluation || {}
   const cavemanFeedback = evalData.caveman_feedback || evalData.feedback
   const fullFeedback = evalData.feedback || ''
   const improvements = evalData.improvements || evalData.improvement || ''
+  const parsedImprovements = parseSuggestions(improvements)
   const technicalAccuracy = evalData.technicalAccuracy || evalData.technical_accuracy || ''
   const score = evalData.score !== undefined ? Number(evalData.score) : null
 
@@ -129,14 +146,19 @@ export function QuestionEvalCard({ question, index }: QuestionEvalCardProps) {
                 )}
 
                 {/* Key Suggestions / Improvements */}
-                {improvements && (
-                  <div className="bg-[#0c0d15] border border-[#3730a3]/40 rounded-lg p-3.5 space-y-1">
+                {parsedImprovements.length > 0 && (
+                  <div className="bg-[#0c0d15] border border-[#3730a3]/40 rounded-lg p-3.5 space-y-2">
                     <p className="font-mono text-[10px] text-[#22c55e] uppercase flex items-center gap-1 font-semibold">
-                      <Lightbulb className="h-3 w-3" /> Key Improvement Suggestions
+                      <Lightbulb className="h-3 w-3" /> Key Improvement Suggestions ({parsedImprovements.length})
                     </p>
-                    <p className="font-sans text-[12px] text-[#cbd5e1] leading-relaxed">
-                      {improvements}
-                    </p>
+                    <ul className="space-y-1.5 font-sans text-[12px] text-[#cbd5e1] leading-relaxed">
+                      {parsedImprovements.map((item, idx) => (
+                        <li key={idx} className="flex items-start gap-2">
+                          <span className="text-[#818cf8] font-mono text-[11px] shrink-0 mt-0.5">•</span>
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                 )}
               </div>

@@ -271,7 +271,7 @@ export default function ProfilePage() {
   const calibrationScore = (fullName ? 35 : 0) + (targetRole ? 35 : 0) + (targetCompanies.length > 0 ? 30 : 0)
 
   return (
-    <div className="p-4 sm:p-6 md:p-8 max-w-4xl mx-auto space-y-6 sm:space-y-8 pb-16 font-sans">
+    <div className="p-4 sm:p-6 md:p-8 max-w-4xl mx-auto space-y-6 sm:space-y-8 pb-32 sm:pb-16 font-sans">
       <div>
         <p className="font-mono text-[11px] text-[#818cf8] uppercase tracking-[0.15em] mb-1 font-semibold">// CANDIDATE CONFIG</p>
         <h1 className="font-display text-[28px] sm:text-[32px] font-bold text-white leading-[1.1] tracking-[-0.02em]">Profile</h1>
@@ -285,22 +285,22 @@ export default function ProfilePage() {
         <div className="lg:col-span-2 space-y-6">
           <div className="rounded-xl border border-[#1e2030] bg-[#09090f] shadow-[0_8px_32px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.05)] overflow-hidden">
             {/* macOS Titlebar */}
-            <div className="flex items-center justify-between px-4 h-10 border-b border-[#1e2030] bg-[#11121b]/90 select-none">
-              <div className="flex items-center gap-3">
+            <div className="flex items-center justify-between px-3 sm:px-4 py-2 sm:h-10 border-b border-[#1e2030] bg-[#11121b]/90 select-none flex-wrap gap-2">
+              <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                 <MacTrafficLights size="sm" />
-                <span className="font-mono text-[11px] text-[#9ca3af] font-medium tracking-wide">
+                <span className="font-mono text-[10px] sm:text-[11px] text-[#9ca3af] font-medium tracking-wide truncate max-w-[160px] sm:max-w-none">
                   candidate-profile.cfg — bash
                 </span>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="font-mono text-[10px] text-[#22c55e] bg-[#22c55e]/10 border border-[#22c55e]/20 px-2 py-0.5 rounded-full uppercase tracking-wider">
+              <div className="flex items-center gap-2 shrink-0">
+                <span className="font-mono text-[9px] sm:text-[10px] text-[#22c55e] bg-[#22c55e]/10 border border-[#22c55e]/20 px-2 py-0.5 rounded-full uppercase tracking-wider">
                   CONFIG ACTIVE
                 </span>
               </div>
             </div>
 
             {/* Terminal Command Cue */}
-            <div className="px-5 py-2.5 border-b border-[#1e2030]/40 bg-[#0c0d15]/50 flex items-center gap-2 font-mono text-[12px]">
+            <div className="px-3 sm:px-5 py-2.5 border-b border-[#1e2030]/40 bg-[#0c0d15]/50 flex flex-wrap items-center gap-1.5 sm:gap-2 font-mono text-[11px] sm:text-[12px] break-all">
               <span className="text-[#38bdf8] font-semibold">engineer@interviewai</span>
               <span className="text-[#94a3b8]">:</span>
               <span className="text-[#818cf8]">~/.config</span>
@@ -334,15 +334,27 @@ export default function ProfilePage() {
                     />
                   </div>
                   <div>
-                    <label htmlFor="email" className="font-mono text-[10px] text-[#9ca3af] uppercase tracking-[0.08em] block mb-1.5 font-semibold">
-                      Email Address
-                    </label>
-                    <input
-                      id="email"
-                      value={profile?.email || ''}
-                      readOnly
-                      className="bg-[#0c0d15] border border-[#1e2030]/60 rounded-lg px-3.5 py-2.5 text-[13px] text-[#64748b] cursor-not-allowed w-full font-mono"
-                    />
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label htmlFor="email" className="font-mono text-[10px] text-[#9ca3af] uppercase tracking-[0.08em] font-semibold">
+                        Email Address
+                      </label>
+                      {profile?.email && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            navigator.clipboard.writeText(profile.email)
+                            toast.success('Email copied to clipboard')
+                          }}
+                          className="font-mono text-[10px] text-[#818cf8] hover:text-white transition-colors cursor-pointer"
+                        >
+                          Copy
+                        </button>
+                      )}
+                    </div>
+                    <div className="bg-[#0c0d15] border border-[#1e2030]/60 rounded-lg px-3.5 py-2.5 text-[12px] sm:text-[13px] text-[#9ca3af] font-mono break-all select-all flex items-center justify-between gap-2 min-h-[42px]">
+                      <span>{profile?.email || 'No email attached'}</span>
+                      <span className="text-[9px] font-mono text-[#64748b] uppercase shrink-0">VERIFIED</span>
+                    </div>
                   </div>
                 </div>
 
@@ -467,7 +479,7 @@ export default function ProfilePage() {
                       <Building2 className="h-3 w-3 text-[#818cf8]" />
                       <span>SUGGESTED FOR YOUR ROLE (CLICK TO TOGGLE):</span>
                     </p>
-                    <div className="flex flex-wrap gap-1.5">
+                    <div className="flex flex-wrap gap-1.5 pr-14 sm:pr-0">
                       {suggestedCompanies.map((company) => {
                         const isSelected = targetCompanies.some((c) => c.toLowerCase() === company.toLowerCase())
                         return (

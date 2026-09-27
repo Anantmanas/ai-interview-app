@@ -144,14 +144,15 @@ export function ATSMatcherCard() {
             className="w-full bg-[#0c0d15] border border-[#1e2030] focus:border-[#6366f1] focus:ring-1 focus:ring-[#6366f1]/40 focus:outline-none rounded-xl p-4 text-xs font-mono text-[#f8fafc] placeholder-[#64748b] leading-relaxed transition-all resize-y"
           />
 
-          <div className="flex items-center justify-end gap-3 pt-1">
+          <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 sm:gap-3 pt-2">
             {jobDescription && (
               <button
+                type="button"
                 onClick={() => {
                   setJobDescription('')
                   setAnalysis(null)
                 }}
-                className="font-mono text-xs text-[#9ca3af] hover:text-white px-3 py-2 rounded-lg transition-colors cursor-pointer"
+                className="font-mono text-xs text-[#9ca3af] hover:text-white px-3 py-2.5 rounded-lg transition-colors cursor-pointer text-center sm:text-left"
               >
                 Clear
               </button>
@@ -160,7 +161,7 @@ export function ATSMatcherCard() {
             <button
               onClick={handleAuditMatch}
               disabled={analyzing || !jobDescription.trim()}
-              className="inline-flex items-center gap-2 bg-[#4f46e5] text-white hover:bg-[#5865f2] disabled:opacity-50 disabled:cursor-not-allowed border border-[#6366f1]/40 shadow-[0_0_20px_rgba(79,70,229,0.35)] font-mono text-xs font-bold uppercase tracking-wider px-5 py-2.5 rounded-lg transition-all cursor-pointer"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#4f46e5] text-white hover:bg-[#5865f2] disabled:opacity-50 disabled:cursor-not-allowed border border-[#6366f1]/40 shadow-[0_0_20px_rgba(79,70,229,0.35)] font-mono text-xs font-bold uppercase tracking-wider px-5 py-3 sm:py-2.5 rounded-lg transition-all cursor-pointer"
             >
               {analyzing ? <Spinner className="h-4 w-4" /> : <Sparkles className="h-4 w-4 text-[#fbbf24]" />}
               <span>{analyzing ? 'Auditing Resume Against JD...' : 'Audit ATS Match'}</span>

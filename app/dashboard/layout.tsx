@@ -38,7 +38,7 @@ export default async function DashboardLayout({
         </div>
         <div className="relative z-10 flex flex-col min-h-screen">
           <DashboardHeader user={user} profile={profile} />
-          <main className="flex-1 bg-[#000000]">
+          <main className="flex-1 bg-[#000000] pb-28 sm:pb-12">
             {children}
           </main>
         </div>

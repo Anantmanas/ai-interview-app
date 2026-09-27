@@ -240,7 +240,29 @@ Candidate Answer: ${userAnswer || '(No answer provided)'}
                 evalData = JSON.parse(accumulated)
               } catch {
                 const match = accumulated.match(/\{[\s\S]*\}/)?.[0]
-                evalData = match ? JSON.parse(match) : { score: 30, feedback: accumulated.slice(0, 300), improvements: '' }
+                if (match) {
+                  try {
+                    evalData = JSON.parse(match)
+                  } catch {
+                    evalData = {}
+                  }
+                }
+              }
+
+              // Extract parsed feedback safely, never leaking raw JSON into the text
+              let cleanFeedback = evalData.feedback
+              if (typeof cleanFeedback === 'object' && cleanFeedback !== null) {
+                cleanFeedback = cleanFeedback.feedback || cleanFeedback.text || ''
+              } else if (typeof cleanFeedback === 'string' && cleanFeedback.trim().startsWith('{')) {
+                try {
+                  const nested = JSON.parse(cleanFeedback)
+                  cleanFeedback = nested.feedback || nested.caveman_feedback || ''
+                } catch {}
+              }
+              if (!cleanFeedback || cleanFeedback.includes('{"score":')) {
+                cleanFeedback = isNonAnswer(userAnswer)
+                  ? 'Candidate submitted an empty or skipped response. Practice attempting all questions.'
+                  : 'Answer recorded and evaluated against technical requirements.'
               }
 
               const parsedScore = Number(evalData?.score)
@@ -248,7 +270,7 @@ Candidate Answer: ${userAnswer || '(No answer provided)'}
               const evaluationResult = {
                 score,
                 caveman_feedback: evalData.caveman_feedback || (score === 0 ? 'Bad: no solution. Score: 0%.' : `Score: ${score}%. Fix: elaborate on edge cases.`),
-                feedback: evalData.feedback || accumulated.slice(0, 300) || 'Answer recorded.',
+                feedback: cleanFeedback,
                 technicalAccuracy: evalData.technicalAccuracy || evalData.technical_accuracy || '',
                 improvements: evalData.improvements || evalData.improvement || '',
                 topic: evalData.topic || topic,
@@ -305,7 +327,29 @@ Candidate Answer: ${userAnswer || '(No answer provided)'}
         evalData = JSON.parse(rawContent)
       } catch {
         const match = rawContent.match(/\{[\s\S]*\}/)?.[0]
-        evalData = match ? JSON.parse(match) : { score: 30, feedback: 'Evaluated with gaps.', improvements: '' }
+        if (match) {
+          try {
+            evalData = JSON.parse(match)
+          } catch {
+            evalData = {}
+          }
+        }
+      }
+
+      // Extract parsed feedback safely, never leaking raw JSON into the text
+      let cleanFeedback = evalData.feedback
+      if (typeof cleanFeedback === 'object' && cleanFeedback !== null) {
+        cleanFeedback = cleanFeedback.feedback || cleanFeedback.text || ''
+      } else if (typeof cleanFeedback === 'string' && cleanFeedback.trim().startsWith('{')) {
+        try {
+          const nested = JSON.parse(cleanFeedback)
+          cleanFeedback = nested.feedback || nested.caveman_feedback || ''
+        } catch {}
+      }
+      if (!cleanFeedback || cleanFeedback.includes('{"score":')) {
+        cleanFeedback = isNonAnswer(userAnswer)
+          ? 'Candidate submitted an empty or skipped response. Practice attempting all questions.'
+          : 'Answer recorded and evaluated against technical requirements.'
       }
 
       const parsedScore = Number(evalData?.score)
@@ -313,7 +357,7 @@ Candidate Answer: ${userAnswer || '(No answer provided)'}
       const evaluationResult = {
         score,
         caveman_feedback: evalData.caveman_feedback || (score === 0 ? 'Bad: no solution. Score: 0%.' : `Score: ${score}%. Fix: elaborate on edge cases.`),
-        feedback: evalData.feedback || 'Answer recorded.',
+        feedback: cleanFeedback,
         technicalAccuracy: evalData.technicalAccuracy || evalData.technical_accuracy || '',
         improvements: evalData.improvements || evalData.improvement || '',
         topic: evalData.topic || topic,
@@ -375,36 +419,58 @@ Candidate Answer: ${userAnswer || '(No answer provided)'}
 
     // If still no questions in DB, check if title or body hints at topic
     if (allQuestions.length === 0) {
-      const topicFromTitle = interview.title?.replace('Targeted: ', '').split('—')[0].split('[')[0].trim() || 'General Technical'
-      const defaultQuestions = [
-        {
-          text: `Explain the fundamental principles of ${topicFromTitle} and walk through how you would apply it in a high-scale production system.`,
-          topic: topicFromTitle,
-        },
-        {
-          text: `What are the most common performance bottlenecks or edge-case failures when working with ${topicFromTitle}?`,
-          topic: topicFromTitle,
-        },
-        {
-          text: `Compare and contrast alternative approaches or paradigms to ${topicFromTitle}. What are the trade-offs?`,
-          topic: topicFromTitle,
-        },
-      ]
+      const topicFromTitle = interview.title?.replace('Targeted: ', '').split('—')[0].split('[')[0].trim() || 'Software Engineer'
+      const isBehavioral = interview.type === 'behavioral'
+      const defaultQuestions = isBehavioral
+        ? [
+            {
+              text: `Tell me about a high-impact technical project you led as a ${topicFromTitle}. What was the primary challenge, how did you drive execution, and what was the outcome?`,
+              topic: 'Project Leadership & Ownership',
+            },
+            {
+              text: `Describe a severe production incident or outage you encountered. How did you coordinate with stakeholders, triage the issue, and ensure it wouldn't happen again?`,
+              topic: 'Incident Management & Triage',
+            },
+            {
+              text: `Tell me about a time you strongly disagreed with a product decision or architectural proposal. How did you handle the discussion and reach alignment?`,
+              topic: 'Constructive Disagreement & Collaboration',
+            },
+          ]
+        : [
+            {
+              text: `Explain the fundamental principles of ${topicFromTitle} and walk through how you would apply it in a high-scale production system.`,
+              topic: topicFromTitle,
+            },
+            {
+              text: `What are the most common performance bottlenecks or edge-case failures when working with ${topicFromTitle}?`,
+              topic: topicFromTitle,
+            },
+            {
+              text: `Compare and contrast alternative approaches or paradigms to ${topicFromTitle}. What are the trade-offs?`,
+              topic: topicFromTitle,
+            },
+          ]
 
       for (let i = 0; i < defaultQuestions.length; i++) {
         const q = defaultQuestions[i]
         const inserted = await upsertQuestionRecord(id, i, {
           question_text: q.text,
-          question_type: interview.type || 'technical',
+          question_type: interview.type || (isBehavioral ? 'behavioral' : 'technical'),
           topic: q.topic,
           difficulty: interview.difficulty || 'medium',
           user_answer: '(No answer provided)',
           ai_evaluation: {
             score: 0,
-            caveman_feedback: 'Bad: Unanswered question. Score: 0%. Fix: Attempt solution.',
-            feedback: `Candidate did not provide an answer for ${q.topic} in this session.`,
+            caveman_feedback: isBehavioral
+              ? 'Bad: Unanswered scenario. Score: 0%. Fix: Deliver structured STAR response.'
+              : 'Bad: Unanswered question. Score: 0%. Fix: Attempt solution.',
+            feedback: isBehavioral
+              ? `Candidate did not submit an evaluation for ${q.topic}. Behavioral interviews assess ownership and structured problem solving.`
+              : `Candidate did not provide an answer for ${q.topic} in this session.`,
             technicalAccuracy: 'Unanswered.',
-            improvements: 'Answer all technical questions to demonstrate competency.',
+            improvements: isBehavioral
+              ? 'Use the STAR format (Situation, Task, Action, Result) detailing measurable impact.'
+              : 'Answer all technical questions to demonstrate competency.',
             topic: q.topic,
           },
         })

@@ -72,14 +72,14 @@ export function ResumeUploadCard() {
           </div>
 
           {/* Terminal Command Line Cue */}
-          <div className="px-6 pt-5 pb-2 border-b border-[#1e2030]/40 bg-[#0c0d15]/50">
-            <div className="flex items-center gap-2 font-mono text-[12px]">
+          <div className="px-4 sm:px-6 py-2.5 sm:py-3 border-b border-[#1e2030]/40 bg-[#0c0d15]/50">
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 font-mono text-[11px] sm:text-[12px] break-all">
               <span className="text-[#38bdf8] font-semibold">engineer@interviewai</span>
               <span className="text-[#94a3b8]">:</span>
               <span className="text-[#818cf8]">~/resume</span>
               <span className="text-[#f8fafc]">$</span>
               <span className="text-[#22c55e] font-semibold">upload --extract-grounding --ai</span>
-              <span className="inline-block w-2 h-4 bg-[#f8fafc] animate-pulse ml-1" />
+              <span className="inline-block w-1.5 sm:w-2 h-3.5 sm:h-4 bg-[#f8fafc] animate-pulse ml-0.5" />
             </div>
           </div>
 

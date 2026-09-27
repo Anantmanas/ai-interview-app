@@ -60,7 +60,7 @@ export default function ResumePage() {
   }
 
   return (
-    <div className="p-4 sm:p-6 md:p-8 max-w-4xl mx-auto space-y-8">
+    <div className="p-4 sm:p-6 md:p-8 max-w-4xl mx-auto space-y-8 pb-32 sm:pb-16">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#1e2030] pb-6">
         <div>
@@ -164,15 +164,15 @@ export default function ResumePage() {
                   </div>
 
                   {/* Terminal Header Bar */}
-                  <div className="px-5 py-2.5 border-b border-[#1e2030]/40 bg-[#0c0d15]/50 flex items-center justify-between gap-2 font-mono text-[12px]">
-                    <div className="flex items-center gap-2">
+                  <div className="px-3 sm:px-5 py-2.5 border-b border-[#1e2030]/40 bg-[#0c0d15]/50 flex flex-wrap items-center justify-between gap-2 font-mono text-[11px] sm:text-[12px]">
+                    <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
                       <span className="text-[#38bdf8] font-semibold">sys@interviewai</span>
                       <span className="text-[#94a3b8]">:</span>
                       <span className="text-[#818cf8]">~/resumes/slot_{idx + 1}</span>
                       <span className="text-[#f8fafc]">$</span>
-                      <span className="text-[#22c55e]">inspect --detailed</span>
+                      <span className="text-[#22c55e] break-all">inspect --detailed</span>
                     </div>
-                    <div className="flex items-center gap-1 text-[11px] text-[#64748b]">
+                    <div className="flex items-center gap-1 text-[10px] sm:text-[11px] text-[#64748b] shrink-0">
                       <Calendar className="w-3 h-3" />
                       <span>{new Date(resume.uploadedAt).toLocaleDateString()}</span>
                     </div>

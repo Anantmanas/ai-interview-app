@@ -8,29 +8,29 @@ export default function LegalLayout({ children }: { children: React.ReactNode })
 
       {/* Nav */}
       <nav className="relative z-10 border-b border-[#1e1e2f] bg-[#000000]/80 backdrop-blur-sm">
-        <div className="max-w-[900px] mx-auto px-6 h-14 flex items-center justify-between">
-          <Link href="/" className="inline-flex items-center gap-2.5">
+        <div className="max-w-[900px] mx-auto px-3 sm:px-6 h-14 flex items-center justify-between gap-2">
+          <Link href="/" className="inline-flex items-center gap-2 shrink-0">
             <span className="led-pulse h-2 w-2 rounded-full bg-[#6366f1]" />
-            <span className="font-mono text-[13px] font-bold text-white uppercase tracking-[0.1em]">
+            <span className="font-mono text-[12px] sm:text-[13px] font-bold text-white uppercase tracking-[0.08em] sm:tracking-[0.1em]">
               InterviewAI
             </span>
           </Link>
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-2.5 sm:gap-6">
             <Link
               href="/privacy"
-              className="font-mono text-[11px] text-[#9ca3af] hover:text-white uppercase tracking-[0.08em] transition-colors"
+              className="font-mono text-[10px] sm:text-[11px] text-[#9ca3af] hover:text-white uppercase tracking-[0.06em] sm:tracking-[0.08em] transition-colors"
             >
               Privacy
             </Link>
             <Link
               href="/terms"
-              className="font-mono text-[11px] text-[#9ca3af] hover:text-white uppercase tracking-[0.08em] transition-colors"
+              className="font-mono text-[10px] sm:text-[11px] text-[#9ca3af] hover:text-white uppercase tracking-[0.06em] sm:tracking-[0.08em] transition-colors"
             >
               Terms
             </Link>
             <Link
               href="/auth/login"
-              className="font-mono text-[11px] text-[#818cf8] hover:text-white uppercase tracking-[0.08em] transition-colors"
+              className="font-mono text-[10px] sm:text-[11px] text-[#818cf8] hover:text-white uppercase tracking-[0.06em] sm:tracking-[0.08em] transition-colors whitespace-nowrap shrink-0"
             >
               Sign In →
             </Link>

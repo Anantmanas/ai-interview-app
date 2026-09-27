@@ -546,7 +546,7 @@ export default function RoadmapPage() {
   const progressPercent = items.length > 0 ? Math.round((completedCount / items.length) * 100) : 0
 
   return (
-    <div className="p-4 sm:p-6 md:p-8 max-w-[1200px] space-y-6 pb-16 font-sans">
+    <div className="p-4 sm:p-6 md:p-8 max-w-[1200px] space-y-6 pb-32 sm:pb-16 font-sans">
       {/* Page Header */}
       <div>
         <p className="font-mono text-[11px] text-[#818cf8] uppercase tracking-[0.15em] mb-1 font-semibold">
@@ -606,7 +606,7 @@ export default function RoadmapPage() {
           </div>
 
           {/* Active Focus Tags */}
-          <div className="min-h-[48px] p-2.5 bg-[#050508] border border-[#1e2030] rounded-xl flex flex-wrap items-center gap-2">
+          <div className="min-h-[48px] p-2.5 pr-14 sm:pr-2.5 bg-[#050508] border border-[#1e2030] rounded-xl flex flex-wrap items-center gap-2">
             <AnimatePresence>
               {focusTopics.length === 0 ? (
                 <span className="text-xs text-[#64748b] font-mono px-2">
@@ -619,14 +619,15 @@ export default function RoadmapPage() {
                     initial={{ opacity: 0, scale: 0.85 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.85 }}
-                    className="inline-flex items-center gap-1.5 bg-[#14142b] border border-[#6366f1]/50 text-white font-mono text-xs pl-3 pr-1.5 py-1.5 rounded-lg shadow-sm group"
+                    className="inline-flex items-center gap-1.5 bg-[#14142b] border border-[#6366f1]/50 text-white font-mono text-xs pl-3 pr-1.5 py-1.5 rounded-lg shadow-sm group max-w-full"
                   >
-                    <span>{topic}</span>
+                    <span className="truncate">{topic}</span>
                     <button
                       type="button"
                       onClick={() => removeTopic(topic)}
-                      className="p-1 hover:bg-[#6366f1]/30 rounded text-[#9ca3af] hover:text-white transition-colors cursor-pointer"
+                      className="p-1 hover:bg-[#6366f1]/30 rounded text-[#9ca3af] hover:text-white transition-colors cursor-pointer shrink-0"
                       title="Remove skill"
+                      aria-label={`Remove ${topic}`}
                     >
                       <X className="h-3 w-3" />
                     </button>

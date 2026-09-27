@@ -188,13 +188,19 @@ export function HistorySessionCard({ interview, index, totalCount }: HistorySess
                         ))}
                       </ul>
                     ) : (
-                      <p className="text-[11px] text-[#64748b] font-mono">Good performance, keep practicing!</p>
+                      <p className="text-[11px] text-[#64748b] font-mono leading-relaxed">
+                        {interview.overall_score === 0 || (!strengths.length && !weaknesses.length)
+                          ? 'Session incomplete or no answers scored — answer all questions to generate detailed improvement telemetry.'
+                          : (interview.overall_score || 0) < 60
+                          ? 'Foundational gaps identified — open full deep dive below for targeted remediation.'
+                          : 'Solid performance across key topics — keep practicing to maintain consistency!'}
+                      </p>
                     )}
                   </div>
                 </div>
 
-                {/* Read More Link */}
-                <div className="flex justify-end pt-1">
+                {/* Read More Link (safe margin away from floating help widget) */}
+                <div className="flex justify-end pt-2 pb-1 pr-14 sm:pr-0">
                   <Link
                     href={`/dashboard/history/${interview.id}`}
                     className="font-mono text-[11px] text-[#818cf8] hover:text-white flex items-center gap-1 transition-colors group"

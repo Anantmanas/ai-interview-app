@@ -69,57 +69,110 @@ export default async function InterviewDetailPage({ params }: { params: Promise<
     const rawTopic = interview.title?.replace('Targeted: ', '').split('—')[0].split('[')[0].trim() || 'General Technical'
     const cleanTopic = rawTopic.startsWith('Topic: ') ? rawTopic.replace('Topic: ', '').trim() : rawTopic
 
-    const recoveryQuestions = [
-      {
-        question_text: `Explain the fundamental principles of ${cleanTopic} and walk through how you would apply it in a high-scale production system.`,
-        topic: cleanTopic,
-        difficulty: interview.difficulty || 'medium',
-        sequence_order: 0,
-        user_answer: '(No substantive answer recorded during session)',
-        ai_evaluation: {
-          score: 0,
-          caveman_feedback: 'Bad: Unanswered in session. Score: 0%. Fix: Complete full code and architectural explanation.',
-          feedback: `Candidate did not submit an evaluation for ${cleanTopic}. In a technical interview, unanswered questions receive 0 points.`,
-          technicalAccuracy: 'Unanswered / Incomplete.',
-          improvements: `Master core concepts of ${cleanTopic}, including memory semantics, edge cases, and runtime efficiency.`,
-          topic: cleanTopic,
-        },
-      },
-      {
-        question_text: `What are the most common performance bottlenecks or type coercion edge cases when handling ${cleanTopic} in mission-critical applications?`,
-        topic: cleanTopic,
-        difficulty: interview.difficulty || 'medium',
-        sequence_order: 1,
-        user_answer: '(No substantive answer recorded during session)',
-        ai_evaluation: {
-          score: 0,
-          caveman_feedback: 'Bad: No solution provided. Score: 0%. Fix: Practice trade-offs and edge cases.',
-          feedback: `No answer recorded for ${cleanTopic} bottlenecks. Critical technical gaps identified.`,
-          technicalAccuracy: 'Unanswered.',
-          improvements: 'Study high-throughput edge cases and memory layout.',
-          topic: cleanTopic,
-        },
-      },
-      {
-        question_text: `Compare and contrast alternative data structures or paradigms against ${cleanTopic}. What architectural trade-offs would dictate your decision?`,
-        topic: cleanTopic,
-        difficulty: interview.difficulty || 'medium',
-        sequence_order: 2,
-        user_answer: '(No substantive answer recorded during session)',
-        ai_evaluation: {
-          score: 0,
-          caveman_feedback: 'Bad: Unanswered. Score: 0%. Fix: Articulate architectural trade-offs.',
-          feedback: 'Candidate missed comparative analysis. In senior technical interviews, discussing alternatives is mandatory.',
-          technicalAccuracy: 'Unanswered.',
-          improvements: 'Prepare pros vs cons trade-off matrices for technical interviews.',
-          topic: cleanTopic,
-        },
-      },
-    ]
+    const isBehavioral = interview.type === 'behavioral'
+    const roleTitle = cleanTopic.includes('Developer') || cleanTopic.includes('Engineer') || cleanTopic.includes('Architect')
+      ? cleanTopic
+      : `${cleanTopic} Engineer`
+
+    const recoveryQuestions = isBehavioral
+      ? [
+          {
+            question_text: `Tell me about a complex project or architectural delivery you owned as a ${roleTitle}. What was the initial challenge, your specific technical actions, and the business impact?`,
+            topic: 'Project Leadership & Ownership',
+            difficulty: interview.difficulty || 'medium',
+            sequence_order: 0,
+            user_answer: '(No substantive answer recorded during session)',
+            ai_evaluation: {
+              score: 0,
+              caveman_feedback: 'Bad: Unanswered behavioral scenario. Score: 0%. Fix: Deliver structured STAR response.',
+              feedback: `Candidate did not submit an evaluation for this behavioral scenario. Behavioral interviews evaluate communication, ownership, and structured problem solving.`,
+              technicalAccuracy: 'Unanswered / Incomplete.',
+              improvements: 'Use the STAR format (Situation, Task, Action, Result) to detail your specific role and measurable impact.',
+              topic: 'Project Leadership & Ownership',
+            },
+          },
+          {
+            question_text: `Describe a high-severity production incident or critical delivery blocker you navigated. Walk through your triage steps, team communication, and post-mortem actions.`,
+            topic: 'Incident Management & Triage',
+            difficulty: interview.difficulty || 'medium',
+            sequence_order: 1,
+            user_answer: '(No substantive answer recorded during session)',
+            ai_evaluation: {
+              score: 0,
+              caveman_feedback: 'Bad: No response recorded. Score: 0%. Fix: Practice incident retro scenarios.',
+              feedback: `No answer recorded for production incident handling. Critical behavioral leadership gaps identified.`,
+              technicalAccuracy: 'Unanswered.',
+              improvements: 'Highlight calm crisis communication, blameless post-mortems, and preventative safeguards.',
+              topic: 'Incident Management & Triage',
+            },
+          },
+          {
+            question_text: `Tell me about a technical disagreement you had with an engineering peer or product partner. How did you navigate the trade-offs and reach a collaborative outcome?`,
+            topic: 'Conflict Resolution & Collaboration',
+            difficulty: interview.difficulty || 'medium',
+            sequence_order: 2,
+            user_answer: '(No substantive answer recorded during session)',
+            ai_evaluation: {
+              score: 0,
+              caveman_feedback: 'Bad: Unanswered. Score: 0%. Fix: Frame conflict constructively.',
+              feedback: 'Candidate missed conflict resolution analysis. Senior engineering candidates must demonstrate empathy and data-driven alignment.',
+              technicalAccuracy: 'Unanswered.',
+              improvements: 'Frame disagreements around user outcomes and engineering trade-offs rather than ego.',
+              topic: 'Conflict Resolution & Collaboration',
+            },
+          },
+        ]
+      : [
+          {
+            question_text: `Explain the fundamental principles of ${cleanTopic} and walk through how you would apply it in a high-scale production system.`,
+            topic: cleanTopic,
+            difficulty: interview.difficulty || 'medium',
+            sequence_order: 0,
+            user_answer: '(No substantive answer recorded during session)',
+            ai_evaluation: {
+              score: 0,
+              caveman_feedback: 'Bad: Unanswered in session. Score: 0%. Fix: Complete full code and architectural explanation.',
+              feedback: `Candidate did not submit an evaluation for ${cleanTopic}. In a technical interview, unanswered questions receive 0 points.`,
+              technicalAccuracy: 'Unanswered / Incomplete.',
+              improvements: `Master core concepts of ${cleanTopic}, including memory semantics, edge cases, and runtime efficiency.`,
+              topic: cleanTopic,
+            },
+          },
+          {
+            question_text: `What are the most common performance bottlenecks or type coercion edge cases when handling ${cleanTopic} in mission-critical applications?`,
+            topic: cleanTopic,
+            difficulty: interview.difficulty || 'medium',
+            sequence_order: 1,
+            user_answer: '(No substantive answer recorded during session)',
+            ai_evaluation: {
+              score: 0,
+              caveman_feedback: 'Bad: No solution provided. Score: 0%. Fix: Practice trade-offs and edge cases.',
+              feedback: `No answer recorded for ${cleanTopic} bottlenecks. Critical technical gaps identified.`,
+              technicalAccuracy: 'Unanswered.',
+              improvements: 'Study high-throughput edge cases and memory layout.',
+              topic: cleanTopic,
+            },
+          },
+          {
+            question_text: `Compare and contrast alternative data structures or paradigms against ${cleanTopic}. What architectural trade-offs would dictate your decision?`,
+            topic: cleanTopic,
+            difficulty: interview.difficulty || 'medium',
+            sequence_order: 2,
+            user_answer: '(No substantive answer recorded during session)',
+            ai_evaluation: {
+              score: 0,
+              caveman_feedback: 'Bad: Unanswered. Score: 0%. Fix: Articulate architectural trade-offs.',
+              feedback: 'Candidate missed comparative analysis. In senior technical interviews, discussing alternatives is mandatory.',
+              technicalAccuracy: 'Unanswered.',
+              improvements: 'Prepare pros vs cons trade-off matrices for technical interviews.',
+              topic: cleanTopic,
+            },
+          },
+        ]
 
     const toInsert = recoveryQuestions.map((d) => ({
       interview_id: id,
-      question_type: interview.type || 'technical',
+      question_type: interview.type || (isBehavioral ? 'behavioral' : 'technical'),
       time_taken_seconds: 0,
       ...d,
     }))
@@ -127,19 +180,28 @@ export default async function InterviewDetailPage({ params }: { params: Promise<
     const fallbackQuestions = recoveryQuestions.map((d, idx) => ({
       id: `diag-${id}-${idx}`,
       interview_id: id,
-      question_type: interview.type || 'technical',
+      question_type: interview.type || (isBehavioral ? 'behavioral' : 'technical'),
       time_taken_seconds: 0,
       ...d,
     }))
 
-    const defaultWeaknesses = [
-      {
-        topic: cleanTopic,
-        subtopic: 'Core Technical Principles & Implementation',
-        score: 95,
-        feedback: `Severe gap in ${cleanTopic}. Requires dedicated practice and video tutorial review.`,
-      },
-    ]
+    const defaultWeaknesses = isBehavioral
+      ? [
+          {
+            topic: 'Behavioral Communication & STAR Delivery',
+            subtopic: 'Project Ownership & Incident Triage',
+            score: 95,
+            feedback: `Incomplete behavioral responses. Practice articulating past engineering challenges using the STAR method.`,
+          },
+        ]
+      : [
+          {
+            topic: cleanTopic,
+            subtopic: 'Core Technical Principles & Implementation',
+            score: 95,
+            feedback: `Severe gap in ${cleanTopic}. Requires dedicated practice and video tutorial review.`,
+          },
+        ]
     const defaultStrengths = ['Demonstrated initial interview participation and session initiation.']
 
     questions = fallbackQuestions

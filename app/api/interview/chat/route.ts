@@ -50,10 +50,31 @@ export async function POST(req: NextRequest) {
     } = body
 
     if (mode === 'generate') {
+      const isBehavioral = interviewType === 'behavioral'
+      const roleName = topic || 'Software Engineer'
       const topicFocus = topic ? `focused specifically on ${topic}` : ''
       const generationPrompt =
         prompt ||
-        `Generate 5 interview questions ${topicFocus} for a ${interviewType} interview at ${difficulty} difficulty level. Resume context: ${resumeContext || 'Software Engineer'}.
+        (isBehavioral
+          ? `Generate 5 behavioral interview questions for a ${roleName} role at ${difficulty} difficulty level. Resume context: ${resumeContext || 'Software Engineer'}.
+CRITICAL REQUIREMENTS FOR BEHAVIORAL TRACK:
+- Every question must be a situational behavioral scenario evaluating teamwork, ownership, incident triage, disagreement resolution, prioritization, and communication.
+- Do NOT ask candidates to "explain fundamental principles of [Role]". Treat "${roleName}" as the candidate's professional job role, not a technical concept.
+- Candidates will structure answers using the STAR format (Situation, Task, Action, Result).
+Return ONLY a valid JSON object with key "questions" containing an array of 5 objects with structure:
+{
+  "questions": [
+    {
+      "id": "q1",
+      "text": "Behavioral question prompt?",
+      "type": "behavioral",
+      "topic": "Leadership / Collaboration / Incident Response",
+      "difficulty": "${difficulty}",
+      "requiresCode": false
+    }
+  ]
+}`
+          : `Generate 5 interview questions ${topicFocus} for a ${interviewType} interview at ${difficulty} difficulty level. Resume context: ${resumeContext || 'Software Engineer'}.
 ${topic ? `CRITICAL: Every question must directly test ${topic} concepts, implementation, edge cases, or architecture trade-offs.` : ''}
 Return ONLY a valid JSON object with key "questions" containing an array of 5 objects with the following structure:
 {
@@ -67,13 +88,15 @@ Return ONLY a valid JSON object with key "questions" containing an array of 5 ob
       "requiresCode": false
     }
   ]
-}`
+}`)
 
       let questionsList: any[] = []
 
       try {
         const raw = await createChatCompletion({
-          system: 'You are a senior technical interviewer at a top tier tech company. You generate structured interview questions as a JSON object with a "questions" array.',
+          system: isBehavioral
+            ? 'You are an engineering director conducting a behavioral interview. You assess communication, ownership, collaboration, and incident response through structured behavioral questions.'
+            : 'You are a senior technical interviewer at a top tier tech company. You generate structured interview questions as a JSON object with a "questions" array.',
           messages: [{ role: 'user', content: generationPrompt }],
           model: GENERATION_MODEL,
           responseFormat: { type: 'json_object' },
@@ -89,49 +112,92 @@ Return ONLY a valid JSON object with key "questions" containing an array of 5 ob
 
       // High-quality fallback if generation returned empty
       if (!Array.isArray(questionsList) || questionsList.length === 0) {
-        const fallbackTopic = topic || 'System Architecture'
-        questionsList = [
-          {
-            id: 'q1',
-            text: `Explain the fundamental principles of ${fallbackTopic} and walk through how you would apply it in a high-scale production system.`,
-            type: interviewType,
-            topic: fallbackTopic,
-            difficulty,
-            requiresCode: false,
-          },
-          {
-            id: 'q2',
-            text: `What are the most common performance bottlenecks or edge cases you encounter when working with ${fallbackTopic}, and how do you mitigate them?`,
-            type: interviewType,
-            topic: fallbackTopic,
-            difficulty,
-            requiresCode: interviewType === 'technical',
-          },
-          {
-            id: 'q3',
-            text: `Compare two alternative architectural approaches or libraries for ${fallbackTopic}. What are the trade-offs in terms of complexity, latency, and maintainability?`,
-            type: interviewType,
-            topic: fallbackTopic,
-            difficulty,
-            requiresCode: false,
-          },
-          {
-            id: 'q4',
-            text: `How would you write automated tests to verify edge cases and error handling for a component utilizing ${fallbackTopic}?`,
-            type: interviewType,
-            topic: fallbackTopic,
-            difficulty,
-            requiresCode: interviewType === 'technical',
-          },
-          {
-            id: 'q5',
-            text: `Walk me through a real-world debugging scenario you faced involving ${fallbackTopic}. How did you identify the root cause and resolve it?`,
-            type: interviewType,
-            topic: fallbackTopic,
-            difficulty,
-            requiresCode: false,
-          },
-        ]
+        const fallbackTopic = topic || 'Software Engineering'
+        questionsList = isBehavioral
+          ? [
+              {
+                id: 'q1',
+                text: `Tell me about a high-impact technical project you led as a ${fallbackTopic}. What was the primary challenge, how did you drive execution, and what was the outcome?`,
+                type: 'behavioral',
+                topic: 'Project Leadership & Ownership',
+                difficulty,
+                requiresCode: false,
+              },
+              {
+                id: 'q2',
+                text: `Describe a severe production incident or outage you encountered. How did you coordinate with stakeholders, triage the issue, and ensure it wouldn't happen again?`,
+                type: 'behavioral',
+                topic: 'Incident Management & Triage',
+                difficulty,
+                requiresCode: false,
+              },
+              {
+                id: 'q3',
+                text: `Tell me about a time you strongly disagreed with a product decision or an architectural proposal from a peer. How did you handle the discussion and reach alignment?`,
+                type: 'behavioral',
+                topic: 'Constructive Disagreement & Collaboration',
+                difficulty,
+                requiresCode: false,
+              },
+              {
+                id: 'q4',
+                text: `Describe a situation where you had to balance technical debt with tight delivery deadlines. What trade-offs did you make, and how did you communicate them to management?`,
+                type: 'behavioral',
+                topic: 'Prioritization & Tech Debt',
+                difficulty,
+                requiresCode: false,
+              },
+              {
+                id: 'q5',
+                text: `Tell me about a mistake you made or an assumption that turned out to be wrong in a critical system. What did you learn, and how did it change your engineering practices?`,
+                type: 'behavioral',
+                topic: 'Continuous Learning & Resilience',
+                difficulty,
+                requiresCode: false,
+              },
+            ]
+          : [
+              {
+                id: 'q1',
+                text: `Explain the fundamental principles of ${fallbackTopic} and walk through how you would apply it in a high-scale production system.`,
+                type: interviewType,
+                topic: fallbackTopic,
+                difficulty,
+                requiresCode: false,
+              },
+              {
+                id: 'q2',
+                text: `What are the most common performance bottlenecks or edge cases you encounter when working with ${fallbackTopic}, and how do you mitigate them?`,
+                type: interviewType,
+                topic: fallbackTopic,
+                difficulty,
+                requiresCode: interviewType === 'technical',
+              },
+              {
+                id: 'q3',
+                text: `Compare two alternative architectural approaches or libraries for ${fallbackTopic}. What are the trade-offs in terms of complexity, latency, and maintainability?`,
+                type: interviewType,
+                topic: fallbackTopic,
+                difficulty,
+                requiresCode: false,
+              },
+              {
+                id: 'q4',
+                text: `How would you write automated tests to verify edge cases and error handling for a component utilizing ${fallbackTopic}?`,
+                type: interviewType,
+                topic: fallbackTopic,
+                difficulty,
+                requiresCode: interviewType === 'technical',
+              },
+              {
+                id: 'q5',
+                text: `Walk me through a real-world debugging scenario you faced involving ${fallbackTopic}. How did you identify the root cause and resolve it?`,
+                type: interviewType,
+                topic: fallbackTopic,
+                difficulty,
+                requiresCode: false,
+              },
+            ]
       }
 
       return NextResponse.json({ questions: questionsList, mode: 'generate' })

@@ -26,7 +26,8 @@ export default async function ReferralsPage() {
     .eq('referrer_id', user.id)
     .order('created_at', { ascending: false })
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://interviewai.app'
+  const rawAppUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://interviewai.app'
+  const appUrl = rawAppUrl.replace(/\/+$/, '')
 
   return (
     <ReferralsClient

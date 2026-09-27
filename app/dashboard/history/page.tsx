@@ -34,7 +34,7 @@ export default async function HistoryPage() {
   }
 
   return (
-    <div className="p-4 sm:p-6 md:p-8 max-w-[1200px] space-y-6">
+    <div className="p-4 sm:p-6 md:p-8 max-w-[1200px] space-y-6 pb-32 sm:pb-16">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <p className="font-mono text-[11px] text-[#818cf8] uppercase tracking-[0.15em] mb-1 font-semibold">// SESSIONS ARCHIVE</p>
