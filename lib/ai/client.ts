@@ -31,13 +31,13 @@ export const openai = new OpenAI({
 // Model names per provider
 // OpenRouter falls back to free Llama model — avoid invalid 'openrouter/free' or 'openrouter/auto' IDs
 export const GENERATION_MODEL = isOpenRouter
-  ? (process.env.OPENROUTER_MODEL || 'meta-llama/llama-3.3-70b-instruct:free')
+  ? (process.env.OPENROUTER_MODEL || 'meta-llama/llama-3.3-70b-instruct')
   : isGemini
     ? (process.env.GEMINI_MODEL || 'gemini-1.5-flash')
     : (process.env.OPENAI_MODEL || 'gpt-4o-mini')
 
 export const EVALUATION_MODEL = isOpenRouter
-  ? (process.env.OPENROUTER_EVAL_MODEL || 'meta-llama/llama-3.3-70b-instruct:free')
+  ? (process.env.OPENROUTER_EVAL_MODEL || 'meta-llama/llama-3.3-70b-instruct')
   : isGemini
     ? (process.env.GEMINI_MODEL || 'gemini-1.5-flash')
     : (process.env.OPENAI_EVAL_MODEL || 'gpt-4o')
