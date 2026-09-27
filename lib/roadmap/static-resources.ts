@@ -7,12 +7,13 @@
  */
 
 export interface StaticResource {
-  type: 'video' | 'docs' | 'practice'
+  type: 'video' | 'docs' | 'practice' | 'course'
   title: string
   url: string
   thumbnail?: string
   channel?: string
   duration?: string
+  provider?: string
 }
 
 export const STATIC_RESOURCES: Record<string, StaticResource[]> = {
@@ -163,6 +164,12 @@ export const STATIC_RESOURCES: Record<string, StaticResource[]> = {
       channel: 'Aditya Verma',
     },
     {
+      type: 'course',
+      title: 'MIT 6.006: Dynamic Programming & Algorithms',
+      url: 'https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-fall-2011/resources/lecture-19-dynamic-programming-i-fibonacci-shortest-paths/',
+      provider: 'MIT OpenCourseWare',
+    },
+    {
       type: 'practice',
       title: 'LeetCode — DP Problems',
       url: 'https://leetcode.com/tag/dynamic-programming/',
@@ -252,6 +259,12 @@ export const STATIC_RESOURCES: Record<string, StaticResource[]> = {
       title: 'System Design Interview — Gaurav Sen',
       url: 'https://www.youtube.com/playlist?list=PLMCXHnjXnTnvo6alSjVkgxV-VH6EPyvoX',
       channel: 'Gaurav Sen',
+    },
+    {
+      type: 'course',
+      title: 'freeCodeCamp System Design Interview Course',
+      url: 'https://www.freecodecamp.org/news/systems-design-for-interviews/',
+      provider: 'freeCodeCamp',
     },
     {
       type: 'docs',
@@ -374,6 +387,12 @@ export const STATIC_RESOURCES: Record<string, StaticResource[]> = {
       title: 'JavaScript Full Course — freeCodeCamp',
       url: 'https://www.youtube.com/watch?v=jS4aFq5-91M',
       channel: 'freeCodeCamp.org',
+    },
+    {
+      type: 'course',
+      title: 'The Modern JavaScript Tutorial',
+      url: 'https://javascript.info/',
+      provider: 'JavaScript.info',
     },
     {
       type: 'docs',
@@ -529,7 +548,7 @@ export const STATIC_RESOURCES: Record<string, StaticResource[]> = {
 }
 
 /**
- * Look up static resources for a topic. Tries exact match, then fuzzy match.
+ * Look up static resources for a topic. Tries exact match, then fuzzy match, then token-based match.
  * Returns an empty array if the topic is not found.
  */
 export function getStaticResources(topic: string): StaticResource[] {
@@ -542,6 +561,16 @@ export function getStaticResources(topic: string): StaticResource[] {
   for (const key of Object.keys(STATIC_RESOURCES)) {
     if (normalised.includes(key) || key.includes(normalised)) {
       return STATIC_RESOURCES[key]
+    }
+  }
+
+  // 3. Token-based word match (e.g. "JavaScript Data Types" -> matches "javascript")
+  const tokens = normalised.split(/[\s,&/-]+/).filter((t) => t.length > 2)
+  for (const token of tokens) {
+    for (const key of Object.keys(STATIC_RESOURCES)) {
+      if (key === token || key.includes(token)) {
+        return STATIC_RESOURCES[key]
+      }
     }
   }
 

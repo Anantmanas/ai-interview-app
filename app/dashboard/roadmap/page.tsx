@@ -30,12 +30,13 @@ import { motion, AnimatePresence } from 'motion/react'
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 interface Resource {
-  type: 'video' | 'docs' | 'practice'
+  type: 'video' | 'docs' | 'practice' | 'course'
   title: string
   url: string
   thumbnail?: string
   channel?: string
   duration?: string
+  provider?: string
 }
 
 interface RoadmapItem {
@@ -214,6 +215,7 @@ function RoadmapCard({
   const completed = item.status === 'completed'
 
   const videoResources = item.resources?.filter((r) => r.type === 'video') || []
+  const courseResources = item.resources?.filter((r) => r.type === 'course') || []
   const docsResources = item.resources?.filter((r) => r.type === 'docs') || []
   const practiceResources = item.resources?.filter((r) => r.type === 'practice') || []
 
@@ -288,6 +290,37 @@ function RoadmapCard({
 
         {/* YouTube Video Carousel */}
         <VideoCarousel videos={videoResources} topicTitle={item.topic} />
+
+        {/* Curated Interactive Courses & Full Curriculum */}
+        {courseResources.length > 0 && (
+          <div className="pt-2 border-t border-[#1e2030]/60 space-y-2">
+            <span className="font-mono text-[10px] text-[#fbbf24] uppercase font-bold tracking-wider flex items-center gap-1.5">
+              <BookOpen className="h-3.5 w-3.5" />
+              RECOMMENDED COURSES ({courseResources.length})
+            </span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {courseResources.map((c, i) => (
+                <a
+                  key={`course-${i}`}
+                  href={c.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-between p-2.5 rounded-lg bg-[#14142b]/60 hover:bg-[#1a1a36] border border-[#3730a3]/40 hover:border-[#6366f1] transition-all group"
+                >
+                  <div className="min-w-0 pr-2">
+                    <p className="font-sans text-xs font-semibold text-white group-hover:text-[#a5b4fc] truncate">
+                      {c.title}
+                    </p>
+                    <span className="font-mono text-[10px] text-[#9ca3af] block">
+                      {c.provider || 'Interactive Course'}
+                    </span>
+                  </div>
+                  <ExternalLink className="h-3 w-3 text-[#818cf8] shrink-0 opacity-70 group-hover:opacity-100" />
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Secondary Resources: Docs & Practice Links */}
         {(docsResources.length > 0 || practiceResources.length > 0) && (
@@ -427,19 +460,24 @@ export default function RoadmapPage() {
 
       toast.success('Curated video roadmap generated successfully!')
 
-      // Reload updated roadmap items
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-      if (user) {
-        const { data: updated } = await supabase
-          .from('roadmap_items')
-          .select('*')
-          .eq('user_id', user.id)
-          .order('priority', { ascending: true })
+      // Instantly render items from API response
+      if (Array.isArray(data.items) && data.items.length > 0) {
+        setItems(data.items as RoadmapItem[])
+      } else {
+        // Fallback fetch from DB
+        const {
+          data: { user },
+        } = await supabase.auth.getUser()
+        if (user) {
+          const { data: updated } = await supabase
+            .from('roadmap_items')
+            .select('*')
+            .eq('user_id', user.id)
+            .order('priority', { ascending: true })
 
-        if (updated) {
-          setItems(updated as RoadmapItem[])
+          if (updated) {
+            setItems(updated as RoadmapItem[])
+          }
         }
       }
     } catch (err: any) {

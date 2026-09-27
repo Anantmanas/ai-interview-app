@@ -35,7 +35,6 @@ export async function searchYouTubeMulti(
     searchUrl.searchParams.set('type', 'video')
     searchUrl.searchParams.set('maxResults', String(Math.min(4, Math.max(1, maxResults))))
     searchUrl.searchParams.set('relevanceLanguage', 'en')
-    searchUrl.searchParams.set('videoDuration', 'medium') // 4–20 min — best for tutorials
     searchUrl.searchParams.set('order', 'relevance')
     searchUrl.searchParams.set('key', apiKey)
 
