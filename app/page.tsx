@@ -15,7 +15,7 @@ import {
 } from 'lucide-react'
 import { LandingBackground } from '@/components/ui/landing-background'
 import ResizableNavbar from '@/components/resizable-navbar'
-import { DottedGlowBackground } from '@/components/ui/dotted-glow-background'
+import AntigravityBackground from '@/components/lightswind-pro/antigravity-background'
 
 /* ── Typewriter hook ─────────────────────────────────────────── */
 
@@ -122,12 +122,11 @@ export default function LandingPage() {
         {/* ── Resizable Navigation bar ── */}
         <ResizableNavbar />
 
-        {/* ── Hero Section with DottedGlowBackground ── */}
-        <DottedGlowBackground
+        {/* ── Hero Section with AntigravityBackground ── */}
+        <AntigravityBackground
           className="pt-36 pb-24 px-6 text-center"
-          gap={22}
-          radius={1.6}
-          speedScale={1.1}
+          ringSpacing={20}
+          dotSpacing={14}
         >
           <div className="max-w-[860px] mx-auto">
             {/* Eyebrow badge */}
@@ -223,7 +222,7 @@ export default function LandingPage() {
               ))}
             </motion.div>
           </div>
-        </DottedGlowBackground>
+        </AntigravityBackground>
 
         {/* ── Features / Capabilities Grid ── */}
         <section id="features" className="px-6 py-28 max-w-[1200px] mx-auto">

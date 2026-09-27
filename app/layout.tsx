@@ -86,7 +86,7 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${redHatDisplay.variable} ${redHatText.variable} ${redHatMono.variable}`}
     >
-      <body className="font-sans antialiased bg-[#000000] text-[#f8fafc] selection:bg-[#4f46e5]/35 selection:text-[#ffffff]">
+      <body className="font-sans antialiased bg-[#020202] text-[#4a8fa8] selection:bg-[#4a8fa8]/25 selection:text-[#020202]">
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
