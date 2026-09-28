@@ -273,9 +273,9 @@ export default function ProfilePage() {
   return (
     <div className="p-4 sm:p-6 md:p-8 max-w-4xl mx-auto space-y-6 sm:space-y-8 pb-32 sm:pb-16 font-sans">
       <div>
-        <p className="font-mono text-[11px] text-[#818cf8] uppercase tracking-[0.15em] mb-1 font-semibold">// CANDIDATE CONFIG</p>
-        <h1 className="font-display text-[28px] sm:text-[32px] font-bold text-white leading-[1.1] tracking-[-0.02em]">Profile</h1>
-        <p className="font-body text-[13px] sm:text-[14px] text-[#9ca3af] mt-1">
+        <p className="font-mono text-[11px] text-[#38bdf8] uppercase tracking-[0.15em] mb-1 font-semibold">// CANDIDATE CONFIG</p>
+        <h1 className="font-display text-[28px] sm:text-[32px] font-bold text-white leading-[1.1] tracking-[-0.03em]">Profile</h1>
+        <p className="font-body text-[13px] sm:text-[14px] text-[#94a3b8] mt-1">
           Manage your target engineering goals, calibration settings, and account controls.
         </p>
       </div>
@@ -283,27 +283,27 @@ export default function ProfilePage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column: Personal Details Terminal Window */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="rounded-xl border border-[#1e2030] bg-[#09090f] shadow-[0_8px_32px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.05)] overflow-hidden">
+          <div className="rounded-xl border border-[#142347] bg-[#060b18] shadow-[0_8px_32px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.05)] overflow-hidden">
             {/* macOS Titlebar */}
-            <div className="flex items-center justify-between px-3 sm:px-4 py-2 sm:h-10 border-b border-[#1e2030] bg-[#11121b]/90 select-none flex-wrap gap-2">
+            <div className="flex items-center justify-between px-3 sm:px-4 py-2 sm:h-10 border-b border-[#142347] bg-[#0a1226]/90 select-none flex-wrap gap-2">
               <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                 <MacTrafficLights size="sm" />
-                <span className="font-mono text-[10px] sm:text-[11px] text-[#9ca3af] font-medium tracking-wide truncate max-w-[160px] sm:max-w-none">
+                <span className="font-mono text-[10px] sm:text-[11px] text-[#cbd5e1] font-medium tracking-wide truncate max-w-[160px] sm:max-w-none">
                   candidate-profile.cfg — bash
                 </span>
               </div>
               <div className="flex items-center gap-2 shrink-0">
-                <span className="font-mono text-[9px] sm:text-[10px] text-[#22c55e] bg-[#22c55e]/10 border border-[#22c55e]/20 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                <span className="font-mono text-[9px] sm:text-[10px] text-[#22c55e] bg-[#22c55e]/10 border border-[#22c55e]/20 px-2 py-0.5 rounded-full uppercase tracking-wider font-semibold">
                   CONFIG ACTIVE
                 </span>
               </div>
             </div>
 
             {/* Terminal Command Cue */}
-            <div className="px-3 sm:px-5 py-2.5 border-b border-[#1e2030]/40 bg-[#0c0d15]/50 flex flex-wrap items-center gap-1.5 sm:gap-2 font-mono text-[11px] sm:text-[12px] break-all">
+            <div className="px-3 sm:px-5 py-2.5 border-b border-[#142347]/50 bg-[#040814]/70 flex flex-wrap items-center gap-1.5 sm:gap-2 font-mono text-[11px] sm:text-[12px] break-all">
               <span className="text-[#38bdf8] font-semibold">engineer@interviewai</span>
               <span className="text-[#94a3b8]">:</span>
-              <span className="text-[#818cf8]">~/.config</span>
+              <span className="text-[#60a5fa]">~/.config</span>
               <span className="text-[#f8fafc]">$</span>
               <span className="text-[#22c55e]">edit profile.env</span>
               <span className="inline-block w-1.5 h-3.5 bg-[#f8fafc] animate-pulse ml-0.5" />
@@ -314,7 +314,7 @@ export default function ProfilePage() {
                 <p className="font-mono text-[11px] text-white uppercase tracking-[0.08em] font-semibold">
                   Personal Details
                 </p>
-                <p className="font-body text-[13px] text-[#9ca3af] mt-1">
+                <p className="font-body text-[13px] text-[#94a3b8] mt-1">
                   Your target role and companies calibrate the AI evaluation parameters and questions.
                 </p>
               </div>
@@ -322,7 +322,7 @@ export default function ProfilePage() {
               <div className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label htmlFor="fullName" className="font-mono text-[10px] text-[#9ca3af] uppercase tracking-[0.08em] block mb-1.5 font-semibold">
+                    <label htmlFor="fullName" className="font-mono text-[10px] text-[#94a3b8] uppercase tracking-[0.08em] block mb-1.5 font-semibold">
                       Full Name
                     </label>
                     <input
@@ -330,12 +330,12 @@ export default function ProfilePage() {
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
                       placeholder="e.g. Anant Manas"
-                      className="bg-[#050508] border border-[#1e2030] focus:border-[#6366f1] focus:ring-1 focus:ring-[#6366f1]/40 rounded-lg px-3.5 py-2.5 text-[13px] text-white placeholder:text-[#64748b] focus:outline-none transition-all w-full font-mono"
+                      className="bg-[#040814] border border-[#142347] focus:border-[#2563eb] focus:ring-1 focus:ring-[#2563eb]/40 rounded-lg px-3.5 py-2.5 text-[13px] text-white placeholder:text-[#64748b] focus:outline-none transition-all w-full font-mono"
                     />
                   </div>
                   <div>
                     <div className="flex items-center justify-between mb-1.5">
-                      <label htmlFor="email" className="font-mono text-[10px] text-[#9ca3af] uppercase tracking-[0.08em] font-semibold">
+                      <label htmlFor="email" className="font-mono text-[10px] text-[#94a3b8] uppercase tracking-[0.08em] font-semibold">
                         Email Address
                       </label>
                       {profile?.email && (
@@ -345,13 +345,13 @@ export default function ProfilePage() {
                             navigator.clipboard.writeText(profile.email)
                             toast.success('Email copied to clipboard')
                           }}
-                          className="font-mono text-[10px] text-[#818cf8] hover:text-white transition-colors cursor-pointer"
+                          className="font-mono text-[10px] text-[#38bdf8] hover:text-white transition-colors cursor-pointer"
                         >
                           Copy
                         </button>
                       )}
                     </div>
-                    <div className="bg-[#0c0d15] border border-[#1e2030]/60 rounded-lg px-3.5 py-2.5 text-[12px] sm:text-[13px] text-[#9ca3af] font-mono break-all select-all flex items-center justify-between gap-2 min-h-[42px]">
+                    <div className="bg-[#040814] border border-[#142347]/60 rounded-lg px-3.5 py-2.5 text-[12px] sm:text-[13px] text-[#94a3b8] font-mono break-all select-all flex items-center justify-between gap-2 min-h-[42px]">
                       <span>{profile?.email || 'No email attached'}</span>
                       <span className="text-[9px] font-mono text-[#64748b] uppercase shrink-0">VERIFIED</span>
                     </div>
@@ -364,7 +364,7 @@ export default function ProfilePage() {
                     <label htmlFor="targetRole" className="font-mono text-[10px] text-[#9ca3af] uppercase tracking-[0.08em] block font-semibold">
                       Target Role
                     </label>
-                    <span className="text-[11px] text-[#818cf8] flex items-center gap-1 font-mono">
+                    <span className="text-[11px] text-[#38bdf8] flex items-center gap-1 font-mono font-medium">
                       <Sparkles className="h-3 w-3" />
                       Popular Roles
                     </span>
@@ -374,7 +374,7 @@ export default function ProfilePage() {
                     value={targetRole}
                     onChange={(e) => setTargetRole(e.target.value)}
                     placeholder="e.g. Frontend Engineer, Full Stack Engineer"
-                    className="bg-[#050508] border border-[#1e2030] focus:border-[#6366f1] focus:ring-1 focus:ring-[#6366f1]/40 rounded-lg px-3.5 py-2.5 text-[13px] text-white placeholder:text-[#64748b] focus:outline-none transition-all w-full font-mono"
+                    className="bg-[#040814] border border-[#142347] focus:border-[#2563eb] focus:ring-1 focus:ring-[#2563eb]/40 rounded-lg px-3.5 py-2.5 text-[13px] text-white placeholder:text-[#64748b] focus:outline-none transition-all w-full font-mono"
                   />
                   {/* Role suggestions chips */}
                   <div className="flex flex-wrap gap-1.5 pt-1">
@@ -394,10 +394,10 @@ export default function ProfilePage() {
                           key={role}
                           type="button"
                           onClick={() => setTargetRole(role)}
-                          className={`font-mono text-[11px] px-2.5 py-1 rounded-md border transition-all cursor-pointer flex items-center gap-1 ${
+                          className={`font-mono text-[11px] px-2.5 py-1 rounded-lg border transition-all cursor-pointer flex items-center gap-1 ${
                             isSelected
-                              ? 'bg-[#4f46e5] border-[#6366f1] text-white font-semibold shadow-sm'
-                              : 'bg-[#0c0d15] hover:bg-[#1e2030] border-[#1e2030] text-[#9ca3af] hover:text-white'
+                              ? 'bg-[#2563eb] border-[#3b82f6] text-white font-semibold shadow-[0_0_12px_rgba(37,99,235,0.4)]'
+                              : 'bg-[#0a1226] hover:bg-[#0f1b38] border-[#142347] text-[#94a3b8] hover:text-white'
                           }`}
                         >
                           <span>{role}</span>
@@ -415,17 +415,17 @@ export default function ProfilePage() {
                 {/* Target Companies Tag Selector */}
                 <div className="space-y-2.5 pt-1">
                   <div className="flex items-center justify-between">
-                    <label className="font-mono text-[10px] text-[#9ca3af] uppercase tracking-[0.08em] block font-semibold">
+                    <label className="font-mono text-[10px] text-[#94a3b8] uppercase tracking-[0.08em] block font-semibold">
                       Target Companies ({targetCompanies.length} selected)
                     </label>
-                    <span className="text-[11px] text-[#818cf8] flex items-center gap-1 font-mono">
+                    <span className="text-[11px] text-[#38bdf8] flex items-center gap-1 font-mono font-medium">
                       <Sparkles className="h-3 w-3" />
                       Role-Tailored Suggestions
                     </span>
                   </div>
 
                   {/* Selected Companies Badge Box */}
-                  <div className="min-h-[44px] p-2 bg-[#050508] border border-[#1e2030] rounded-lg flex flex-wrap items-center gap-1.5">
+                  <div className="min-h-[44px] p-2 bg-[#040814] border border-[#142347] rounded-lg flex flex-wrap items-center gap-1.5">
                     <AnimatePresence>
                       {targetCompanies.length === 0 ? (
                         <span className="text-xs text-[#64748b] px-2 py-1 font-mono">
@@ -438,13 +438,13 @@ export default function ProfilePage() {
                             initial={{ opacity: 0, scale: 0.8 }}
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.8 }}
-                            className="inline-flex items-center gap-1.5 bg-[#4f46e5]/20 border border-[#6366f1]/40 text-[#c7d2fe] text-[12px] font-mono pl-2.5 pr-1 py-1 rounded-md group"
+                            className="inline-flex items-center gap-1.5 bg-[#0a1226] border border-[#2563eb]/40 text-[#60a5fa] text-[12px] font-mono pl-2.5 pr-1 py-1 rounded-md group font-medium"
                           >
                             <span>{company}</span>
                             <button
                               type="button"
                               onClick={() => removeCompany(company)}
-                              className="p-0.5 hover:bg-[#6366f1]/30 rounded text-[#9ca3af] hover:text-white transition-colors"
+                              className="p-0.5 hover:bg-[#2563eb]/30 rounded text-[#94a3b8] hover:text-white transition-colors"
                               title="Remove"
                             >
                               <X className="h-3 w-3" />
@@ -461,12 +461,12 @@ export default function ProfilePage() {
                       value={companyInput}
                       onChange={(e) => setCompanyInput(e.target.value)}
                       placeholder="Add company (e.g. Tesla, Netflix, Stripe) & press Enter..."
-                      className="bg-[#050508] border border-[#1e2030] focus:border-[#6366f1] focus:ring-1 focus:ring-[#6366f1]/40 rounded-lg px-3.5 py-2 text-[13px] text-white placeholder:text-[#64748b] focus:outline-none transition-all w-full font-mono"
+                      className="bg-[#040814] border border-[#142347] focus:border-[#2563eb] focus:ring-1 focus:ring-[#2563eb]/40 rounded-lg px-3.5 py-2 text-[13px] text-white placeholder:text-[#64748b] focus:outline-none transition-all w-full font-mono"
                     />
                     <button
                       type="submit"
                       disabled={!companyInput.trim()}
-                      className="px-3.5 py-2 rounded-lg bg-[#1e2030] hover:bg-[#6366f1] text-white font-mono text-xs flex items-center gap-1 shrink-0 transition-colors disabled:opacity-40 cursor-pointer"
+                      className="px-3.5 py-2 rounded-lg bg-[#0a1226] hover:bg-[#2563eb] border border-[#142347] hover:border-[#3b82f6] text-white font-mono text-xs flex items-center gap-1 shrink-0 transition-all disabled:opacity-40 cursor-pointer"
                     >
                       <Plus className="h-3.5 w-3.5" />
                       <span>Add</span>
@@ -475,8 +475,8 @@ export default function ProfilePage() {
 
                   {/* Suggestions Chips */}
                   <div className="space-y-1.5 pt-1">
-                    <p className="font-mono text-[10px] text-[#64748b] uppercase tracking-wider flex items-center gap-1">
-                      <Building2 className="h-3 w-3 text-[#818cf8]" />
+                    <p className="font-mono text-[10px] text-[#64748b] uppercase tracking-wider flex items-center gap-1 font-semibold">
+                      <Building2 className="h-3 w-3 text-[#38bdf8]" />
                       <span>SUGGESTED FOR YOUR ROLE (CLICK TO TOGGLE):</span>
                     </p>
                     <div className="flex flex-wrap gap-1.5 pr-14 sm:pr-0">
@@ -487,10 +487,10 @@ export default function ProfilePage() {
                             key={company}
                             type="button"
                             onClick={() => toggleCompany(company)}
-                            className={`font-mono text-[11px] px-2.5 py-1 rounded-md border transition-all cursor-pointer flex items-center gap-1 ${
+                            className={`font-mono text-[11px] px-2.5 py-1 rounded-lg border transition-all cursor-pointer flex items-center gap-1 ${
                               isSelected
-                                ? 'bg-[#4f46e5] border-[#6366f1] text-white font-semibold shadow-sm'
-                                : 'bg-[#0c0d15] hover:bg-[#1e2030] border-[#1e2030] text-[#9ca3af] hover:text-white'
+                                ? 'bg-[#2563eb] border-[#3b82f6] text-white font-semibold shadow-[0_0_12px_rgba(37,99,235,0.4)]'
+                                : 'bg-[#0a1226] hover:bg-[#0f1b38] border-[#142347] text-[#94a3b8] hover:text-white'
                             }`}
                           >
                             <span>{company}</span>
@@ -506,14 +506,14 @@ export default function ProfilePage() {
                   </div>
                 </div>
 
-                <div className="pt-3 border-t border-[#1e2030]/60 flex items-center justify-between">
+                <div className="pt-3 border-t border-[#142347]/60 flex items-center justify-between">
                   <span className="font-mono text-[11px] text-[#64748b]">
                     Status: <span className="text-[#22c55e]">synced</span>
                   </span>
                   <button
                     onClick={handleSave}
                     disabled={isSaving}
-                    className="btn-neo-violet font-mono text-[12px] font-bold uppercase tracking-[0.05em] px-6 py-2.5 rounded-md cursor-pointer disabled:opacity-50 inline-flex items-center gap-2 shadow-[0_0_20px_rgba(79,70,229,0.3)] transition-all hover:scale-[1.02]"
+                    className="bg-gradient-to-r from-[#2563eb] to-[#1d4ed8] text-white hover:from-[#3b82f6] hover:to-[#2563eb] font-mono text-[12px] font-bold uppercase tracking-[0.05em] px-6 py-2.5 rounded-lg cursor-pointer disabled:opacity-50 inline-flex items-center gap-2 shadow-[0_0_20px_rgba(37,99,235,0.35)] transition-all hover:scale-[1.02] border border-[#3b82f6]/40"
                   >
                     {isSaving ? (
                       <>
@@ -535,17 +535,17 @@ export default function ProfilePage() {
 
         {/* Right Column: Profile Completion Terminal Window */}
         <div className="space-y-6">
-          <div className="rounded-xl border border-[#1e2030] bg-[#09090f] shadow-[0_8px_32px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.05)] overflow-hidden">
+          <div className="rounded-xl border border-[#142347] bg-[#060b18] shadow-[0_8px_32px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.05)] overflow-hidden">
             {/* macOS Titlebar */}
-            <div className="flex items-center justify-between px-4 h-10 border-b border-[#1e2030] bg-[#11121b]/90 select-none">
+            <div className="flex items-center justify-between px-4 h-10 border-b border-[#142347] bg-[#0a1226]/90 select-none">
               <div className="flex items-center gap-3">
                 <MacTrafficLights size="sm" />
-                <span className="font-mono text-[11px] text-[#9ca3af] font-medium tracking-wide">
+                <span className="font-mono text-[11px] text-[#cbd5e1] font-medium tracking-wide">
                   readiness-audit.sh — zsh
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-mono text-[10px] text-[#818cf8] bg-[#818cf8]/10 border border-[#818cf8]/20 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                <span className="font-mono text-[10px] text-[#60a5fa] bg-[#0a1226] border border-[#2563eb]/40 px-2.5 py-0.5 rounded-full uppercase tracking-wider font-semibold">
                   AUDIT
                 </span>
               </div>
@@ -556,14 +556,14 @@ export default function ProfilePage() {
                 <p className="font-mono text-[11px] text-white uppercase tracking-[0.08em] font-semibold">
                   Profile Completion
                 </p>
-                <span className="font-mono text-[12px] font-bold text-[#818cf8]">
+                <span className="font-mono text-[12px] font-bold text-[#38bdf8]">
                   {calibrationScore}%
                 </span>
               </div>
 
               <div className="space-y-3.5">
-                <div className="flex justify-between items-center text-[13px] font-mono bg-[#0c0d15] border border-[#1e2030] p-2.5 rounded-md">
-                  <span className="text-[#9ca3af]">Full Name</span>
+                <div className="flex justify-between items-center text-[13px] font-mono bg-[#040814] border border-[#142347] p-2.5 rounded-lg">
+                  <span className="text-[#94a3b8]">Full Name</span>
                   {fullName ? (
                     <span className="flex items-center gap-1.5 font-mono text-[11px] text-[#22c55e]">
                       <CheckCircle2 className="h-3.5 w-3.5" /> DONE
@@ -573,8 +573,8 @@ export default function ProfilePage() {
                   )}
                 </div>
 
-                <div className="flex justify-between items-center text-[13px] font-mono bg-[#0c0d15] border border-[#1e2030] p-2.5 rounded-md">
-                  <span className="text-[#9ca3af]">Target Role Set</span>
+                <div className="flex justify-between items-center text-[13px] font-mono bg-[#040814] border border-[#142347] p-2.5 rounded-lg">
+                  <span className="text-[#94a3b8]">Target Role Set</span>
                   {targetRole ? (
                     <span className="flex items-center gap-1.5 font-mono text-[11px] text-[#22c55e]">
                       <CheckCircle2 className="h-3.5 w-3.5" /> DONE
@@ -584,8 +584,8 @@ export default function ProfilePage() {
                   )}
                 </div>
 
-                <div className="flex justify-between items-center text-[13px] font-mono bg-[#0c0d15] border border-[#1e2030] p-2.5 rounded-md">
-                  <span className="text-[#9ca3af]">Target Companies</span>
+                <div className="flex justify-between items-center text-[13px] font-mono bg-[#040814] border border-[#142347] p-2.5 rounded-lg">
+                  <span className="text-[#94a3b8]">Target Companies</span>
                   {targetCompanies.length > 0 ? (
                     <span className="flex items-center gap-1.5 font-mono text-[11px] text-[#22c55e]">
                       <CheckCircle2 className="h-3.5 w-3.5" /> {targetCompanies.length} SET
@@ -596,15 +596,15 @@ export default function ProfilePage() {
                 </div>
 
                 <div className="space-y-1.5 pt-1">
-                  <div className="h-2 w-full bg-[#050508] rounded-full overflow-hidden border border-[#1e2030]">
+                  <div className="h-2 w-full bg-[#040814] rounded-full overflow-hidden border border-[#142347]">
                     <div
-                      className="h-full bg-gradient-to-r from-[#4f46e5] to-[#818cf8] transition-all duration-300 shadow-[0_0_12px_rgba(99,102,241,0.5)]"
+                      className="h-full bg-gradient-to-r from-[#2563eb] to-[#38bdf8] transition-all duration-300 shadow-[0_0_12px_rgba(37,99,235,0.5)]"
                       style={{
                         width: `${calibrationScore}%`,
                       }}
                     />
                   </div>
-                  <p className="font-mono text-[10px] text-[#64748b] text-right">
+                  <p className="font-mono text-[10px] text-[#64748b] text-right font-medium">
                     Calibration score: {calibrationScore} / 100
                   </p>
                 </div>
@@ -664,10 +664,10 @@ export default function ProfilePage() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 10 }}
               transition={{ duration: 0.2 }}
-              className="w-full max-w-md bg-[#0a0a0f] border border-rose-500/40 rounded-2xl shadow-[0_16px_48px_rgba(0,0,0,0.9),0_0_30px_rgba(244,63,94,0.15)] overflow-hidden"
+              className="w-full max-w-md bg-[#060b18] border border-rose-500/40 rounded-2xl shadow-[0_16px_48px_rgba(0,0,0,0.9),0_0_30px_rgba(244,63,94,0.15)] overflow-hidden"
             >
               {/* Modal Header */}
-              <div className="flex items-center justify-between px-5 h-11 border-b border-[#1e2030] bg-[#11121b]/90">
+              <div className="flex items-center justify-between px-5 h-11 border-b border-[#142347] bg-[#0a1226]/90">
                 <div className="flex items-center gap-2">
                   <ShieldAlert className="h-4 w-4 text-rose-400" />
                   <span className="font-mono text-xs text-rose-300 font-bold uppercase tracking-wider">
@@ -686,7 +686,7 @@ export default function ProfilePage() {
               {/* Modal Body */}
               <div className="p-6 space-y-5">
                 <div className="space-y-2">
-                  <div className="p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl flex items-start gap-3">
+                  <div className="p-3.5 bg-rose-500/10 border border-rose-500/30 rounded-xl flex items-start gap-3">
                     <AlertTriangle className="h-5 w-5 text-rose-400 shrink-0 mt-0.5" />
                     <p className="text-xs text-rose-200 leading-relaxed font-sans">
                       This action is <strong>irreversible</strong>. All your interview recordings, scores, roadmap milestones, and account records will be permanently deleted from the database.
@@ -695,10 +695,10 @@ export default function ProfilePage() {
                 </div>
 
                 {/* Step 1: Send Verification Code */}
-                <div className="space-y-2 bg-[#050508] border border-[#1e2030] rounded-xl p-4">
+                <div className="space-y-2 bg-[#040814] border border-[#142347] rounded-xl p-4">
                   <div className="flex items-center justify-between">
                     <span className="font-mono text-[10px] uppercase tracking-wider text-neutral-400 font-semibold flex items-center gap-1.5">
-                      <Mail className="h-3.5 w-3.5 text-indigo-400" />
+                      <Mail className="h-3.5 w-3.5 text-[#38bdf8]" />
                       1. Email Confirmation Code
                     </span>
                     {codeSent && (
@@ -708,7 +708,7 @@ export default function ProfilePage() {
                     )}
                   </div>
 
-                  <p className="text-xs text-neutral-300 font-mono">
+                  <p className="text-xs text-[#cbd5e1] font-mono">
                     Send to: <span className="text-white font-semibold">{profile?.email}</span>
                   </p>
 
@@ -716,7 +716,7 @@ export default function ProfilePage() {
                     type="button"
                     onClick={handleSendDeleteCode}
                     disabled={isSendingCode}
-                    className="w-full mt-2 py-2 rounded-lg bg-[#1a1b2e] hover:bg-[#252745] border border-indigo-500/30 hover:border-indigo-500/60 text-indigo-200 font-mono text-xs font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer disabled:opacity-50"
+                    className="w-full mt-2 py-2 rounded-lg bg-[#0a1226] hover:bg-[#0f1b38] border border-[#2563eb]/40 hover:border-[#3b82f6] text-[#60a5fa] font-mono text-xs font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer disabled:opacity-50"
                   >
                     {isSendingCode ? (
                       <>
@@ -735,12 +735,12 @@ export default function ProfilePage() {
                   </button>
 
                   {devCodeHint && (
-                    <div className="p-2.5 rounded-lg bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-xs font-mono flex items-center justify-between">
+                    <div className="p-2.5 rounded-lg bg-[#0a1226] border border-[#2563eb]/40 text-[#60a5fa] text-xs font-mono flex items-center justify-between">
                       <span>Testing Code: <strong className="text-white tracking-widest text-sm">{devCodeHint}</strong></span>
                       <button
                         type="button"
                         onClick={() => setDeleteCode(devCodeHint)}
-                        className="text-[10px] text-indigo-400 hover:text-white underline cursor-pointer"
+                        className="text-[10px] text-[#38bdf8] hover:text-white underline cursor-pointer"
                       >
                         Auto-fill
                       </button>
@@ -760,17 +760,17 @@ export default function ProfilePage() {
                     onChange={(e) => setDeleteCode(e.target.value.replace(/\D/g, ''))}
                     placeholder="e.g. 849201"
                     disabled={!codeSent}
-                    className="w-full h-12 bg-[#050508] border border-[#1e2030] focus:border-rose-500 focus:ring-1 focus:ring-rose-500/40 rounded-xl px-4 text-center font-mono text-xl tracking-[0.3em] text-white placeholder:text-neutral-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                    className="w-full h-12 bg-[#040814] border border-[#142347] focus:border-rose-500 focus:ring-1 focus:ring-rose-500/40 rounded-xl px-4 text-center font-mono text-xl tracking-[0.3em] text-white placeholder:text-neutral-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
                   />
                 </div>
 
                 {/* Modal Footer Controls */}
-                <div className="pt-2 flex items-center justify-end gap-3 border-t border-[#1e2030]">
+                <div className="pt-2 flex items-center justify-end gap-3 border-t border-[#142347]">
                   <button
                     type="button"
                     onClick={() => setShowDeleteModal(false)}
                     disabled={isDeleting}
-                    className="px-4 py-2.5 rounded-lg border border-[#1e2030] text-neutral-400 hover:text-white font-mono text-xs uppercase tracking-wider transition-colors cursor-pointer"
+                    className="px-4 py-2.5 rounded-lg border border-[#142347] text-neutral-400 hover:text-white font-mono text-xs uppercase tracking-wider transition-colors cursor-pointer"
                   >
                     Cancel
                   </button>

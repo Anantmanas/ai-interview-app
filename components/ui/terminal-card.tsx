@@ -105,7 +105,7 @@ export function TerminalPrompt({
   )
 }
 
-export interface TerminalCardProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface TerminalCardProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'title'> {
   title?: React.ReactNode
   action?: React.ReactNode
   trafficLightSize?: 'sm' | 'md'

@@ -106,8 +106,8 @@ export const NavBody = ({ children, className, visible }: NavBodyProps) => {
         minWidth: "min(100%, 800px)",
       }}
       className={cn(
-        "relative z-[60] mx-auto hidden w-full max-w-7xl flex-row items-center justify-between self-start rounded-full bg-transparent px-6 py-2.5 transition-colors duration-200 lg:flex",
-        visible && "bg-[#000000]/85 border border-[#1e1e2f] backdrop-blur-md dark:bg-[#000000]/85",
+        "relative z-[60] mx-auto hidden w-full max-w-7xl flex-row items-center justify-between self-start rounded-full bg-transparent px-6 py-2.5 transition-all duration-300 lg:flex",
+        visible && "bg-[#040714]/85 border border-[#142347] shadow-[0_10px_35px_rgba(0,0,0,0.8),0_0_20px_rgba(37,99,235,0.15)] backdrop-blur-xl",
         className,
       )}
     >
@@ -131,14 +131,14 @@ export const NavItems = ({ items, className, onItemClick }: NavItemsProps) => {
         <a
           onMouseEnter={() => setHovered(idx)}
           onClick={onItemClick}
-          className="relative px-4 py-2 font-mono text-[12px] uppercase tracking-[0.06em] text-[#9ca3af] hover:text-white transition-colors duration-150"
+          className="relative px-4 py-2 font-mono text-[12px] uppercase tracking-[0.08em] text-[#94a3b8] hover:text-[#f8fafc] transition-colors duration-150"
           key={`link-${idx}`}
           href={item.link}
         >
           {hovered === idx && (
             <motion.div
               layoutId="hovered"
-              className="absolute inset-0 h-full w-full rounded-full bg-[#14142b] border border-[#3730a3]/60"
+              className="absolute inset-0 h-full w-full rounded-full bg-[#0a1226] border border-[#2563eb]/40 shadow-[0_0_12px_rgba(37,99,235,0.2)]"
               transition={{ type: "spring", stiffness: 350, damping: 30 }}
             />
           )}
@@ -153,14 +153,14 @@ export const MobileNav = ({ children, className, visible }: MobileNavProps) => {
   return (
     <motion.div
       animate={{
-        backdropFilter: visible ? "blur(12px)" : "none",
+        backdropFilter: visible ? "blur(16px)" : "none",
         boxShadow: visible
-          ? "0 0 24px rgba(0, 0, 0, 0.4), 0 1px 1px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.08)"
+          ? "0 0 30px rgba(0, 0, 0, 0.6), 0 0 16px rgba(37, 99, 235, 0.15)"
           : "none",
         width: visible ? "95%" : "100%",
         paddingRight: visible ? "16px" : "8px",
         paddingLeft: visible ? "16px" : "8px",
-        borderRadius: visible ? "12px" : "2rem",
+        borderRadius: visible ? "14px" : "2rem",
         y: visible ? 8 : 0,
       }}
       transition={{
@@ -170,7 +170,7 @@ export const MobileNav = ({ children, className, visible }: MobileNavProps) => {
       }}
       className={cn(
         "relative z-50 mx-auto flex w-full max-w-[calc(100vw-2rem)] flex-col items-center justify-between bg-transparent px-2 py-2 lg:hidden",
-        visible && "bg-[#000000]/90 border border-[#1e1e2f]",
+        visible && "bg-[#040714]/90 border border-[#142347]",
         className,
       )}
     >

@@ -4,12 +4,11 @@ import Link from 'next/link'
 import { 
   Clock, 
   Calendar, 
-  ArrowRight,
-  Mic,
-  History as HistoryIcon
+  ArrowRight, 
+  Mic, 
+  History as HistoryIcon,
+  ChevronLeft
 } from 'lucide-react'
-
-import { MacTrafficLights } from '@/components/ui/terminal-card'
 import { HistorySessionCard } from '@/components/history/history-session-card'
 
 export default async function HistoryPage() {
@@ -26,29 +25,27 @@ export default async function HistoryPage() {
     .eq('user_id', user.id)
     .order('created_at', { ascending: false })
 
-  const formatDuration = (seconds: number | null) => {
-    if (!seconds) return '--:--'
-    const mins = Math.floor(seconds / 60)
-    const secs = seconds % 60
-    return `${mins}:${secs.toString().padStart(2, '0')}`
-  }
-
   return (
-    <div className="p-4 sm:p-6 md:p-8 max-w-[1200px] space-y-6 pb-32 sm:pb-16">
+    <div className="p-4 sm:p-6 md:p-8 max-w-[1300px] mx-auto space-y-8 pb-32 sm:pb-16">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <p className="font-mono text-[11px] text-[#818cf8] uppercase tracking-[0.15em] mb-1 font-semibold">// SESSIONS ARCHIVE</p>
-          <h1 className="font-display text-[28px] sm:text-[32px] font-bold text-white leading-[1.1] tracking-[-0.02em]">Interview History</h1>
-          <p className="font-body text-[13px] sm:text-[14px] text-[#9ca3af] mt-1">
-            Review your past interviews and track your progress over time.
+          <div className="flex items-center gap-2 mb-2 font-mono text-[11px] text-[#2447FF] uppercase tracking-widest font-semibold">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#2447FF]" />
+            <span>[ARCHIVE // 06] SESSION TIMELINE</span>
+          </div>
+          <h1 className="font-display text-[32px] sm:text-[40px] font-bold text-[#F4F2EC] leading-[1.05] tracking-[-0.03em]">
+            Interview History
+          </h1>
+          <p className="font-body text-[14px] sm:text-[15px] text-[#8C8C88] mt-2">
+            Chronological log of diagnostic scores, weaknesses, and performance evaluations.
           </p>
         </div>
         <Link 
           href="/interview/new" 
-          className="inline-flex items-center gap-2 btn-neo-violet font-mono text-[12px] font-bold uppercase tracking-[0.05em] px-6 py-2.5 rounded-[6px]"
+          className="bg-[#2447FF] hover:bg-[#1f3ce0] text-white inline-flex items-center gap-2 font-mono text-[12px] font-semibold uppercase tracking-wider px-6 py-3 rounded-xl shadow-md transition-all cursor-pointer"
         >
           <Mic className="h-4 w-4" />
-          New Interview
+          <span>Launch Simulation</span>
         </Link>
       </div>
 
@@ -64,15 +61,15 @@ export default async function HistoryPage() {
           ))}
         </div>
       ) : (
-        <div className="rounded-xl border border-[#1e2030] bg-[#09090f] p-16 text-center">
-          <HistoryIcon className="h-12 w-12 mx-auto mb-4 text-[#64748b]" />
-          <p className="font-mono text-[12px] text-[#64748b] uppercase tracking-[0.05em]">// NO SESSIONS FOUND</p>
-          <p className="font-body text-[14px] text-[#9ca3af] mt-2 mb-6">
-            Start your first practice interview to begin tracking your progress.
+        <div className="rounded-2xl border border-white/10 bg-[#0D0D0D] p-16 text-center shadow-xl">
+          <HistoryIcon className="h-12 w-12 mx-auto mb-4 text-[#8C8C88]" />
+          <span className="font-mono text-[11px] text-[#8C8C88] uppercase tracking-widest block mb-2">// NO SESSIONS LOGGED</span>
+          <p className="font-body text-[15px] text-[#8C8C88] mt-2 mb-6 max-w-md mx-auto">
+            You haven&apos;t completed any mock interview runs yet. Start your first session to calibrate your readiness score.
           </p>
           <Link 
             href="/interview/new" 
-            className="inline-flex items-center gap-2 btn-neo-violet font-mono text-[12px] font-bold uppercase tracking-[0.05em] px-6 py-3 rounded-[6px]"
+            className="bg-[#2447FF] hover:bg-[#1f3ce0] text-white inline-flex items-center gap-2 font-mono text-[12px] font-semibold uppercase tracking-wider px-6 py-3.5 rounded-xl shadow-md cursor-pointer"
           >
             Start Your First Interview
           </Link>

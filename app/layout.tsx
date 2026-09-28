@@ -1,28 +1,28 @@
 import type { Metadata } from 'next'
-import { Red_Hat_Display, Red_Hat_Text, Red_Hat_Mono } from 'next/font/google'
+import { Space_Grotesk, Inter, JetBrains_Mono } from 'next/font/google'
 import { ThemeProvider } from 'next-themes'
 import { Analytics } from '@vercel/analytics/next'
 import { Toaster } from '@/components/ui/sonner'
 import { ResumeProvider } from '@/components/resume/resume-provider'
 import './globals.css'
 
-const redHatDisplay = Red_Hat_Display({
+const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
-  variable: '--font-red-hat-display-variable',
+  variable: '--font-space-grotesk',
   display: 'swap',
   preload: true,
 })
 
-const redHatText = Red_Hat_Text({
+const inter = Inter({
   subsets: ['latin'],
-  variable: '--font-red-hat-text-variable',
+  variable: '--font-inter',
   display: 'swap',
   preload: true,
 })
 
-const redHatMono = Red_Hat_Mono({
+const jetbrainsMono = JetBrains_Mono({
   subsets: ['latin'],
-  variable: '--font-red-hat-mono-variable',
+  variable: '--font-jetbrains-mono',
   display: 'swap',
   preload: false,
 })
@@ -84,9 +84,9 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${redHatDisplay.variable} ${redHatText.variable} ${redHatMono.variable}`}
+      className={`${spaceGrotesk.variable} ${inter.variable} ${jetbrainsMono.variable} dark`}
     >
-      <body className="font-sans antialiased bg-[#020202] text-[#4a8fa8] selection:bg-[#4a8fa8]/25 selection:text-[#020202]">
+      <body className="font-sans antialiased bg-[#02040a] text-[#f8fafc] selection:bg-[#2563eb]/30 selection:text-[#ffffff] overflow-x-hidden min-h-screen">
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"

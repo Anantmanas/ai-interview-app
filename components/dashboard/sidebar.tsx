@@ -36,27 +36,27 @@ import { cn } from '@/lib/utils'
 
 const navigation = [
   {
-    title: 'MAIN',
+    title: 'OPERATING CORE',
     items: [
       { title: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
       { title: 'Start Interview', href: '/interview/new', icon: Mic },
-      { title: 'Interview History', href: '/dashboard/history', icon: History },
+      { title: 'Session History', href: '/dashboard/history', icon: History },
     ],
   },
   {
-    title: 'PROGRESS',
+    title: 'INTELLIGENCE',
     items: [
-      { title: 'Analytics', href: '/dashboard/analytics', icon: BarChart3 },
-      { title: 'Learning Roadmap', href: '/dashboard/roadmap', icon: Map },
+      { title: 'Telemetry Analytics', href: '/dashboard/analytics', icon: BarChart3 },
+      { title: 'Mastery Roadmap', href: '/dashboard/roadmap', icon: Map },
     ],
   },
   {
-    title: 'ACCOUNT',
+    title: 'CONFIGURATION',
     items: [
-      { title: 'Billing', href: '/dashboard/billing', icon: CreditCard },
-      { title: 'Referrals', href: '/dashboard/referrals', icon: Gift },
-      { title: 'Profile', href: '/dashboard/profile', icon: UserIcon },
-      { title: 'Resume', href: '/dashboard/resume', icon: FileText },
+      { title: 'Billing & Quota', href: '/dashboard/billing', icon: CreditCard },
+      { title: 'Referral Engine', href: '/dashboard/referrals', icon: Gift },
+      { title: 'Candidate Profile', href: '/dashboard/profile', icon: UserIcon },
+      { title: 'Resume Grounding', href: '/dashboard/resume', icon: FileText },
       { title: 'Settings', href: '/dashboard/settings', icon: Settings },
     ],
   },
@@ -88,22 +88,22 @@ function SidebarInnerContent({ user, profile }: DashboardSidebarProps) {
         .toUpperCase()
         .slice(0, 2)
     }
-    return user.email?.slice(0, 2).toUpperCase() ?? 'U'
+    return user.email?.slice(0, 2).toUpperCase() ?? 'EN'
   }
 
   return (
-    <SidebarBody className="justify-between h-screen h-[100dvh] min-h-screen w-full bg-[#08080c] text-[#f8fafc]">
+    <SidebarBody className="justify-between h-screen h-[100dvh] min-h-screen w-full bg-[#050505] text-[#F4F2EC] border-r border-white/10">
       {/* Top Header / Logo & Navigation Items */}
       <div className="flex flex-1 flex-col overflow-x-hidden overflow-y-auto min-h-0">
         {/* Brand Header */}
         <div
           className={cn(
-            'flex items-center gap-2.5 pb-3 border-b border-[#1e1e2f] min-h-[52px]',
+            'flex items-center gap-2.5 pb-4 border-b border-white/10 min-h-[56px]',
             !open && 'justify-center px-0'
           )}
         >
-          <div className="h-8 w-8 rounded-lg bg-[#14142b] border border-[#3730a3] flex items-center justify-center shrink-0 shadow-[0_0_12px_rgba(99,102,241,0.3)]">
-            <span className="h-2.5 w-2.5 rounded-full bg-[#6366f1] led-pulse" />
+          <div className="h-7 w-7 rounded-lg bg-white/[0.05] border border-white/10 flex items-center justify-center shrink-0">
+            <span className="h-2 w-2 rounded-full bg-[#2447FF]" />
           </div>
           {open && (
             <motion.div
@@ -112,27 +112,24 @@ function SidebarInnerContent({ user, profile }: DashboardSidebarProps) {
               transition={{ duration: 0.15 }}
               className="flex items-center gap-2 overflow-hidden whitespace-nowrap min-w-0"
             >
-              <span className="font-mono text-[13px] font-bold text-[#f8fafc] tracking-[0.08em] uppercase truncate">
+              <span className="font-display text-[15px] font-bold text-[#F4F2EC] tracking-tight truncate">
                 InterviewAI
-              </span>
-              <span className="font-mono text-[9px] text-[#818cf8] border border-[#3730a3] bg-[#14142b] rounded-sm px-1.5 py-0.5 tracking-[0.05em] shrink-0">
-                NEO v2.0
               </span>
             </motion.div>
           )}
         </div>
 
         {/* Navigation Groups */}
-        <div className="mt-4 flex flex-col gap-3">
+        <div className="mt-5 flex flex-col gap-5">
           {navigation.map((group, groupIdx) => (
             <div key={group.title} className="flex flex-col gap-1">
-              {groupIdx > 0 && <div className="my-1 h-px bg-[#1e1e2f]" />}
+              {groupIdx > 0 && <div className="my-1 h-px bg-white/[0.06]" />}
               {open && (
-                <p className="font-mono text-[9px] uppercase tracking-[0.15em] text-[#64748b] px-2.5 py-1 font-semibold whitespace-nowrap">
+                <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#8C8C88] px-3 py-1 font-medium whitespace-nowrap">
                   {group.title}
                 </p>
               )}
-              <div className="flex flex-col gap-1">
+              <div className="flex flex-col gap-0.5">
                 {group.items.map((item) => {
                   const isActive =
                     pathname === item.href ||
@@ -144,29 +141,28 @@ function SidebarInnerContent({ user, profile }: DashboardSidebarProps) {
                       href={item.href}
                       title={!open ? item.title : undefined}
                       onClick={() => {
-                        // Close sidebar on mobile item click
                         if (typeof window !== 'undefined' && window.innerWidth < 768) {
                           setOpen(false)
                         }
                       }}
                       className={cn(
-                        'flex items-center rounded-lg font-mono text-[12px] uppercase tracking-[0.04em] transition-all duration-150 cursor-pointer group',
+                        'flex items-center rounded-lg text-xs font-sans transition-all duration-150 cursor-pointer group',
                         open
-                          ? 'gap-3 px-2.5 py-2 justify-start'
-                          : 'justify-center p-2 w-10 h-10 mx-auto',
+                          ? 'gap-3 px-3 py-2 justify-start'
+                          : 'justify-center p-2 w-9 h-9 mx-auto',
                         isActive
-                          ? 'bg-[#14142b] border-l-2 border-[#6366f1] text-[#818cf8] font-semibold shadow-[0_0_15px_rgba(99,102,241,0.25)]'
-                          : 'text-[#9ca3af] hover:bg-[#0f0f18] hover:text-white'
+                          ? 'bg-white/[0.08] text-white font-medium'
+                          : 'text-[#8C8C88] hover:bg-white/[0.04] hover:text-[#F4F2EC]'
                       )}
                     >
                       <item.icon
                         className={cn(
                           'h-4 w-4 shrink-0 transition-colors',
-                          isActive ? 'text-[#818cf8]' : 'text-[#9ca3af] group-hover:text-white'
+                          isActive ? 'text-[#2447FF]' : 'text-[#8C8C88] group-hover:text-white'
                         )}
                       />
                       {open && (
-                        <span className="truncate whitespace-nowrap transition-transform duration-150 group-hover:translate-x-0.5">
+                        <span className="truncate whitespace-nowrap">
                           {item.title}
                         </span>
                       )}
@@ -180,18 +176,18 @@ function SidebarInnerContent({ user, profile }: DashboardSidebarProps) {
       </div>
 
       {/* Footer Profile Section */}
-      <div className="pt-3 border-t border-[#1e1e2f] shrink-0 mt-auto">
+      <div className="pt-3 border-t border-[#142347] shrink-0 mt-auto">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <div
               className={cn(
-                'flex items-center rounded-lg hover:bg-[#0f0f18] transition-colors cursor-pointer border border-transparent hover:border-[#1e1e2f]',
-                open ? 'gap-2.5 p-1.5 w-full' : 'justify-center p-1 w-10 h-10 mx-auto'
+                'flex items-center rounded-xl hover:bg-[#060b18] transition-colors cursor-pointer border border-transparent hover:border-[#142347]',
+                open ? 'gap-3 p-2 w-full' : 'justify-center p-1 w-10 h-10 mx-auto'
               )}
               title={!open ? (profile?.full_name ?? user.email ?? 'Account') : undefined}
             >
               {/* Avatar with Initials */}
-              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#3730a3] to-[#6366f1] border border-[#4f46e5]/50 flex items-center justify-center shrink-0 shadow-[0_0_12px_rgba(79,70,229,0.35)]">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#1d4ed8] to-[#3b82f6] border border-[#60a5fa]/40 flex items-center justify-center shrink-0 shadow-[0_0_12px_rgba(37,99,235,0.35)]">
                 <span className="font-mono text-[11px] text-white font-bold">
                   {getInitials()}
                 </span>
@@ -214,32 +210,32 @@ function SidebarInnerContent({ user, profile }: DashboardSidebarProps) {
             </div>
           </DropdownMenuTrigger>
           <DropdownMenuContent
-            className="w-56 bg-[#09090e] border border-[#1e1e2f] text-[#f8fafc] shadow-2xl rounded-lg p-1.5"
+            className="w-56 bg-[#060b18] border border-[#142347] text-[#f8fafc] shadow-2xl rounded-xl p-1.5 backdrop-blur-xl"
             side="top"
             align="start"
           >
-            <DropdownMenuItem asChild className="focus:bg-[#14142b] focus:text-[#818cf8] cursor-pointer rounded-[4px] font-mono text-[12px] uppercase">
+            <DropdownMenuItem asChild className="focus:bg-[#0a1226] focus:text-[#60a5fa] cursor-pointer rounded-lg font-mono text-[11px] uppercase tracking-wider py-2">
               <Link href="/dashboard/profile">
-                <UserIcon className="mr-2 h-4 w-4 text-[#818cf8]" />
+                <UserIcon className="mr-2 h-4 w-4 text-[#3b82f6]" />
                 Profile
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem asChild className="focus:bg-[#14142b] focus:text-[#818cf8] cursor-pointer rounded-[4px] font-mono text-[12px] uppercase">
+            <DropdownMenuItem asChild className="focus:bg-[#0a1226] focus:text-[#60a5fa] cursor-pointer rounded-lg font-mono text-[11px] uppercase tracking-wider py-2">
               <Link href="/dashboard/resume">
-                <FileText className="mr-2 h-4 w-4 text-[#818cf8]" />
-                Resume
+                <FileText className="mr-2 h-4 w-4 text-[#3b82f6]" />
+                Resume Grounding
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem asChild className="focus:bg-[#14142b] focus:text-[#818cf8] cursor-pointer rounded-[4px] font-mono text-[12px] uppercase">
+            <DropdownMenuItem asChild className="focus:bg-[#0a1226] focus:text-[#60a5fa] cursor-pointer rounded-lg font-mono text-[11px] uppercase tracking-wider py-2">
               <Link href="/dashboard/settings">
-                <Settings className="mr-2 h-4 w-4 text-[#818cf8]" />
+                <Settings className="mr-2 h-4 w-4 text-[#3b82f6]" />
                 Settings
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuSeparator className="bg-[#1e1e2f] my-1" />
+            <DropdownMenuSeparator className="bg-[#142347] my-1" />
             <DropdownMenuItem
               onClick={handleSignOut}
-              className="text-[#f87171] focus:bg-[#2a0e15] focus:text-[#f87171] cursor-pointer rounded-[4px] font-mono text-[12px] uppercase"
+              className="text-[#f43f5e] focus:bg-[#2a0e15] focus:text-[#f43f5e] cursor-pointer rounded-lg font-mono text-[11px] uppercase tracking-wider py-2"
             >
               <LogOut className="mr-2 h-4 w-4" />
               Sign out

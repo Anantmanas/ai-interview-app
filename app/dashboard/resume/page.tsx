@@ -62,22 +62,22 @@ export default function ResumePage() {
   return (
     <div className="p-4 sm:p-6 md:p-8 max-w-4xl mx-auto space-y-8 pb-32 sm:pb-16">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#1e2030] pb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#142347] pb-6">
         <div>
-          <p className="font-mono text-[11px] text-[#818cf8] uppercase tracking-[0.15em] mb-1 font-semibold">
+          <p className="font-mono text-[11px] text-[#38bdf8] uppercase tracking-[0.15em] mb-1 font-semibold">
             // GROUNDING ASSETS & STORAGE
           </p>
-          <h1 className="font-display text-[28px] sm:text-[32px] font-bold text-white leading-[1.1] tracking-[-0.02em]">
+          <h1 className="font-display text-[28px] sm:text-[32px] font-bold text-white leading-[1.1] tracking-[-0.03em]">
             Resume Management
           </h1>
-          <p className="font-body text-[13px] sm:text-[14px] text-[#9ca3af] mt-1">
+          <p className="font-body text-[13px] sm:text-[14px] text-[#94a3b8] mt-1">
             Store up to 2 resumes. Select your active resume to ground AI mock interviews and test questions.
           </p>
         </div>
 
         {/* Capacity Indicator Pill */}
-        <div className="flex items-center gap-3 self-start sm:self-auto bg-[#0d0e17] border border-[#1e2030] px-3.5 py-2 rounded-xl">
-          <Layers className="w-4 h-4 text-[#818cf8]" />
+        <div className="flex items-center gap-3 self-start sm:self-auto bg-[#0a1226] border border-[#142347] px-3.5 py-2 rounded-xl">
+          <Layers className="w-4 h-4 text-[#38bdf8]" />
           <div className="text-xs font-mono">
             <span className="text-[#64748b]">STORAGE SLOTS: </span>
             <span className={storedResumes.length >= 2 ? 'text-[#f59e0b] font-bold' : 'text-[#22c55e] font-bold'}>
@@ -97,7 +97,7 @@ export default function ResumePage() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <h2 className="font-display text-lg font-semibold text-white">Stored Documents</h2>
-            <span className="font-mono text-xs px-2 py-0.5 rounded-full bg-[#14142b] border border-[#3730a3]/50 text-[#818cf8]">
+            <span className="font-mono text-xs px-2.5 py-0.5 rounded-full bg-[#0a1226] border border-[#2563eb]/40 text-[#60a5fa] font-semibold">
               {storedResumes.length} of 2
             </span>
           </div>
@@ -110,7 +110,7 @@ export default function ResumePage() {
         </div>
 
         {storedResumes.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-[#1e2030] bg-[#09090f]/50 p-8 text-center">
+          <div className="rounded-xl border border-dashed border-[#142347] bg-[#060b18]/60 p-8 text-center">
             <FileText className="w-8 h-8 text-[#475569] mx-auto mb-3" />
             <p className="font-mono text-sm text-[#94a3b8]">No resumes stored yet</p>
             <p className="font-body text-xs text-[#64748b] mt-1">
@@ -131,15 +131,15 @@ export default function ResumePage() {
                   key={resume.id || resume.versionId || idx}
                   className={`rounded-xl border transition-all overflow-hidden ${
                     isActive
-                      ? 'border-[#4f46e5] bg-[#0a0a14] shadow-[0_0_30px_rgba(79,70,229,0.18),inset_0_1px_0_rgba(255,255,255,0.06)]'
-                      : 'border-[#1e2030] bg-[#09090f] hover:border-[#2b2d42]'
+                      ? 'border-[#2563eb] bg-[#0a1226] shadow-[0_0_35px_rgba(37,99,235,0.22),inset_0_1px_0_rgba(255,255,255,0.08)]'
+                      : 'border-[#142347] bg-[#060b18] hover:border-[#1e3a8a]'
                   }`}
                 >
                   {/* macOS Titlebar */}
-                  <div className="flex items-center justify-between px-4 h-11 border-b border-[#1e2030] bg-[#11121b]/90 select-none">
+                  <div className="flex items-center justify-between px-4 h-11 border-b border-[#142347] bg-[#0a1226]/90 select-none">
                     <div className="flex items-center gap-3">
                       <MacTrafficLights size="sm" />
-                      <span className="font-mono text-[11px] text-[#9ca3af] font-medium tracking-wide truncate max-w-[200px] sm:max-w-xs">
+                      <span className="font-mono text-[11px] text-[#cbd5e1] font-medium tracking-wide truncate max-w-[200px] sm:max-w-xs">
                         {resume.fileName || `resume_${idx + 1}.pdf`}
                       </span>
                     </div>
@@ -153,7 +153,7 @@ export default function ResumePage() {
                           </span>
                         </div>
                       ) : (
-                        <div className="flex items-center gap-1.5 bg-[#14142b] border border-[#1e2030] px-2.5 py-0.5 rounded-full">
+                        <div className="flex items-center gap-1.5 bg-[#060b18] border border-[#142347] px-2.5 py-0.5 rounded-full">
                           <span className="h-1.5 w-1.5 rounded-full bg-[#64748b]" />
                           <span className="font-mono text-[10px] text-[#94a3b8] uppercase tracking-wider font-medium">
                             STANDBY
@@ -164,11 +164,11 @@ export default function ResumePage() {
                   </div>
 
                   {/* Terminal Header Bar */}
-                  <div className="px-3 sm:px-5 py-2.5 border-b border-[#1e2030]/40 bg-[#0c0d15]/50 flex flex-wrap items-center justify-between gap-2 font-mono text-[11px] sm:text-[12px]">
+                  <div className="px-3 sm:px-5 py-2.5 border-b border-[#142347]/50 bg-[#040814]/70 flex flex-wrap items-center justify-between gap-2 font-mono text-[11px] sm:text-[12px]">
                     <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
                       <span className="text-[#38bdf8] font-semibold">sys@interviewai</span>
                       <span className="text-[#94a3b8]">:</span>
-                      <span className="text-[#818cf8]">~/resumes/slot_{idx + 1}</span>
+                      <span className="text-[#60a5fa]">~/resumes/slot_{idx + 1}</span>
                       <span className="text-[#f8fafc]">$</span>
                       <span className="text-[#22c55e] break-all">inspect --detailed</span>
                     </div>
@@ -181,14 +181,14 @@ export default function ResumePage() {
                   {/* Body Content */}
                   <div className="p-5 sm:p-6 space-y-5">
                     {/* Meta summary grid */}
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs font-mono bg-[#0c0d15] border border-[#1e2030] p-3.5 rounded-lg">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs font-mono bg-[#040814] border border-[#142347] p-3.5 rounded-lg">
                       <div>
                         <span className="text-[#64748b] uppercase block text-[10px] mb-0.5 font-semibold">CANDIDATE</span>
                         <span className="text-white font-medium">{data?.name || resume.candidateName || 'Candidate Profile'}</span>
                       </div>
                       <div>
                         <span className="text-[#64748b] uppercase block text-[10px] mb-0.5 font-semibold">TARGET ROLE</span>
-                        <span className="text-[#818cf8] font-medium">{data?.targetRole || resume.targetRole || 'Software Engineer'}</span>
+                        <span className="text-[#60a5fa] font-medium">{data?.targetRole || resume.targetRole || 'Software Engineer'}</span>
                       </div>
                       <div>
                         <span className="text-[#64748b] uppercase block text-[10px] mb-0.5 font-semibold">SKILLS DETECTED</span>
@@ -198,8 +198,8 @@ export default function ResumePage() {
 
                     {/* Summary (if present) */}
                     {data?.summary && (
-                      <div className="text-xs text-[#9ca3af] bg-[#0d0d18] border border-[#1e1e30] p-3 rounded-lg leading-relaxed font-body">
-                        <span className="font-mono text-[10px] uppercase text-[#818cf8] block mb-1 font-semibold">// PROFESSIONAL SUMMARY</span>
+                      <div className="text-xs text-[#cbd5e1] bg-[#060b18] border border-[#142347] p-3 rounded-lg leading-relaxed font-body">
+                        <span className="font-mono text-[10px] uppercase text-[#38bdf8] block mb-1 font-semibold">// PROFESSIONAL SUMMARY</span>
                         {data.summary}
                       </div>
                     )}
@@ -214,10 +214,10 @@ export default function ResumePage() {
                           data.skills.map((skill: string) => (
                             <div
                               key={skill}
-                              className="group inline-flex items-center gap-1.5 bg-[#0c0d15] hover:bg-[#14142b] border border-[#1e2030] hover:border-[#3730a3] rounded-md px-2.5 py-1 transition-all"
+                              className="group inline-flex items-center gap-1.5 bg-[#060b18] hover:bg-[#0f1b38] border border-[#142347] hover:border-[#2563eb] rounded-lg px-2.5 py-1 transition-all"
                             >
                               <SkillIcon skill={skill} className="w-3.5 h-3.5 shrink-0" size={14} />
-                              <span className="font-mono text-[11px] font-medium text-[#f8fafc] group-hover:text-[#818cf8] transition-colors">
+                              <span className="font-mono text-[11px] font-medium text-[#f8fafc] group-hover:text-[#60a5fa] transition-colors">
                                 {skill}
                               </span>
                             </div>
@@ -230,11 +230,11 @@ export default function ResumePage() {
 
                     {/* Experience & Education Highlights */}
                     {((data?.experience && data.experience.length > 0) || (data?.education && data.education.length > 0)) && (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-[#1e2030]/60">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-[#142347]/60">
                         {data?.experience && data.experience.length > 0 && (
                           <div className="space-y-1.5">
                             <span className="font-mono text-[10px] text-[#64748b] uppercase font-semibold flex items-center gap-1">
-                              <Briefcase className="w-3 h-3 text-[#818cf8]" /> EXPERIENCE
+                              <Briefcase className="w-3 h-3 text-[#38bdf8]" /> EXPERIENCE
                             </span>
                             <div className="space-y-1">
                               {data.experience.slice(0, 2).map((exp, eIdx) => (
@@ -264,10 +264,10 @@ export default function ResumePage() {
                     )}
 
                     {/* Actions Toolbar */}
-                    <div className="pt-3 border-t border-[#1e2030]/80 flex flex-wrap items-center justify-between gap-3">
+                    <div className="pt-3 border-t border-[#142347]/80 flex flex-wrap items-center justify-between gap-3">
                       <div className="flex items-center gap-2">
                         {isActive ? (
-                          <div className="inline-flex items-center gap-1.5 font-mono text-[11px] text-[#22c55e] bg-[#22c55e]/10 px-3 py-1.5 rounded-md border border-[#22c55e]/20">
+                          <div className="inline-flex items-center gap-1.5 font-mono text-[11px] text-[#22c55e] bg-[#22c55e]/10 px-3 py-1.5 rounded-lg border border-[#22c55e]/20">
                             <CheckCircle2 className="w-3.5 h-3.5" />
                             <span>Currently Grounding Mock Interviews</span>
                           </div>
@@ -276,7 +276,7 @@ export default function ResumePage() {
                             type="button"
                             onClick={() => handleActivate(resume.id || resume.versionId || '')}
                             disabled={isActivating || isDeleting}
-                            className="btn-neo-violet font-mono text-[11px] font-bold uppercase tracking-[0.05em] px-4 py-1.5 rounded-md cursor-pointer inline-flex items-center gap-1.5 shadow-[0_0_15px_rgba(79,70,229,0.25)] transition-all hover:scale-[1.02] disabled:opacity-50"
+                            className="bg-gradient-to-r from-[#2563eb] to-[#1d4ed8] text-white hover:from-[#3b82f6] hover:to-[#2563eb] border border-[#3b82f6]/40 font-mono text-[11px] font-bold uppercase tracking-[0.05em] px-4 py-2 rounded-lg cursor-pointer inline-flex items-center gap-1.5 shadow-[0_0_20px_rgba(37,99,235,0.35)] transition-all hover:scale-[1.02] disabled:opacity-50"
                           >
                             {isActivating ? <Spinner className="w-3.5 h-3.5" /> : <Check className="w-3.5 h-3.5" />}
                             <span>Use This Resume</span>
@@ -287,7 +287,7 @@ export default function ResumePage() {
                       {/* Delete / Remove with Confirmation */}
                       <div>
                         {isConfirmingDelete ? (
-                          <div className="flex items-center gap-2 bg-[#2a0e15] border border-[#5c1d28] p-1.5 rounded-md">
+                          <div className="flex items-center gap-2 bg-[#2a0e15] border border-[#5c1d28] p-1.5 rounded-lg">
                             <span className="font-mono text-[11px] text-[#f87171] px-1">Purge from DB & Storage?</span>
                             <button
                               type="button"
@@ -310,7 +310,7 @@ export default function ResumePage() {
                             type="button"
                             onClick={() => setConfirmDeleteId(resume.id || resume.versionId || '')}
                             disabled={isDeleting}
-                            className="inline-flex items-center gap-1.5 font-mono text-[11px] text-[#ef4444] hover:text-[#f87171] bg-[#1a0f14] hover:bg-[#26131b] border border-[#3f1922] hover:border-[#5c1d28] px-3 py-1.5 rounded-md transition-all cursor-pointer"
+                            className="inline-flex items-center gap-1.5 font-mono text-[11px] text-[#ef4444] hover:text-[#f87171] bg-[#1a0f14] hover:bg-[#26131b] border border-[#3f1922] hover:border-[#5c1d28] px-3 py-1.5 rounded-lg transition-all cursor-pointer"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                             <span>Remove</span>
@@ -331,10 +331,10 @@ export default function ResumePage() {
 
       {/* Storage Limit Exceeded Popup Modal */}
       {limitModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="w-full max-w-lg rounded-2xl border border-[#f59e0b]/50 bg-[#0c0d17] shadow-[0_0_50px_rgba(245,158,11,0.25)] overflow-hidden">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="w-full max-w-lg rounded-2xl border border-[#f59e0b]/40 bg-[#060b18] shadow-[0_0_50px_rgba(245,158,11,0.25)] overflow-hidden">
             {/* Modal Titlebar */}
-            <div className="flex items-center justify-between px-5 h-12 border-b border-[#1e2030] bg-[#141524]">
+            <div className="flex items-center justify-between px-5 h-12 border-b border-[#142347] bg-[#0a1226]">
               <div className="flex items-center gap-2.5 text-[#f59e0b]">
                 <AlertTriangle className="w-5 h-5" />
                 <span className="font-display font-semibold text-sm text-white">Storage Slot Limit Reached (2 of 2)</span>
@@ -342,7 +342,7 @@ export default function ResumePage() {
               <button
                 type="button"
                 onClick={() => setLimitModalOpen(false)}
-                className="text-[#9ca3af] hover:text-white p-1 rounded-md hover:bg-[#1f2038] cursor-pointer"
+                className="text-[#9ca3af] hover:text-white p-1 rounded-lg hover:bg-[#0f1b38] cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -367,10 +367,10 @@ export default function ResumePage() {
                   {storedResumes.map((resume, idx) => (
                     <div
                       key={resume.id || idx}
-                      className="flex items-center justify-between p-3 rounded-lg bg-[#111222] border border-[#1e2030] hover:border-[#3730a3]"
+                      className="flex items-center justify-between p-3 rounded-lg bg-[#0a1226] border border-[#142347] hover:border-[#2563eb]"
                     >
                       <div className="flex items-center gap-3 overflow-hidden">
-                        <FileText className="w-4 h-4 text-[#818cf8] shrink-0" />
+                        <FileText className="w-4 h-4 text-[#38bdf8] shrink-0" />
                         <div className="truncate">
                           <p className="font-mono text-xs text-white font-medium truncate">{resume.fileName}</p>
                           <p className="font-mono text-[10px] text-[#9ca3af]">
@@ -383,7 +383,7 @@ export default function ResumePage() {
                         type="button"
                         onClick={() => handleDelete(resume.id || resume.versionId || '')}
                         disabled={deletingId === resume.id}
-                        className="font-mono text-xs bg-[#dc2626] hover:bg-[#b91c1c] text-white px-3 py-1.5 rounded-md cursor-pointer inline-flex items-center gap-1.5 shrink-0 transition-colors"
+                        className="font-mono text-xs bg-[#dc2626] hover:bg-[#b91c1c] text-white px-3 py-1.5 rounded-lg cursor-pointer inline-flex items-center gap-1.5 shrink-0 transition-colors"
                       >
                         {deletingId === resume.id ? <Spinner className="w-3.5 h-3.5" /> : <Trash2 className="w-3.5 h-3.5" />}
                         <span>Delete</span>
@@ -397,7 +397,7 @@ export default function ResumePage() {
                 <button
                   type="button"
                   onClick={() => setLimitModalOpen(false)}
-                  className="font-mono text-xs text-[#9ca3af] hover:text-white bg-[#14142b] border border-[#1e2030] px-4 py-2 rounded-lg cursor-pointer transition-colors"
+                  className="font-mono text-xs text-[#9ca3af] hover:text-white bg-[#0a1226] border border-[#142347] hover:border-[#2563eb] px-4 py-2 rounded-lg cursor-pointer transition-colors"
                 >
                   Close & Keep Existing
                 </button>

@@ -19,17 +19,15 @@ import {
   ResponsiveContainer,
   Legend,
 } from 'recharts'
-import { BarChart3, TrendingUp, Target, Zap } from 'lucide-react'
-
-import { MacTrafficLights } from '@/components/ui/terminal-card'
+import { BarChart3, TrendingUp, Target, Zap, Activity } from 'lucide-react'
 
 const TYPE_COLORS: Record<string, string> = {
-  dsa: '#6366f1',
-  system_design: '#818cf8',
-  behavioral: '#a5b4fc',
-  frontend: '#c7d2fe',
-  backend: '#3730a3',
-  technical: '#4f46e5',
+  dsa: '#2563eb',
+  system_design: '#3b82f6',
+  behavioral: '#60a5fa',
+  frontend: '#38bdf8',
+  backend: '#818cf8',
+  technical: '#1d4ed8',
 }
 
 interface AnalyticsData {
@@ -41,49 +39,56 @@ interface AnalyticsData {
   bestScore: number
 }
 
-function StatCard({ label, value, icon: Icon, sub, terminalTitle }: { label: string; value: string | number; icon: React.ElementType; sub?: string; terminalTitle?: string }) {
+function StatCard({
+  label,
+  value,
+  icon: Icon,
+  sub,
+  telemetryId,
+}: {
+  label: string
+  value: string | number
+  icon: React.ElementType
+  sub?: string
+  telemetryId?: string
+}) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-xl border border-[#1e2030] bg-[#09090f] shadow-[0_8px_32px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.05)] hover:border-[#3730a3] transition-all overflow-hidden flex flex-col group"
+      whileHover={{ y: -2, transition: { duration: 0.15 } }}
+      className="rounded-2xl border border-white/10 bg-[#0D0D0D] shadow-xl hover:border-white/20 transition-all p-6 flex flex-col justify-between group"
     >
-      <div className="flex items-center justify-between px-3.5 h-8 border-b border-[#1e2030] bg-[#11121b]/90 select-none">
-        <div className="flex items-center gap-2">
-          <MacTrafficLights size="sm" />
-          <span className="font-mono text-[10px] text-[#6b7280]">
-            {terminalTitle || 'metric.stat'}
-          </span>
-        </div>
-        <div className="p-1 rounded bg-[#14142b]/60 border border-[#1e1e2f] group-hover:border-[#3730a3] transition-colors">
-          <Icon className="h-3 w-3 text-[#818cf8]" />
+      <div className="flex items-center justify-between mb-4">
+        <span className="font-mono text-[10px] text-[#8C8C88] tracking-widest font-semibold uppercase">
+          // {telemetryId || 'STAT'}
+        </span>
+        <div className="p-2 rounded-lg bg-white/5 border border-white/10 text-[#2447FF]">
+          <Icon className="h-4 w-4" />
         </div>
       </div>
-      <div className="p-4 flex-1 flex flex-col justify-between">
-        <div>
-          <p className="font-mono text-[10px] text-[#64748b] uppercase tracking-[0.1em] mb-1">{label}</p>
-          <p className="font-display text-[30px] font-bold text-[#ffffff] leading-none tracking-tight">{value}</p>
-        </div>
-        {sub && (
-          <div className="flex items-center gap-1.5 font-mono text-[10px] text-[#64748b] mt-2">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#6366f1]/80" />
-            <span className="truncate">{sub}</span>
-          </div>
-        )}
+      <div>
+        <p className="font-mono text-[10px] text-[#8C8C88] uppercase tracking-wider mb-1">{label}</p>
+        <p className="font-display text-[38px] font-bold text-[#F4F2EC] leading-none tracking-tight">{value}</p>
       </div>
+      {sub && (
+        <div className="flex items-center gap-1.5 font-mono text-[11px] text-[#8C8C88] mt-4 pt-3 border-t border-white/10">
+          <span className="h-1.5 w-1.5 rounded-full bg-[#2447FF]" />
+          <span className="truncate">{sub}</span>
+        </div>
+      )}
     </motion.div>
   )
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null
   return (
-    <div className="bg-[#09090e] border border-[#1e1e2f] rounded-md px-3 py-2 shadow-xl">
-      <p className="font-mono text-[10px] text-[#64748b] mb-1">{label}</p>
+    <div className="bg-[#141414] border border-white/15 rounded-xl px-4 py-3 shadow-2xl backdrop-blur-md">
+      <p className="font-mono text-[11px] text-[#8C8C88] mb-1">{label}</p>
       {payload.map((p: { name: string; value: number; color: string }) => (
-        <p key={p.name} className="font-mono text-[12px]" style={{ color: p.color }}>
-          {p.name}: {p.value}
+        <p key={p.name} className="font-mono text-[12px] font-semibold" style={{ color: p.color }}>
+          {p.name}: {p.value}%
         </p>
       ))}
     </div>
@@ -96,19 +101,22 @@ export default function AnalyticsPage() {
 
   useEffect(() => {
     fetch('/api/analytics')
-      .then(r => r.json())
-      .then(d => { setData(d); setLoading(false) })
+      .then((r) => r.json())
+      .then((d) => {
+        setData(d)
+        setLoading(false)
+      })
       .catch(() => setLoading(false))
   }, [])
 
   if (loading) {
     return (
-      <div className="p-6 flex items-center justify-center min-h-[60vh]">
-        <div className="flex gap-1.5">
-          {[0, 1, 2].map(i => (
+      <div className="p-12 flex items-center justify-center min-h-[60vh]">
+        <div className="flex gap-2">
+          {[0, 1, 2].map((i) => (
             <motion.div
               key={i}
-              className="h-2 w-2 rounded-full bg-[#6366f1]"
+              className="h-2.5 w-2.5 rounded-full bg-[#2563eb]"
               animate={{ opacity: [0.3, 1, 0.3] }}
               transition={{ duration: 0.8, delay: i * 0.2, repeat: Infinity }}
             />
@@ -119,103 +127,104 @@ export default function AnalyticsPage() {
   }
 
   return (
-    <div className="p-4 sm:p-6 md:p-8 max-w-[1100px] mx-auto">
-      <div className="mb-6 sm:mb-8">
-        <p className="font-mono text-[10px] text-[#818cf8] uppercase tracking-[0.2em] mb-1">// ANALYTICS</p>
-        <h1 className="font-display text-[28px] font-bold text-[#ffffff] tracking-[-0.02em]">
+    <div className="p-4 sm:p-6 md:p-8 max-w-[1300px] mx-auto space-y-8">
+      <div>
+        <div className="flex items-center gap-2 mb-2 font-mono text-[11px] text-[#2447FF] uppercase tracking-widest font-semibold">
+          <span className="h-1.5 w-1.5 rounded-full bg-[#2447FF]" />
+          <span>[INTELLIGENCE // 07] PERFORMANCE TELEMETRY</span>
+        </div>
+        <h1 className="font-display text-[32px] sm:text-[40px] font-bold text-[#F4F2EC] tracking-[-0.03em]">
           Performance Analytics
         </h1>
-        <p className="font-body text-[13px] sm:text-[14px] text-[#9ca3af] mt-1">Track your interview progress and improvement over time.</p>
+        <p className="font-body text-[14px] sm:text-[15px] text-[#8C8C88] mt-2">
+          Quantitative telemetry of your mock practice accuracy, speed, and topic mastery.
+        </p>
       </div>
 
-      {/* KPI cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-        <StatCard label="Total Interviews" value={data?.totalInterviews ?? 0} icon={BarChart3} />
-        <StatCard label="Average Score" value={data?.avgScore ?? 0} icon={Target} sub="out of 100" />
-        <StatCard label="Best Score" value={data?.bestScore ?? 0} icon={TrendingUp} sub="personal best" />
+      {/* KPI Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <StatCard telemetryId="KPI-01" label="Total Interviews" value={data?.totalInterviews ?? 0} icon={BarChart3} sub="Recorded sessions" />
+        <StatCard telemetryId="KPI-02" label="Average Accuracy" value={`${data?.avgScore ?? 0}%`} icon={Target} sub="Across completed runs" />
+        <StatCard telemetryId="KPI-03" label="Peak Performance" value={`${data?.bestScore ?? 0}%`} icon={TrendingUp} sub="Personal best score" />
       </div>
 
-      {/* Score over time */}
+      {/* Score Over Time Chart */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="rounded-xl border border-[#1e2030] bg-[#09090f] shadow-[0_8px_32px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.05)] overflow-hidden mb-5"
+        className="rounded-2xl border border-white/10 bg-[#0D0D0D] shadow-xl overflow-hidden"
       >
-        <div className="flex items-center justify-between px-4 h-10 border-b border-[#1e2030] bg-[#11121b]/90 select-none">
-          <div className="flex items-center gap-3">
-            <MacTrafficLights size="sm" />
-            <span className="font-mono text-[11px] text-[#9ca3af] font-medium tracking-wide">
-              score-telemetry.dat — bash
+        <div className="flex items-center justify-between px-6 h-12 border-b border-white/10 bg-white/[0.02] select-none">
+          <div className="flex items-center gap-2.5">
+            <TrendingUp className="h-4 w-4 text-[#2447FF]" />
+            <span className="font-mono text-[11px] text-[#8C8C88] font-semibold tracking-wider uppercase">
+              ACCURACY PROGRESSION // 7-SESSION ROLLING AVERAGE
             </span>
           </div>
-          <span className="font-mono text-[10px] text-[#818cf8] uppercase tracking-wider">
-            7-session rolling
+          <span className="font-mono text-[10px] text-[#2447FF] bg-[#2447FF]/10 border border-[#2447FF]/20 px-2.5 py-0.5 rounded-full uppercase tracking-wider font-semibold">
+            SYNCHRONIZED
           </span>
         </div>
-        <div className="p-6">
-          <h2 className="font-mono text-[12px] font-bold text-[#ffffff] uppercase tracking-[0.1em] mb-5 flex items-center gap-2">
-            <TrendingUp className="h-4 w-4 text-[#818cf8]" /> Score Over Time
-          </h2>
+
+        <div className="p-6 sm:p-8">
           {data?.scoreOverTime && data.scoreOverTime.length > 0 ? (
-            <ResponsiveContainer width="100%" height={240}>
+            <ResponsiveContainer width="100%" height={260}>
               <AreaChart data={data.scoreOverTime}>
                 <defs>
                   <linearGradient id="scoreGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.25} />
-                    <stop offset="95%" stopColor="#4f46e5" stopOpacity={0} />
+                    <stop offset="5%" stopColor="#2447FF" stopOpacity={0.35} />
+                    <stop offset="95%" stopColor="#2447FF" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1e1e2f" />
-                <XAxis dataKey="date" tick={{ fill: '#64748b', fontSize: 10, fontFamily: 'monospace' }} />
-                <YAxis domain={[0, 100]} tick={{ fill: '#64748b', fontSize: 10, fontFamily: 'monospace' }} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#222" />
+                <XAxis dataKey="date" tick={{ fill: '#8C8C88', fontSize: 10, fontFamily: 'monospace' }} />
+                <YAxis domain={[0, 100]} tick={{ fill: '#8C8C88', fontSize: 10, fontFamily: 'monospace' }} />
                 <Tooltip content={<CustomTooltip />} />
-                <Area type="monotone" dataKey="score" stroke="#6366f1" fill="url(#scoreGrad)" strokeWidth={2} name="Score" dot={{ fill: '#6366f1', r: 3 }} />
-                <Line type="monotone" dataKey="rollingAvg" stroke="#818cf8" strokeWidth={1.5} strokeDasharray="4 2" dot={false} name="7-session avg" />
+                <Area type="monotone" dataKey="score" stroke="#2447FF" fill="url(#scoreGrad)" strokeWidth={2} name="Session Score" dot={{ fill: '#2447FF', r: 3 }} />
+                <Line type="monotone" dataKey="rollingAvg" stroke="#8C8C88" strokeWidth={1.5} strokeDasharray="4 2" dot={false} name="7-Session Average" />
               </AreaChart>
             </ResponsiveContainer>
           ) : (
-            <div className="flex items-center justify-center h-40 text-[#64748b] font-mono text-[12px]">
-              Complete more interviews to see your progress
+            <div className="flex items-center justify-center h-44 text-[#8C8C88] font-mono text-[12px]">
+              Complete more mock interviews to populate historical progression.
             </div>
           )}
         </div>
       </motion.div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+      {/* Grid: Type Breakdown & Topic Heatmap */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Type breakdown */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15 }}
-          className="rounded-xl border border-[#1e2030] bg-[#09090f] shadow-[0_8px_32px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.05)] overflow-hidden"
+          className="rounded-2xl border border-white/10 bg-[#0D0D0D] shadow-xl overflow-hidden"
         >
-          <div className="flex items-center justify-between px-4 h-10 border-b border-[#1e2030] bg-[#11121b]/90 select-none">
-            <div className="flex items-center gap-3">
-              <MacTrafficLights size="sm" />
-              <span className="font-mono text-[11px] text-[#9ca3af] font-medium tracking-wide">
-                type-distribution.pie — zsh
+          <div className="flex items-center justify-between px-6 h-12 border-b border-white/10 bg-white/[0.02] select-none">
+            <div className="flex items-center gap-2.5">
+              <Zap className="h-4 w-4 text-[#2447FF]" />
+              <span className="font-mono text-[11px] text-[#8C8C88] font-semibold tracking-wider uppercase">
+                INTERVIEW TYPE DISTRIBUTION
               </span>
             </div>
           </div>
-          <div className="p-6">
-            <h2 className="font-mono text-[12px] font-bold text-[#ffffff] uppercase tracking-[0.1em] mb-5 flex items-center gap-2">
-              <Zap className="h-4 w-4 text-[#818cf8]" /> Interview Type Breakdown
-            </h2>
+          <div className="p-6 sm:p-8">
             {data?.typeBreakdown && data.typeBreakdown.length > 0 ? (
-              <ResponsiveContainer width="100%" height={220}>
+              <ResponsiveContainer width="100%" height={230}>
                 <PieChart>
-                  <Pie data={data.typeBreakdown} cx="50%" cy="50%" innerRadius={55} outerRadius={90} paddingAngle={3} dataKey="value" nameKey="name">
+                  <Pie data={data.typeBreakdown} cx="50%" cy="50%" innerRadius={55} outerRadius={90} paddingAngle={4} dataKey="value" nameKey="name">
                     {data.typeBreakdown.map((entry) => (
-                      <Cell key={entry.name} fill={TYPE_COLORS[entry.name] ?? '#9ca3af'} />
+                      <Cell key={entry.name} fill={TYPE_COLORS[entry.name] ?? '#2447FF'} />
                     ))}
                   </Pie>
                   <Tooltip content={<CustomTooltip />} />
-                  <Legend formatter={(v) => <span style={{ color: '#9ca3af', fontSize: 11, fontFamily: 'monospace' }}>{v}</span>} />
+                  <Legend formatter={(v) => <span style={{ color: '#8C8C88', fontSize: 11, fontFamily: 'monospace' }}>{v}</span>} />
                 </PieChart>
               </ResponsiveContainer>
             ) : (
-              <div className="flex items-center justify-center h-40 text-[#64748b] font-mono text-[12px]">No data yet</div>
+              <div className="flex items-center justify-center h-44 text-[#8C8C88] font-mono text-[12px]">No data logged yet</div>
             )}
           </div>
         </motion.div>
@@ -225,36 +234,33 @@ export default function AnalyticsPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="rounded-xl border border-[#1e2030] bg-[#09090f] shadow-[0_8px_32px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.05)] overflow-hidden"
+          className="rounded-2xl border border-white/10 bg-[#0D0D0D] shadow-xl overflow-hidden"
         >
-          <div className="flex items-center justify-between px-4 h-10 border-b border-[#1e2030] bg-[#11121b]/90 select-none">
-            <div className="flex items-center gap-3">
-              <MacTrafficLights size="sm" />
-              <span className="font-mono text-[11px] text-[#9ca3af] font-medium tracking-wide">
-                weakness-matrix.dat — bash
+          <div className="flex items-center justify-between px-6 h-12 border-b border-white/10 bg-white/[0.02] select-none">
+            <div className="flex items-center gap-2.5">
+              <Target className="h-4 w-4 text-[#f43f5e]" />
+              <span className="font-mono text-[11px] text-[#8C8C88] font-semibold tracking-wider uppercase">
+                TOPIC WEAKNESS MATRIX
               </span>
             </div>
           </div>
-          <div className="p-6">
-            <h2 className="font-mono text-[12px] font-bold text-[#ffffff] uppercase tracking-[0.1em] mb-5 flex items-center gap-2">
-              <Target className="h-4 w-4 text-[#818cf8]" /> Topic Weakness Map
-            </h2>
+          <div className="p-6 sm:p-8">
             {data?.weaknesses && data.weaknesses.length > 0 ? (
-              <ResponsiveContainer width="100%" height={220}>
+              <ResponsiveContainer width="100%" height={230}>
                 <BarChart data={data.weaknesses} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" stroke="#1e1e2f" horizontal={false} />
-                  <XAxis type="number" domain={[0, 100]} tick={{ fill: '#64748b', fontSize: 10, fontFamily: 'monospace' }} />
-                  <YAxis type="category" dataKey="topic" tick={{ fill: '#9ca3af', fontSize: 10, fontFamily: 'monospace' }} width={100} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#222" horizontal={false} />
+                  <XAxis type="number" domain={[0, 100]} tick={{ fill: '#8C8C88', fontSize: 10, fontFamily: 'monospace' }} />
+                  <YAxis type="category" dataKey="topic" tick={{ fill: '#F4F2EC', fontSize: 10, fontFamily: 'monospace' }} width={110} />
                   <Tooltip content={<CustomTooltip />} />
-                  <Bar dataKey="score" name="Weakness Score" radius={[0, 3, 3, 0]}>
+                  <Bar dataKey="score" name="Accuracy Score" radius={[0, 4, 4, 0]}>
                     {data.weaknesses.map((entry) => (
-                      <Cell key={entry.topic} fill={entry.score < 40 ? '#f87171' : entry.score < 60 ? '#f59e0b' : '#6366f1'} />
+                      <Cell key={entry.topic} fill={entry.score < 40 ? '#f43f5e' : entry.score < 65 ? '#fbbf24' : '#2447FF'} />
                     ))}
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
             ) : (
-              <div className="flex items-center justify-center h-40 text-[#64748b] font-mono text-[12px]">No weakness data yet</div>
+              <div className="flex items-center justify-center h-44 text-[#8C8C88] font-mono text-[12px]">No topic weakness data logged yet</div>
             )}
           </div>
         </motion.div>

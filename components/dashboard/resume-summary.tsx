@@ -3,9 +3,7 @@
 import { useState } from 'react'
 import { useResume } from '@/components/resume/resume-provider'
 import { SkillIcon } from '@/components/resume/skill-icon'
-import { CheckCircle2, FileText } from 'lucide-react'
-
-import { MacTrafficLights } from '@/components/ui/terminal-card'
+import { CheckCircle2, FileText, ChevronDown, ChevronUp } from 'lucide-react'
 
 export function ResumeSummary() {
   const { resumeData, resumeMeta, isResumeReady } = useResume()
@@ -18,105 +16,108 @@ export function ResumeSummary() {
   const skills = resumeData.skills || []
 
   return (
-    <div className="rounded-xl border border-[#3730a3] bg-[#09090f] shadow-[0_0_30px_rgba(79,70,229,0.18),inset_0_1px_0_rgba(255,255,255,0.06)] overflow-hidden">
-      {/* Apple Terminal Titlebar */}
-      <div className="flex items-center justify-between px-4 h-10 border-b border-[#1e2030] bg-[#11121b]/90 select-none">
-        <div className="flex items-center gap-3">
-          <MacTrafficLights size="sm" />
-          <span className="font-mono text-[11px] text-[#9ca3af] font-medium tracking-wide">
-            extracted-stack.json — zsh
+    <div className="rounded-2xl border border-white/10 bg-[#0D0D0D] overflow-hidden shadow-xl">
+      {/* Titlebar */}
+      <div className="flex items-center justify-between px-6 h-12 border-b border-white/10 bg-white/[0.02] select-none">
+        <div className="flex items-center gap-2.5">
+          <span className="h-1.5 w-1.5 rounded-full bg-[#2447FF]" />
+          <span className="font-mono text-[11px] text-[#8C8C88] font-semibold tracking-wider uppercase">
+            CANDIDATE PROFILE // {resumeMeta?.fileName || 'RESUME_ACTIVE'}
           </span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="h-2 w-2 rounded-full bg-[#6366f1] led-pulse" />
-          <span className="font-mono text-[10px] text-[#818cf8] uppercase tracking-wider font-semibold">
+          <span className="font-mono text-[10px] text-[#2447FF] bg-[#2447FF]/10 border border-[#2447FF]/20 px-2.5 py-0.5 rounded-full uppercase tracking-wider font-semibold">
             GROUNDING ACTIVE
           </span>
         </div>
       </div>
 
-      <div className="p-5 sm:p-6 space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#1e2030]/60 pb-3">
-          <div className="flex items-center gap-2 font-mono text-[12px]">
-            <span className="text-[#38bdf8] font-semibold">sys:~$</span>
-            <span className="text-[#22c55e]">parsed --target=candidate_profile</span>
+      <div className="p-6 space-y-4">
+        {/* Candidate & Target Role */}
+        {resumeData.name && (
+          <div className="flex flex-wrap items-center gap-3 text-xs font-mono">
+            <span className="text-[#8C8C88]">Candidate:</span>
+            <strong className="text-[#F4F2EC] font-semibold text-sm font-sans">{resumeData.name}</strong>
+            <span className="text-[#8C8C88]">•</span>
+            <span className="text-[#8C8C88]">Target:</span>
+            <span className="text-[#2447FF] font-semibold">{resumeData.targetRole || 'Software Engineer'}</span>
           </div>
-          <div className="flex items-center gap-1.5 text-[11px] font-mono text-[#64748b]">
-            <FileText className="w-3.5 h-3.5 text-[#818cf8]" />
-            <span>{resumeMeta?.fileName ? `Source: ${resumeMeta.fileName}` : 'Source: Linked Resume'}</span>
-          </div>
-        </div>
+        )}
 
-      {resumeData.name && (
-        <div className="text-xs text-[#9ca3af]">
-          Candidate: <strong className="text-[#ffffff] font-medium">{resumeData.name}</strong> • Target: <span className="text-[#818cf8]">{resumeData.targetRole || 'Software Engineer'}</span>
-        </div>
-      )}
+        {/* Collapsible Executive Summary */}
+        {(() => {
+          const isGlyphGarbage = (s?: string) => {
+            if (!s) return true
+            const symbols = s.match(/[$%&#!*+\\=~^`<>{}[\]|]/g) || []
+            return symbols.length / s.length > 0.08
+          }
+          const summaryText = resumeData.summary && !isGlyphGarbage(resumeData.summary)
+            ? resumeData.summary
+            : 'Experienced Software Engineer specializing in modern frontend and full-stack development with React, TypeScript, and scalable web architectures.'
 
-      {/* Collapsible executive summary */}
-      {(() => {
-        const isGlyphGarbage = (s?: string) => {
-          if (!s) return true
-          const symbols = s.match(/[$%&#!*+\\=~^`<>{}[\]|]/g) || []
-          return symbols.length / s.length > 0.08
-        }
-        const summaryText = resumeData.summary && !isGlyphGarbage(resumeData.summary)
-          ? resumeData.summary
-          : 'Experienced Software Engineer specializing in modern frontend and full-stack development with React, TypeScript, and scalable web architectures.'
-
-        return (
-          <div>
-            <p
-              className={`font-body text-[13px] text-[#9ca3af] leading-relaxed cursor-pointer ${expanded ? '' : 'line-clamp-2'}`}
-              onClick={() => setExpanded(!expanded)}
-            >
-              {summaryText}
-            </p>
-            {summaryText.length > 120 && (
-              <button
+          return (
+            <div className="p-4 rounded-xl bg-[#141414] border border-white/10">
+              <p
+                className={`font-body text-[13.5px] text-[#8C8C88] leading-relaxed cursor-pointer ${expanded ? '' : 'line-clamp-2'}`}
                 onClick={() => setExpanded(!expanded)}
-                className="font-mono text-[10px] text-[#4f46e5] hover:text-[#818cf8] transition-colors mt-1"
               >
-                {expanded ? 'COLLAPSE ↑' : 'EXPAND ↓'}
-              </button>
+                {summaryText}
+              </p>
+              {summaryText.length > 120 && (
+                <button
+                  onClick={() => setExpanded(!expanded)}
+                  className="font-mono text-[11px] text-[#2447FF] hover:text-white transition-colors mt-2 inline-flex items-center gap-1 cursor-pointer font-semibold uppercase tracking-wider"
+                >
+                  {expanded ? (
+                    <>
+                      <span>Collapse Summary</span>
+                      <ChevronUp className="h-3 w-3" />
+                    </>
+                  ) : (
+                    <>
+                      <span>Expand Executive Summary</span>
+                      <ChevronDown className="h-3 w-3" />
+                    </>
+                  )}
+                </button>
+              )}
+            </div>
+          )
+        })()}
+
+        {/* Extracted Skills */}
+        <div>
+          <p className="font-mono text-[10px] uppercase text-[#8C8C88] tracking-[0.14em] mb-2.5 font-semibold">
+            EXTRACTED TECHNICAL STACK ({skills.length > 0 ? skills.length : 'DETECTED'})
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {(skills.length > 0 ? skills : ['JavaScript', 'TypeScript', 'React', 'Node.js', 'SQL', 'Git'])
+              .slice(0, 18)
+              .map((skill) => (
+                <div
+                  key={skill}
+                  className="group inline-flex items-center gap-2 bg-[#141414] hover:bg-[#1A1A1A] border border-white/10 hover:border-white/20 rounded-lg px-3 py-1.5 transition-all shadow-sm"
+                >
+                  <SkillIcon skill={skill} className="w-4 h-4 shrink-0" size={16} />
+                  <span className="font-mono text-[11px] font-medium text-[#F4F2EC] group-hover:text-[#2447FF] transition-colors">
+                    {skill}
+                  </span>
+                </div>
+              ))}
+            {skills.length > 18 && (
+              <span className="font-mono text-[11px] text-[#8C8C88] self-center px-2.5 py-1 bg-[#141414] border border-white/10 rounded-lg">
+                +{skills.length - 18} more
+              </span>
             )}
           </div>
-        )
-      })()}
-
-      {/* Skills with Original Official Brand SVGs */}
-      <div>
-        <p className="font-mono text-[10px] uppercase text-[#64748b] tracking-[0.1em] mb-2 font-semibold">
-          EXTRACTED TECHNICAL STACK ({skills.length > 0 ? skills.length : 'DETECTED'})
-        </p>
-        <div className="flex flex-wrap gap-2">
-          {(skills.length > 0 ? skills : ['JavaScript', 'TypeScript', 'React', 'Node.js', 'SQL', 'Git'])
-            .slice(0, 16)
-            .map((skill) => (
-              <div
-                key={skill}
-                className="group inline-flex items-center gap-2 bg-[#0f0f18] hover:bg-[#161624] border border-[#1e1e2f] hover:border-[#3730a3] rounded-md px-3 py-1.5 transition-all shadow-[0_2px_8px_rgba(0,0,0,0.3)]"
-              >
-                <SkillIcon skill={skill} className="w-4 h-4 shrink-0" size={16} />
-                <span className="font-mono text-[11px] font-medium text-[#f8fafc] group-hover:text-[#818cf8] transition-colors">
-                  {skill}
-                </span>
-              </div>
-            ))}
-          {skills.length > 16 && (
-            <span className="font-mono text-[11px] text-[#9ca3af] self-center px-2 py-1 bg-[#14142b] border border-[#1e1e2f] rounded-[4px]">
-              +{skills.length - 16} more
-            </span>
-          )}
         </div>
-      </div>
 
-      <div className="pt-2 flex items-center justify-between text-[11px] font-mono text-[#64748b]">
-        <div className="flex items-center gap-1.5 text-[#818cf8]">
-          <CheckCircle2 className="w-3.5 h-3.5" />
-          <span>Calibrated in AI Mock Questions</span>
+        <div className="pt-2 flex items-center justify-between text-[11px] font-mono text-[#8C8C88] border-t border-white/10">
+          <div className="flex items-center gap-2 text-[#34d399]">
+            <CheckCircle2 className="w-4 h-4" />
+            <span>Active: AI interviewer generates grounded interview vectors</span>
+          </div>
         </div>
-      </div>
       </div>
     </div>
   )

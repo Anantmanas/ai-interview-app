@@ -127,10 +127,15 @@ export const DesktopSidebar = ({
 export const MobileSidebar = ({
   className,
   children,
+  onDrag,
+  onDragStart,
+  onDragEnd,
+  onDragOver,
   ...props
 }: React.ComponentProps<"div">) => {
   const { open, setOpen } = useSidebar();
   const pathname = usePathname();
+  const { onAnimationStart: _omittedAnimationStart, ...restProps } = props as any;
 
   // Close mobile sidebar on page navigation
   useEffect(() => {
@@ -165,7 +170,7 @@ export const MobileSidebar = ({
                 "fixed inset-y-0 left-0 w-[285px] max-w-[85vw] bg-[#08080c] p-5 z-[101] flex flex-col justify-between overflow-y-auto border-r border-[#1e1e2f] shadow-2xl",
                 className
               )}
-              {...props}
+              {...restProps}
             >
               <button
                 type="button"

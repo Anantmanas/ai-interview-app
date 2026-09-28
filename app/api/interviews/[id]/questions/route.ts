@@ -90,7 +90,7 @@ export async function POST(
     if (toInsert.length > 0) {
       const { data: inserted, error: insertErr } = await supabaseAdmin
         .from('interview_questions')
-        .insert(toInsert)
+        .insert(toInsert as any)
         .select('*')
 
       if (insertErr) {

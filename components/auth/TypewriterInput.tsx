@@ -61,13 +61,13 @@ export function TypewriterInput({
         placeholder={isFocused ? '' : displayPlaceholder}
         onFocus={(e) => { setIsFocused(true); onFocus?.(e) }}
         onBlur={(e) => { setIsFocused(false); onBlur?.(e) }}
-        className={`w-full bg-[#09090e] border border-[#1e1e2f] rounded-md px-4 py-3 font-body text-[14px] text-[#f8fafc] transition-all duration-150 focus:outline-none focus:border-[#6366f1] focus:ring-0 focus:shadow-[0_0_0_3px_rgba(99,102,241,0.2)] placeholder:text-[#64748b] placeholder:font-mono placeholder:text-[13px] ${className}`}
+        className={`w-full bg-[#060b18] border border-[#142347] rounded-lg px-4 py-3 font-body text-[14px] text-[#f8fafc] transition-all duration-150 focus:outline-none focus:border-[#2563eb] focus:ring-0 focus:shadow-[0_0_0_3px_rgba(37,99,235,0.25)] placeholder:text-[#64748b] placeholder:font-mono placeholder:text-[13px] ${className}`}
       />
       {/* Cursor blink shown when focused and empty */}
       {isFocused && !(props.value as string)?.length && (
         <span
           aria-hidden="true"
-          className="cursor-blink pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 h-[16px] w-[2px] rounded-full bg-[#6366f1]"
+          className="cursor-blink pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 h-[16px] w-[2px] rounded-full bg-[#3b82f6]"
         />
       )}
     </div>

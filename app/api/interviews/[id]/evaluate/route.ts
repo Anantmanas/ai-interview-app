@@ -640,7 +640,7 @@ Return valid JSON with:
 
     // Also include any individually scored questions
     for (const wr of weaknessRecordsToUpdate) {
-      if (!weaknessEvaluations.some((we) => we.topic.toLowerCase() === wr.topic.toLowerCase())) {
+      if (!weaknessEvaluations.some((we: any) => we.topic.toLowerCase() === wr.topic.toLowerCase())) {
         weaknessEvaluations.push({
           topic: wr.topic,
           subtopic: undefined,

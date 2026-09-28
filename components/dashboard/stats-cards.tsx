@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { motion } from 'motion/react'
-import { Calendar, TrendingUp, Clock, Target } from 'lucide-react'
+import { Calendar, TrendingUp, Clock, Target, ArrowUpRight, Zap } from 'lucide-react'
 
 /* ── Count-up animation hook ──────────────────────────────────── */
 
@@ -16,7 +16,6 @@ function useCountUp(target: number, duration = 1200, startDelay = 300) {
       const tick = () => {
         const elapsed = Date.now() - startTime
         const progress = Math.min(elapsed / duration, 1)
-        // Ease out cubic
         const eased = 1 - Math.pow(1 - progress, 3)
         setCount(Math.round(eased * target))
         if (progress < 1) requestAnimationFrame(tick)
@@ -46,106 +45,110 @@ export function StatsCards({
   practiceHours,
   weaknessCount,
 }: StatsCardsProps) {
-  // practiceHours is a float like 1.3 — multiply by 10 to count up as integer, divide for display
   const practiceHoursTenths = Math.round(practiceHours * 10)
 
-  const totalCount  = useCountUp(totalInterviews,    1000, 300)
-  const avgCount    = useCountUp(averageScore,        1200, 500)
-  const hoursCount  = useCountUp(practiceHoursTenths, 1000, 450)
-  const weakCount   = useCountUp(weaknessCount,        800, 250)
+  const totalCount = useCountUp(totalInterviews, 1000, 200)
+  const avgCount = useCountUp(averageScore, 1200, 350)
+  const hoursCount = useCountUp(practiceHoursTenths, 1000, 300)
+  const weakCount = useCountUp(weaknessCount, 800, 150)
 
   const stats = [
     {
-      terminalTitle: 'session.stat',
-      command: 'sys:~$ query --total-sessions',
-      label: 'TOTAL INTERVIEWS',
+      telemetryId: 'TEL-01',
+      label: 'TOTAL SESSIONS',
       display: `${totalCount}`,
-      sub: `${completedCount} completed`,
+      sub: `${completedCount} completed sessions`,
       icon: Calendar,
-      iconColor: 'text-[#818cf8]',
+      accent: 'border-[#2563eb] text-[#60a5fa]',
+      glow: 'shadow-[0_0_20px_rgba(37,99,235,0.15)]',
+      progress: Math.min(100, Math.round((completedCount / (totalInterviews || 1)) * 100)),
     },
     {
-      terminalTitle: 'score.metric',
-      command: 'sys:~$ eval --avg-score',
-      label: 'AVERAGE SCORE',
+      telemetryId: 'TEL-02',
+      label: 'AVERAGE ACCURACY',
       display: `${avgCount}%`,
-      sub: 'Across completed sessions',
+      sub: 'Across completed evaluations',
       icon: TrendingUp,
-      iconColor: 'text-[#6366f1]',
+      accent: 'border-[#3b82f6] text-[#38bdf8]',
+      glow: 'shadow-[0_0_20px_rgba(59,130,246,0.15)]',
+      progress: avgCount,
     },
     {
-      terminalTitle: 'uptime.log',
-      command: 'sys:~$ get --practice-time',
-      label: 'PRACTICE TIME',
+      telemetryId: 'TEL-03',
+      label: 'COCKPIT RUNTIME',
       display: `${(hoursCount / 10).toFixed(1)}h`,
-      sub: 'Total time spent practicing',
+      sub: 'Total deliberate practice',
       icon: Clock,
-      iconColor: 'text-[#a5b4fc]',
+      accent: 'border-[#818cf8] text-[#a5b4fc]',
+      glow: 'shadow-[0_0_20px_rgba(129,140,248,0.15)]',
+      progress: Math.min(100, Math.round((practiceHours / 10) * 100)),
     },
     {
-      terminalTitle: 'diagnostics.err',
-      command: 'sys:~$ lint --weaknesses',
-      label: 'ACTIVE WEAKNESSES',
+      telemetryId: 'TEL-04',
+      label: 'ACTIVE BLINDSPOTS',
       display: `${weakCount}`,
-      sub: 'Areas to improve',
+      sub: weakCount === 0 ? 'No critical gaps diagnosed' : 'Queued for remediation',
       icon: Target,
-      iconColor: 'text-[#f87171]',
+      accent: weakCount > 0 ? 'border-[#f43f5e] text-[#fb7185]' : 'border-[#10b981] text-[#34d399]',
+      glow: weakCount > 0 ? 'shadow-[0_0_20px_rgba(244,63,94,0.15)]' : 'shadow-[0_0_20px_rgba(16,185,129,0.15)]',
+      progress: Math.min(100, weakCount * 25),
     },
   ]
 
   return (
-    <motion.div
-      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6"
-      initial="hidden"
-      animate="visible"
-      variants={{
-        hidden: {},
-        visible: { transition: { staggerChildren: 0.08 } },
-      }}
-    >
-      {stats.map((stat) => (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {stats.map((stat, i) => (
         <motion.div
           key={stat.label}
-          variants={{
-            hidden:   { opacity: 0, y: 16 },
-            visible:  { opacity: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' } },
-          }}
-          className="rounded-xl border border-[#1e2030] bg-[#09090f] shadow-[0_8px_32px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.05)] hover:border-[#3730a3] transition-all overflow-hidden flex flex-col group"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, delay: i * 0.06 }}
+          whileHover={{ y: -2, transition: { duration: 0.15 } }}
+          className="rounded-2xl border border-[#142347] bg-[#060b18] hover:border-[#2563eb]/60 transition-all p-5 shadow-[0_8px_30px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.06)] relative overflow-hidden group"
         >
-          {/* macOS Terminal Titlebar */}
-          <div className="flex items-center justify-between px-3.5 h-8 border-b border-[#1e2030] bg-[#11121b]/90 select-none">
+          {/* Subtle Top Edge Rim Light */}
+          <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-[#2563eb]/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+
+          {/* Header Row */}
+          <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <div className="flex items-center gap-1.5">
-                <span className="h-2 w-2 rounded-full bg-[#ff5f56] border border-[#e0443e]/50" />
-                <span className="h-2 w-2 rounded-full bg-[#ffbd2e] border border-[#dea123]/50" />
-                <span className="h-2 w-2 rounded-full bg-[#27c93f] border border-[#1aab29]/50" />
-              </div>
-              <span className="font-mono text-[10px] text-[#6b7280] font-medium tracking-wide">
-                {stat.terminalTitle}
+              <span className="font-mono text-[10px] text-[#64748b] tracking-widest font-semibold uppercase">
+                // {stat.telemetryId}
               </span>
+              <span className="h-1 w-1 rounded-full bg-[#2563eb] led-pulse" />
             </div>
-            <div className="p-1 rounded bg-[#14142b]/60 border border-[#1e1e2f] group-hover:border-[#3730a3] transition-colors">
-              <stat.icon className={`h-3 w-3 ${stat.iconColor}`} />
+            <div className={`p-1.5 rounded-lg bg-[#0a1226] border border-[#142347] ${stat.accent} transition-colors`}>
+              <stat.icon className="h-3.5 w-3.5" />
             </div>
           </div>
 
-          {/* Terminal Card Body */}
-          <div className="p-4 flex-1 flex flex-col justify-between">
-            <div className="font-mono text-[10px] text-[#64748b] truncate mb-2">
-              <span className="text-[#38bdf8] font-semibold">$</span> {stat.command.replace('sys:~$ ', '')}
+          {/* Metric Value */}
+          <div className="mb-3">
+            <span className="font-mono text-[10px] uppercase tracking-wider text-[#94a3b8] block mb-1">
+              {stat.label}
+            </span>
+            <p className="font-display text-[34px] sm:text-[38px] font-bold text-[#f8fafc] leading-none tracking-[-0.03em]">
+              {stat.display}
+            </p>
+          </div>
+
+          {/* Micro Progress Bar & Subtext */}
+          <div className="space-y-2 pt-2 border-t border-[#142347]/60">
+            <div className="h-1 w-full bg-[#0a1226] rounded-full overflow-hidden">
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: `${stat.progress}%` }}
+                transition={{ duration: 0.8, delay: 0.4 }}
+                className="h-full bg-gradient-to-r from-[#2563eb] to-[#60a5fa] rounded-full"
+              />
             </div>
-            <div>
-              <p className="font-display text-[32px] font-bold text-[#ffffff] leading-none tracking-[-0.02em] mb-1.5">
-                {stat.display}
-              </p>
-              <div className="flex items-center gap-1.5 font-mono text-[11px] text-[#64748b]">
-                <span className="h-1.5 w-1.5 rounded-full bg-[#6366f1]/80" />
-                <span className="truncate">{stat.sub}</span>
-              </div>
+            <div className="flex items-center justify-between font-mono text-[11px] text-[#64748b]">
+              <span className="truncate">{stat.sub}</span>
+              <span className="text-[#60a5fa] font-semibold">{stat.progress}%</span>
             </div>
           </div>
         </motion.div>
       ))}
-    </motion.div>
+    </div>
   )
 }

@@ -3,10 +3,8 @@
 import { useRef } from 'react'
 import { useResume } from '@/components/resume/resume-provider'
 import { ResumeSummary } from './resume-summary'
-import { Upload, RefreshCw, AlertCircle, Sparkles } from 'lucide-react'
+import { Upload, RefreshCw, AlertCircle, Sparkles, FileText, CheckCircle2 } from 'lucide-react'
 import { Spinner } from '@/components/ui/spinner'
-
-import { TerminalCard, TerminalHeader, TerminalPrompt, MacTrafficLights } from '@/components/ui/terminal-card'
 
 export function ResumeUploadCard() {
   const { isResumeReady, isExtracting, handleResumeUpload, extractionError } = useResume()
@@ -23,7 +21,7 @@ export function ResumeUploadCard() {
         <div className="space-y-3">
           <ResumeSummary />
           {extractionError && (
-            <p className="text-[#f87171] text-[11px] flex items-center gap-1.5 font-mono bg-[#2a0e15] border border-[#5c1d28] px-3 py-1.5 rounded-md">
+            <p className="text-[#f43f5e] text-[11px] flex items-center gap-1.5 font-mono bg-[#2a0e15] border border-[#5c1d28] px-3.5 py-2 rounded-lg">
               <AlertCircle className="h-4 w-4 shrink-0" />
               <span>{extractionError}</span>
             </p>
@@ -43,61 +41,50 @@ export function ResumeUploadCard() {
             <button
               onClick={() => inputRef.current?.click()}
               disabled={isExtracting}
-              className="inline-flex items-center gap-2 font-mono text-[11px] text-[#9ca3af] hover:text-[#818cf8] transition-colors py-1.5 px-3 rounded-md hover:bg-[#14142b] border border-[#1e2030] hover:border-[#3730a3]/50 cursor-pointer"
+              className="inline-flex items-center gap-2 font-mono text-[11px] text-[#94a3b8] hover:text-[#60a5fa] transition-colors py-1.5 px-3 rounded-lg hover:bg-[#0a1226] border border-[#142347] hover:border-[#1e3a8a] cursor-pointer"
             >
               {isExtracting ? (
                 <Spinner className="h-3.5 w-3.5" />
               ) : (
-                <RefreshCw className="h-3.5 w-3.5 text-[#818cf8]" />
+                <RefreshCw className="h-3.5 w-3.5 text-[#3b82f6]" />
               )}
               {isExtracting ? 'Analyzing Resume...' : 'Re-upload Resume'}
             </button>
           </div>
         </div>
       ) : (
-        <div className="rounded-xl border border-[#1e2030] bg-[#09090f] shadow-[0_8px_32px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.05)] overflow-hidden transition-all duration-200 hover:border-[#2b2d42]">
-          {/* Apple Terminal Titlebar */}
-          <div className="flex items-center justify-between px-4 h-10 border-b border-[#1e2030] bg-[#11121b]/90 select-none">
-            <div className="flex items-center gap-3">
-              <MacTrafficLights size="sm" />
-              <span className="font-mono text-[11px] text-[#9ca3af] font-medium tracking-wide">
-                interviewai-terminal — bash
+        <div className="rounded-2xl border border-white/10 bg-[#0D0D0D] overflow-hidden transition-all duration-200 shadow-xl">
+          {/* Header Row */}
+          <div className="flex items-center justify-between px-6 h-12 border-b border-white/10 bg-white/[0.02] select-none">
+            <div className="flex items-center gap-2.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#2447FF]" />
+              <span className="font-mono text-[11px] text-[#8C8C88] font-semibold tracking-wider uppercase">
+                RESUME GROUNDING
               </span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="font-mono text-[10px] text-[#22c55e] bg-[#22c55e]/10 border border-[#22c55e]/20 px-2 py-0.5 rounded-full uppercase tracking-wider">
-                READY
+              <span className="font-mono text-[10px] text-[#8C8C88] bg-white/5 border border-white/10 px-2.5 py-0.5 rounded-full uppercase tracking-wider font-semibold">
+                STANDBY
               </span>
             </div>
           </div>
 
-          {/* Terminal Command Line Cue */}
-          <div className="px-4 sm:px-6 py-2.5 sm:py-3 border-b border-[#1e2030]/40 bg-[#0c0d15]/50">
-            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 font-mono text-[11px] sm:text-[12px] break-all">
-              <span className="text-[#38bdf8] font-semibold">engineer@interviewai</span>
-              <span className="text-[#94a3b8]">:</span>
-              <span className="text-[#818cf8]">~/resume</span>
-              <span className="text-[#f8fafc]">$</span>
-              <span className="text-[#22c55e] font-semibold">upload --extract-grounding --ai</span>
-              <span className="inline-block w-1.5 sm:w-2 h-3.5 sm:h-4 bg-[#f8fafc] animate-pulse ml-0.5" />
+          {/* Body */}
+          <div className="p-8 sm:p-10 text-center">
+            <div className="mx-auto p-4 rounded-2xl bg-white/5 border border-white/10 w-fit mb-5 text-[#2447FF]">
+              <Upload className="h-6 w-6" />
             </div>
-          </div>
-
-          {/* Terminal Box Body */}
-          <div className="p-7 sm:p-8 text-center bg-gradient-to-b from-transparent to-[#050508]/60">
-            <div className="mx-auto p-3.5 rounded-xl bg-[#14142b] border border-[#3730a3] w-fit mb-4 text-[#818cf8] shadow-[0_0_20px_rgba(79,70,229,0.3)]">
-              <Upload className="h-5 w-5" />
-            </div>
-            <h3 className="font-display text-[18px] sm:text-[20px] font-semibold text-[#ffffff] mb-2 tracking-[-0.01em]">
-              Enhance Your Mock Interviews with Resume Grounding
+            <h3 className="font-display text-[22px] sm:text-[24px] font-bold text-[#F4F2EC] mb-2 tracking-tight">
+              Calibrate with Resume Grounding
             </h3>
-            <p className="font-body text-[13px] sm:text-[14px] text-[#9ca3af] max-w-lg mx-auto mb-6 leading-relaxed">
-              Upload your resume to extract your tech stack and generate personalized, real-world questions tailored to your experience.
+            <p className="font-body text-[14px] text-[#8C8C88] max-w-lg mx-auto mb-6 leading-relaxed">
+              Upload your engineering resume to extract your tech stack, system scale, and projects.
+              The AI interviewer will adapt questions directly to your career experience.
             </p>
-            
+
             <div className="flex flex-col items-center">
               {extractionError && (
-                <p className="text-[#f87171] text-[11px] mb-3.5 flex items-center gap-1.5 font-mono bg-[#2a0e15] border border-[#5c1d28] px-3 py-1.5 rounded-md">
+                <p className="text-[#f43f5e] text-[11px] mb-4 flex items-center gap-1.5 font-mono bg-[#f43f5e]/10 border border-[#f43f5e]/20 px-3.5 py-2 rounded-lg">
                   <AlertCircle className="h-4 w-4" />
                   {extractionError}
                 </p>
@@ -116,7 +103,7 @@ export function ResumeUploadCard() {
               <button
                 onClick={() => inputRef.current?.click()}
                 disabled={isExtracting}
-                className="btn-neo-violet font-mono text-[12px] font-bold uppercase tracking-[0.05em] px-8 py-3.5 rounded-lg inline-flex items-center gap-2 cursor-pointer disabled:opacity-50 transition-all hover:scale-[1.02]"
+                className="bg-[#2447FF] hover:bg-[#1f3ce0] text-white font-mono text-[12px] font-semibold uppercase tracking-wider px-8 py-3.5 rounded-xl inline-flex items-center gap-2 cursor-pointer disabled:opacity-50 transition-all shadow-md"
               >
                 {isExtracting ? (
                   <>
@@ -126,12 +113,12 @@ export function ResumeUploadCard() {
                 ) : (
                   <>
                     <Sparkles className="h-4 w-4" />
-                    <span>Upload Resume</span>
+                    <span>Upload Resume PDF / DOCX</span>
                   </>
                 )}
               </button>
-              <p className="font-mono text-[10px] text-[#64748b] mt-3 tracking-wider">
-                Supports PDF, DOCX, TXT (Max 5MB)
+              <p className="font-mono text-[10px] text-[#8C8C88] mt-3 tracking-wider">
+                Supports PDF, DOCX, TXT (Maximum 5MB) • Encrypted & Isolated
               </p>
             </div>
           </div>

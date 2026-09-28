@@ -58,38 +58,26 @@ export function ResumeDropzone({ source, onSuccess }: ResumeDropzoneProps) {
   }
 
   return (
-    <div className="rounded-xl border border-[#1e2030] bg-[#09090f] shadow-[0_8px_32px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.05)] overflow-hidden">
-      {/* macOS Titlebar */}
-      <div className="flex items-center justify-between px-4 h-10 border-b border-[#1e2030] bg-[#11121b]/90 select-none">
-        <div className="flex items-center gap-3">
-          <MacTrafficLights size="sm" />
-          <span className="font-mono text-[11px] text-[#9ca3af] font-medium tracking-wide">
-            upload-resume.sh — bash
+    <div className="rounded-xl border border-white/10 bg-[#0D0D0D] shadow-xl overflow-hidden">
+      {/* Editorial Header */}
+      <div className="flex items-center justify-between px-6 h-12 border-b border-white/10 bg-white/[0.02] select-none">
+        <div className="flex items-center gap-2.5">
+          <FileText className="w-4 h-4 text-[#2447FF]" />
+          <span className="font-mono text-xs text-[#8C8C88] font-medium tracking-wide">
+            RESUME GROUNDING SOURCE
           </span>
         </div>
         <div className="flex items-center gap-2">
           {isLimitReached ? (
-            <span className="font-mono text-[10px] text-[#f59e0b] bg-[#f59e0b]/10 border border-[#f59e0b]/20 px-2 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1">
+            <span className="font-mono text-[10px] text-[#f43f5e] bg-[#f43f5e]/10 border border-[#f43f5e]/30 px-2.5 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1">
               <ShieldAlert className="w-3 h-3 inline" /> 2/2 SLOTS USED
             </span>
           ) : (
-            <span className="font-mono text-[10px] text-[#22c55e] bg-[#22c55e]/10 border border-[#22c55e]/20 px-2 py-0.5 rounded-full uppercase tracking-wider">
+            <span className="font-mono text-[10px] text-[#34d399] bg-[#34d399]/10 border border-[#34d399]/30 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
               {Math.max(0, 2 - storedResumes.length)}/2 SLOTS AVAILABLE
             </span>
           )}
         </div>
-      </div>
-
-      {/* Terminal Command Cue */}
-      <div className="px-3 sm:px-5 py-2.5 border-b border-[#1e2030]/40 bg-[#0c0d15]/50 flex flex-wrap items-center justify-between gap-2 font-mono text-[11px] sm:text-[12px]">
-        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-          <span className="text-[#38bdf8] font-semibold">engineer@interviewai</span>
-          <span className="text-[#94a3b8]">:</span>
-          <span className="text-[#818cf8]">~/resume</span>
-          <span className="text-[#f8fafc]">$</span>
-          <span className="text-[#22c55e] break-all">upload --extract-skills</span>
-        </div>
-        <span className="text-[10px] sm:text-[11px] text-[#64748b]">Limit: Max 2 Resumes</span>
       </div>
 
       <div className="p-7 sm:p-8 text-center flex flex-col items-center justify-center space-y-4">

@@ -12,21 +12,16 @@ function Card({ className, showTrafficLights, terminalTitle, children, ...props 
     <div
       data-slot="card"
       className={cn(
-        'bg-[#09090f] text-[#f8fafc] flex flex-col rounded-xl border border-[#1e2030] shadow-[0_8px_32px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.05)] overflow-hidden transition-all duration-200 hover:border-[#2b2d42]',
+        'bg-[#0D0D0D] text-[#F4F2EC] flex flex-col rounded-xl border border-white/[0.08] shadow-[0_4px_24px_rgba(0,0,0,0.4)] overflow-hidden transition-all duration-200 hover:border-white/[0.16]',
         className,
       )}
       {...props}
     >
-      {(showTrafficLights || terminalTitle) && (
-        <div className="flex items-center justify-between px-4 h-9 border-b border-[#1e2030] bg-[#11121b]/90 select-none">
-          <div className="flex items-center gap-2.5">
-            <MacTrafficLights size="sm" />
-            {terminalTitle && (
-              <span className="font-mono text-[11px] text-[#9ca3af] font-medium tracking-wide">
-                {terminalTitle}
-              </span>
-            )}
-          </div>
+      {terminalTitle && (
+        <div className="flex items-center justify-between px-4 h-9 border-b border-white/[0.08] bg-white/[0.02] select-none">
+          <span className="font-mono text-[11px] text-[#8C8C88] font-medium tracking-wider uppercase">
+            {terminalTitle}
+          </span>
         </div>
       )}
       {children}

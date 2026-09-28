@@ -5,6 +5,7 @@ export interface RateLimitResult {
   remaining?: number
   limit?: number
   resetInSeconds?: number
+  plan?: string
 }
 
 /**
@@ -44,7 +45,7 @@ export async function checkRateLimit(userId: string): Promise<RateLimitResult> {
         })
         .eq('id', userId)
 
-      return { allowed: true, remaining: limit - 1, limit }
+      return { allowed: true, remaining: limit - 1, limit, plan }
     }
 
     if (currentCalls >= limit) {
@@ -54,6 +55,7 @@ export async function checkRateLimit(userId: string): Promise<RateLimitResult> {
         remaining: 0,
         limit,
         resetInSeconds,
+        plan,
       }
     }
 
@@ -65,9 +67,9 @@ export async function checkRateLimit(userId: string): Promise<RateLimitResult> {
       })
       .eq('id', userId)
 
-    return { allowed: true, remaining: limit - (currentCalls + 1), limit }
+    return { allowed: true, remaining: limit - (currentCalls + 1), limit, plan }
   } catch (err) {
     console.error('[RateLimit] Error checking rate limit:', err)
-    return { allowed: true }
+    return { allowed: true, plan: 'free' }
   }
 }

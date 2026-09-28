@@ -12,12 +12,17 @@ import {
   MobileNavMenu,
 } from "@/components/ui/resizable-navbar";
 import { useState } from "react";
+import Link from "next/link";
 
 export default function ResizableNavbar() {
   const navItems = [
     {
       name: "Capabilities",
       link: "#features",
+    },
+    {
+      name: "Architecture",
+      link: "#architecture",
     },
     {
       name: "Workflow",
@@ -33,12 +38,12 @@ export default function ResizableNavbar() {
       <NavBody>
         <NavbarLogo href="/">
           <div className="flex items-center gap-2.5">
-            <span className="led-pulse h-2 w-2 rounded-full bg-[#6366f1]" />
-            <span className="font-mono text-[13px] font-bold text-[#f8fafc] uppercase tracking-[0.1em]">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#2447FF]" />
+            <span className="font-display text-[15px] font-bold text-[#F4F2EC] tracking-[-0.02em]">
               InterviewAI
             </span>
-            <span className="font-mono text-[9px] text-[#818cf8] border border-[#3730a3] bg-[#14142b]/60 rounded-[3px] px-1.5 py-0.5 tracking-[0.08em]">
-              v2.0
+            <span className="font-mono text-[9px] text-[#8C8C88] border border-white/10 bg-white/[0.04] rounded px-1.5 py-0.5 tracking-[0.1em] uppercase">
+              EXHIBITION 2.4
             </span>
           </div>
         </NavbarLogo>
@@ -49,16 +54,16 @@ export default function ResizableNavbar() {
           <NavbarButton
             href="/auth/login"
             variant="secondary"
-            className="font-mono text-[11px] text-[#9ca3af] uppercase tracking-[0.06em] hover:text-white px-3 py-1.5 transition-colors"
+            className="font-mono text-[11px] text-[#8C8C88] uppercase tracking-[0.08em] hover:text-[#F4F2EC] px-3.5 py-1.5 transition-colors"
           >
             Sign In
           </NavbarButton>
           <NavbarButton
             href="/auth/sign-up"
             variant="primary"
-            className="font-mono text-[11px] font-bold uppercase tracking-[0.06em] bg-[#4f46e5] text-white hover:bg-[#5865f2] border border-[#6366f1]/40 px-4 py-2 rounded-md shadow-[0_0_18px_rgba(79,70,229,0.35)] transition-colors"
+            className="bg-[#2447FF] hover:bg-[#1A3AE8] text-white font-mono text-[11px] font-semibold uppercase tracking-[0.08em] px-4 py-2 rounded-lg transition-colors"
           >
-            Get Started
+            Commence
           </NavbarButton>
         </div>
       </NavBody>
@@ -68,12 +73,12 @@ export default function ResizableNavbar() {
         <MobileNavHeader>
           <NavbarLogo href="/">
             <div className="flex items-center gap-2.5">
-              <span className="led-pulse h-2 w-2 rounded-full bg-[#6366f1]" />
-              <span className="font-mono text-[13px] font-bold text-[#f8fafc] uppercase tracking-[0.1em]">
-                InterviewAI
+              <span className="led-pulse h-2 w-2 rounded-full bg-[#2563eb]" />
+              <span className="font-display text-[15px] font-bold text-[#f8fafc] tracking-[-0.02em]">
+                Interview<span className="text-[#3b82f6]">AI</span>
               </span>
-              <span className="font-mono text-[9px] text-[#818cf8] border border-[#3730a3] bg-[#14142b]/60 rounded-[3px] px-1.5 py-0.5 tracking-[0.08em]">
-                v2.0
+              <span className="font-mono text-[9px] text-[#60a5fa] border border-[#1e3a8a] bg-[#0a1226] rounded-[4px] px-1.5 py-0.5 tracking-[0.08em]">
+                v2.4
               </span>
             </div>
           </NavbarLogo>
@@ -87,36 +92,34 @@ export default function ResizableNavbar() {
           isOpen={isMobileMenuOpen}
           onClose={() => setIsMobileMenuOpen(false)}
         >
-          <div className="flex flex-col gap-3 w-full py-2">
+          <div className="flex flex-col gap-2 w-full py-2">
             {navItems.map((item, idx) => (
               <a
                 key={`mobile-link-${idx}`}
                 href={item.link}
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="font-mono text-[12px] uppercase tracking-[0.06em] text-[#9ca3af] hover:text-white transition-colors py-1.5 px-2 rounded-md hover:bg-[#14142b]"
+                className="font-mono text-[12px] uppercase tracking-[0.08em] text-[#94a3b8] hover:text-[#f8fafc] transition-colors py-2 px-3 rounded-md hover:bg-[#0a1226]"
               >
                 {item.name}
               </a>
             ))}
           </div>
 
-          <div className="flex w-full flex-col gap-3 pt-4 border-t border-[#1e1e2f]">
-            <NavbarButton
+          <div className="flex w-full flex-col gap-3 pt-4 border-t border-[#142347]">
+            <Link
               href="/auth/login"
               onClick={() => setIsMobileMenuOpen(false)}
-              variant="secondary"
-              className="w-full font-mono text-[12px] uppercase tracking-[0.06em] text-[#9ca3af] hover:text-white py-2 text-center"
+              className="w-full font-mono text-[12px] uppercase tracking-[0.08em] text-[#94a3b8] hover:text-[#f8fafc] py-2 text-center rounded-md border border-[#142347] bg-[#060b18]"
             >
               Sign In
-            </NavbarButton>
-            <NavbarButton
+            </Link>
+            <Link
               href="/auth/sign-up"
               onClick={() => setIsMobileMenuOpen(false)}
-              variant="primary"
-              className="w-full font-mono text-[12px] font-bold uppercase tracking-[0.06em] bg-[#4f46e5] text-white hover:bg-[#5865f2] border border-[#6366f1]/40 py-2 rounded-md text-center shadow-[0_0_18px_rgba(79,70,229,0.35)]"
+              className="btn-cobalt w-full font-mono text-[12px] font-semibold uppercase tracking-[0.08em] py-2.5 rounded-lg text-center"
             >
-              Get Started
-            </NavbarButton>
+              Launch Cockpit
+            </Link>
           </div>
         </MobileNavMenu>
       </MobileNav>

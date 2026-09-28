@@ -37,24 +37,27 @@ export function QuestionEvalCard({ question, index }: QuestionEvalCardProps) {
   const score = evalData.score !== undefined ? Number(evalData.score) : null
 
   return (
-    <div className="rounded-xl border border-[#1e2030] bg-[#09090f] shadow-[0_8px_32px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.05)] overflow-hidden">
-      {/* Terminal Titlebar */}
-      <div className="flex items-center justify-between px-4 h-9 border-b border-[#1e2030] bg-[#11121b]/90 select-none">
+    <div className="rounded-xl border border-white/10 bg-[#0D0D0D] shadow-xl overflow-hidden">
+      {/* Editorial Marker Header */}
+      <div className="flex items-center justify-between px-5 h-11 border-b border-white/10 bg-white/[0.02] select-none">
         <div className="flex items-center gap-2.5">
-          <MacTrafficLights size="sm" />
-          <span className="font-mono text-[10px] text-[#9ca3af]">
-            evaluation-q{index + 1}.json — bash
+          <span className="font-mono text-xs font-semibold text-[#2447FF]">
+            QUESTION {String(index + 1).padStart(2, '0')}
+          </span>
+          <span className="text-white/20">•</span>
+          <span className="font-mono text-[10px] text-[#8C8C88] uppercase">
+            {question.topic || question.question_type || 'TECHNICAL'}
           </span>
         </div>
         {score !== null && (
           <span
-            className={`font-mono text-[10px] font-bold px-2 py-0.5 rounded ${
+            className={`font-mono text-xs font-bold px-2.5 py-0.5 rounded-full ${
               score >= 70
-                ? 'text-[#818cf8] bg-[#14142b] border border-[#3730a3]'
-                : 'text-[#f87171] bg-[#2a0e15] border border-[#5c1d28]'
+                ? 'text-[#34d399] bg-[#34d399]/10 border border-[#34d399]/30'
+                : 'text-[#f43f5e] bg-[#f43f5e]/10 border border-[#f43f5e]/30'
             }`}
           >
-            {score}%
+            {score}% SIGNAL
           </span>
         )}
       </div>

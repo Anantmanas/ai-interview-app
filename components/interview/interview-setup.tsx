@@ -8,8 +8,7 @@ import type { Profile, InterviewType, Difficulty } from '@/lib/types'
 import { useResume } from '@/components/resume/resume-provider'
 import { SkillIcon } from '@/components/resume/skill-icon'
 import { ResumeDropzone } from '@/components/resume/resume-dropzone'
-import { Code, Users, Network, Sparkles, ArrowRight, ArrowLeft, Target } from 'lucide-react'
-import { MacTrafficLights } from '@/components/ui/terminal-card'
+import { Code, Users, Network, Sparkles, ArrowRight, ArrowLeft, Target, ShieldCheck } from 'lucide-react'
 
 interface InterviewSetupProps {
   profile: Profile | null
@@ -19,20 +18,20 @@ interface InterviewSetupProps {
 const TYPE_OPTIONS: { id: InterviewType; label: string; desc: string; icon: any }[] = [
   {
     id: 'technical',
-    label: 'Technical Coding & Core',
-    desc: 'Algorithms, data structures, framework concepts, and practical coding problems.',
+    label: 'Algorithms & Data Structures',
+    desc: 'Algorithmic reasoning, time/space complexity analysis, and real-time Monaco IDE compilation.',
     icon: Code,
   },
   {
     id: 'system_design',
-    label: 'System Architecture',
-    desc: 'Scalability, microservices, databases, load balancing, and high-level design.',
+    label: 'Distributed Architecture',
+    desc: 'Scalability, microservices, partitioning, database trade-offs, and high-throughput system design.',
     icon: Network,
   },
   {
     id: 'behavioral',
-    label: 'Behavioral & Leadership',
-    desc: 'STAR method questions on conflict resolution, impact, and engineering decisions.',
+    label: 'Staff Leadership & STAR',
+    desc: 'Engineering leadership, conflict resolution, technical debt management, and architectural trade-offs.',
     icon: Users,
   },
 ]
@@ -42,19 +41,19 @@ const DIFFICULTY_OPTIONS: { id: Difficulty; label: string; level: string; desc: 
     id: 'easy',
     label: 'ENTRY / JUNIOR',
     level: 'L3 / Junior Eng',
-    desc: 'Core fundamentals and direct questions.',
+    desc: 'Core fundamentals, straightforward algorithmic implementations, and standard patterns.',
   },
   {
     id: 'medium',
-    label: 'MID-LEVEL',
-    level: 'L4 / Senior Eng',
-    desc: 'Deep technical edge cases and trade-offs.',
+    label: 'MID-LEVEL / SENIOR',
+    level: 'L4 - L5 / Senior',
+    desc: 'Deep edge cases, concurrent state management, and architectural trade-off evaluations.',
   },
   {
     id: 'hard',
     label: 'STAFF / PRINCIPAL',
-    level: 'L5+ / Staff Eng',
-    desc: 'Complex distributed challenges and critical optimizations.',
+    level: 'L6+ / Staff Eng',
+    desc: 'Complex distributed consensus, critical system failure recovery, and extreme scale optimization.',
   },
 ]
 
@@ -69,7 +68,7 @@ export function InterviewSetup({ profile, existingCount = 0 }: InterviewSetupPro
 
   const defaultSessionName = paramTopic
     ? `Targeted: ${paramTopic}`
-    : `Mock_Test ${String(existingCount + 1).padStart(2, '0')}`
+    : `Mock_Session ${String(existingCount + 1).padStart(2, '0')}`
 
   const [title, setTitle] = useState(defaultSessionName)
   const [type, setType] = useState<InterviewType>(paramType || 'technical')
@@ -79,7 +78,7 @@ export function InterviewSetup({ profile, existingCount = 0 }: InterviewSetupPro
 
   useEffect(() => {
     if (!showCustomTitle && !paramTopic) {
-      setTitle(`Mock_Test ${String(existingCount + 1).padStart(2, '0')}`)
+      setTitle(`Mock_Session ${String(existingCount + 1).padStart(2, '0')}`)
     }
   }, [existingCount, showCustomTitle, paramTopic])
 
@@ -110,7 +109,9 @@ export function InterviewSetup({ profile, existingCount = 0 }: InterviewSetupPro
 
       // Client-side fallback if API returned non-ok
       const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
       const effectiveUserId = user?.id || profile?.id
 
       if (!effectiveUserId) {
@@ -146,283 +147,266 @@ export function InterviewSetup({ profile, existingCount = 0 }: InterviewSetupPro
   return (
     <div className="space-y-6">
       {/* Cockpit Card Container */}
-      <div className="rounded-xl border border-[#3730a3] bg-[#09090f] shadow-[0_0_35px_rgba(79,70,229,0.18),inset_0_1px_0_rgba(255,255,255,0.06)] overflow-hidden">
-        {/* Apple Terminal Titlebar */}
-        <div className="flex items-center justify-between px-4 h-10 border-b border-[#1e2030] bg-[#11121b]/90 select-none">
+      <div className="rounded-2xl border border-white/10 bg-[#0D0D0D] shadow-2xl overflow-hidden">
+        {/* Titlebar Header */}
+        <div className="flex items-center justify-between px-8 h-14 border-b border-white/10 bg-white/[0.02] select-none">
           <div className="flex items-center gap-3">
-            <MacTrafficLights size="sm" />
-            <span className="font-mono text-[11px] text-[#9ca3af] font-medium tracking-wide">
-              interview-init.sh — bash — 80x24
+            <span className="w-2 h-2 rounded-full bg-[#2447FF]" />
+            <span className="font-mono text-xs text-[#8C8C88] font-semibold tracking-wider uppercase">
+              SIMULATION CONFIGURATION MATRIX
             </span>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-[#22c55e] led-pulse" />
-            <span className="font-mono text-[10px] text-[#22c55e] uppercase tracking-wider font-semibold">
-              ENGINE READY
-            </span>
-          </div>
+          <span className="font-mono text-[11px] text-[#34d399] bg-[#34d399]/10 border border-[#34d399]/30 px-3 py-1 rounded-full uppercase tracking-wider font-semibold">
+            INSTRUMENT READY
+          </span>
         </div>
 
-        <div className="p-6 sm:p-8 space-y-8">
+        <div className="p-8 sm:p-12 space-y-12">
           {/* Header Briefing */}
-          <div className="border-b border-[#1e1e2f] pb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] font-mono uppercase tracking-widest text-[#818cf8] font-semibold">
-                ASSESSMENT SETUP
+          <div className="border-b border-white/10 pb-8 flex flex-col sm:flex-row sm:items-baseline justify-between gap-6">
+            <div className="space-y-2">
+              <span className="font-mono text-xs uppercase tracking-widest text-[#2447FF] font-semibold block">
+                PATH INITIALIZATION
               </span>
-              <span className="text-[#64748b] text-xs">/</span>
-              <span className="text-[10px] font-mono text-[#9ca3af] uppercase">
-                ADAPTIVE ENGINE
-              </span>
+              <h1 className="display-statement text-[#F4F2EC] font-bold">
+                Configure Practice Session
+              </h1>
+              <p className="font-body text-base text-[#8C8C88] max-w-xl font-light">
+                Select your engineering domain and calibration depth. The AI interviewer synthesizes questions anchored in your profile in real-time.
+              </p>
             </div>
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#ffffff] font-display">
-              Configure Interview Session
-            </h1>
-            <p className="text-xs text-[#9ca3af]">
-              AI interviewer will adapt live questions and code evaluations to your profile.
-            </p>
+
+            {/* Session Tag Pill */}
+            <div className="bg-white/[0.03] border border-white/10 rounded-xl px-4 py-2 flex items-center gap-2.5 shrink-0 self-start sm:self-auto">
+              <span className="text-[10px] text-[#8C8C88] font-mono uppercase">ID</span>
+              <span className="text-xs font-mono font-bold text-[#F4F2EC]">{title}</span>
+            </div>
           </div>
 
-          {/* Session Tag Pill */}
-          <div className="bg-[#14142b] border border-[#3730a3] rounded-md px-3 py-1.5 flex items-center gap-2 shrink-0">
-            <span className="text-[10px] text-[#64748b] font-mono uppercase">ID</span>
-            <span className="text-xs font-mono font-bold text-[#818cf8]">{title}</span>
-          </div>
-        </div>
-
-        {/* Targeted Topic Alert if opened from Roadmap */}
-        {paramTopic && (
-          <div className="bg-gradient-to-r from-[#1e1b4b]/90 to-[#14142b] border border-[#6366f1]/50 rounded-xl p-4 flex items-center justify-between gap-4 shadow-[0_0_20px_rgba(99,102,241,0.15)]">
-            <div className="flex items-center gap-3">
-              <span className="p-2 rounded-lg bg-[#4f46e5]/30 text-[#818cf8] border border-[#6366f1]/40">
-                <Target className="h-5 w-5 text-[#818cf8]" />
-              </span>
-              <div>
-                <p className="font-mono text-[10px] uppercase font-bold text-[#818cf8] tracking-widest">
-                  ROADMAP TARGETED DRILL ACTIVE
-                </p>
-                <p className="text-sm text-white font-semibold flex items-center gap-2">
-                  Focusing on: <span className="text-[#38bdf8] font-bold">{paramTopic}</span>
-                </p>
-                <p className="text-[11px] text-[#9ca3af] mt-0.5">
-                  Interview questions will be specifically calibrated to evaluate this skill.
-                </p>
+          {/* Targeted Topic Alert if opened from Roadmap */}
+          {paramTopic && (
+            <div className="bg-[#2447FF]/10 border border-[#2447FF]/30 rounded-xl p-5 flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3.5">
+                <Target className="h-5 w-5 text-[#2447FF] shrink-0" />
+                <div>
+                  <span className="font-mono text-[10px] uppercase font-bold text-[#2447FF] tracking-widest block">
+                    ROADMAP TARGETED REMEDIATION
+                  </span>
+                  <p className="text-base text-[#F4F2EC] font-semibold">
+                    Target topic: <span className="text-white underline">{paramTopic}</span>
+                  </p>
+                </div>
               </div>
+              <span className="font-mono text-[10px] bg-[#34d399]/10 text-[#34d399] border border-[#34d399]/30 px-3 py-1 rounded-full uppercase tracking-wider shrink-0 font-semibold">
+                LINKED
+              </span>
             </div>
-            <span className="font-mono text-[10px] bg-[#22c55e]/15 text-[#4ade80] border border-[#22c55e]/30 px-2.5 py-1 rounded-full uppercase tracking-wider shrink-0 font-semibold">
-              PRE-CONFIGURED
-            </span>
-          </div>
-        )}
+          )}
 
-        {/* 1. Session Naming Section */}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <label className="text-xs font-mono font-semibold uppercase tracking-wider text-[#ffffff] flex items-center gap-2">
-              <span className="text-[#6366f1]">01.</span> SESSION NAME
+          {/* 1. Session Naming Section */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-mono font-semibold uppercase tracking-wider text-[#F4F2EC] flex items-center gap-2">
+                <span className="text-[#2447FF]">01.</span> SESSION IDENTIFIER
+              </label>
+              <button
+                type="button"
+                onClick={() => setShowCustomTitle(!showCustomTitle)}
+                className="text-xs font-mono text-[#8C8C88] hover:text-white transition-colors uppercase cursor-pointer"
+              >
+                {showCustomTitle ? 'Reset to Auto-Generated' : 'Custom Title'}
+              </button>
+            </div>
+
+            {showCustomTitle ? (
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="e.g. Distributed_Consensus_01"
+                className="w-full bg-[#050505] border border-white/10 focus:border-[#2447FF] rounded-xl px-5 py-3.5 text-sm font-mono text-[#F4F2EC] transition-colors"
+              />
+            ) : (
+              <div className="w-full bg-[#050505] border border-white/10 rounded-xl px-5 py-3.5 flex items-center justify-between">
+                <span className="font-mono text-sm font-bold text-[#F4F2EC]">{title}</span>
+                <span className="text-[10px] font-mono text-[#8C8C88] uppercase tracking-wider bg-white/[0.04] border border-white/10 px-2.5 py-0.5 rounded-full">
+                  CALIBRATED
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* 2. Resume / Source of Truth Context Status */}
+          <div className="bg-[#050505] border border-white/10 rounded-xl p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <Sparkles className="w-4 h-4 text-[#2447FF]" />
+                <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#F4F2EC]">
+                  02. CANDIDATE GROUNDING CONTEXT
+                </span>
+              </div>
+              <span
+                className={`text-[10px] font-mono uppercase px-2.5 py-0.5 rounded-full border ${
+                  isResumeReady || profile?.resume_text
+                    ? 'bg-[#34d399]/10 text-[#34d399] border-[#34d399]/30'
+                    : 'bg-white/[0.05] text-[#8C8C88] border-white/10'
+                }`}
+              >
+                {isResumeReady || profile?.resume_text ? 'ACTIVE SYNC' : 'OPTIONAL RESUME'}
+              </span>
+            </div>
+
+            {isResumeReady && resumeData ? (
+              <div className="space-y-3">
+                <p className="text-xs text-[#8C8C88]">
+                  Grounding questions on <strong className="text-white">{resumeData.name || 'your profile'}</strong> ({resumeData.targetRole || 'Software Engineer'}).
+                </p>
+                {resumeData.skills && resumeData.skills.length > 0 && (
+                  <div className="flex flex-wrap gap-2 pt-1">
+                    {resumeData.skills.slice(0, 10).map((skill) => (
+                      <span
+                        key={skill}
+                        className="inline-flex items-center gap-1.5 text-xs font-mono bg-white/[0.03] border border-white/10 rounded-lg px-3 py-1 text-[#F4F2EC]"
+                      >
+                        <SkillIcon skill={skill} className="w-3.5 h-3.5" size={14} />
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-3 pt-1">
+                <p className="text-xs text-[#8C8C88]">
+                  Ingest your resume to calibrate questions to your specific engineering stack.
+                </p>
+                <ResumeDropzone source="interview-setup" />
+              </div>
+            )}
+          </div>
+
+          {/* 3. Interview Track Selection */}
+          <div className="space-y-4">
+            <label className="text-xs font-mono font-semibold uppercase tracking-wider text-[#F4F2EC] flex items-center gap-2">
+              <span className="text-[#2447FF]">03.</span> CHOOSE INTERVIEW SIMULATION PATH
             </label>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {TYPE_OPTIONS.map((opt) => {
+                const isSelected = type === opt.id
+                const Icon = opt.icon
+                return (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() => setType(opt.id)}
+                    className={`p-6 rounded-2xl text-left transition-all border flex flex-col justify-between space-y-4 cursor-pointer ${
+                      isSelected
+                        ? 'bg-white/[0.06] border-[#2447FF] shadow-lg'
+                        : 'bg-[#050505] border-white/10 hover:border-white/20'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div
+                        className={`p-3 rounded-xl ${
+                          isSelected
+                            ? 'bg-[#2447FF] text-white'
+                            : 'bg-white/[0.04] text-[#8C8C88]'
+                        }`}
+                      >
+                        <Icon className="w-5 h-5" />
+                      </div>
+                      {isSelected && (
+                        <span className="w-2 h-2 rounded-full bg-[#2447FF]" />
+                      )}
+                    </div>
+                    <div>
+                      <h3 className="font-display text-base font-bold text-[#F4F2EC]">
+                        {opt.label}
+                      </h3>
+                      <p className="text-xs text-[#8C8C88] mt-1.5 leading-relaxed">
+                        {opt.desc}
+                      </p>
+                    </div>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
+          {/* 4. Target Seniority / Difficulty Level */}
+          <div className="space-y-4">
+            <label className="text-xs font-mono font-semibold uppercase tracking-wider text-[#F4F2EC] flex items-center gap-2">
+              <span className="text-[#2447FF]">04.</span> TARGET SENIORITY LEVEL
+            </label>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {DIFFICULTY_OPTIONS.map((opt) => {
+                const isSelected = difficulty === opt.id
+                return (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() => setDifficulty(opt.id)}
+                    className={`p-6 rounded-2xl text-left transition-all border flex flex-col justify-between space-y-3 cursor-pointer ${
+                      isSelected
+                        ? 'bg-white/[0.06] border-[#2447FF] shadow-lg'
+                        : 'bg-[#050505] border-white/10 hover:border-white/20'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-mono text-[#8C8C88] uppercase tracking-wider font-semibold">
+                        {opt.level}
+                      </span>
+                      {isSelected && (
+                        <span className="w-2 h-2 rounded-full bg-[#2447FF]" />
+                      )}
+                    </div>
+                    <div>
+                      <h3 className="font-display text-base font-bold text-[#F4F2EC]">
+                        {opt.label}
+                      </h3>
+                      <p className="text-xs text-[#8C8C88] mt-1.5 leading-relaxed">
+                        {opt.desc}
+                      </p>
+                    </div>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
+          {/* Action Controls & Launch CTA */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 border-t border-white/10">
             <button
               type="button"
-              onClick={() => setShowCustomTitle(!showCustomTitle)}
-              className="text-[11px] font-mono text-[#64748b] hover:text-[#818cf8] transition-colors uppercase underline underline-offset-4 cursor-pointer"
+              onClick={() => router.push('/dashboard')}
+              className="w-full sm:w-auto rounded-xl border border-white/10 hover:border-white/25 bg-transparent text-[#8C8C88] hover:text-white text-xs font-mono uppercase tracking-wider px-6 py-4 transition-colors cursor-pointer inline-flex items-center justify-center gap-2"
             >
-              {showCustomTitle ? 'Reset to Auto-Generated' : 'Edit Custom Name'}
+              <ArrowLeft className="w-3.5 h-3.5" />
+              Cancel & Return
+            </button>
+
+            <button
+              type="button"
+              onClick={handleStartInterview}
+              disabled={loading}
+              className="bg-[#2447FF] hover:bg-[#1A3AE8] text-white w-full sm:w-auto font-mono text-xs font-semibold uppercase tracking-[0.1em] px-9 py-4 rounded-xl transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2.5 shadow-xl hover:scale-[1.01]"
+            >
+              {loading ? (
+                <>
+                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <span>INITIALIZING SIMULATION...</span>
+                </>
+              ) : (
+                <>
+                  <span>COMMENCE SIMULATION</span>
+                  <ArrowRight className="w-4 h-4" />
+                </>
+              )}
             </button>
           </div>
-
-          {showCustomTitle ? (
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g. Mock_Test 01"
-              className="w-full bg-[#09090e] border border-[#1e1e2f] focus:border-[#6366f1] focus:ring-1 focus:ring-[#6366f1]/40 focus:outline-none rounded-md px-4 py-3 text-sm font-mono text-[#f8fafc] transition-colors"
-            />
-          ) : (
-            <div className="w-full bg-[#09090e] border border-[#1e1e2f] rounded-md px-4 py-3 flex items-center justify-between">
-              <span className="font-mono text-sm font-bold text-[#ffffff]">{title}</span>
-              <span className="text-[10px] font-mono text-[#818cf8] uppercase tracking-wider bg-[#14142b] border border-[#3730a3] px-2.5 py-0.5 rounded-full">
-                AUTO-INCREMENTED
-              </span>
-            </div>
-          )}
         </div>
-
-        {/* 2. Resume / Source of Truth Context Status */}
-        <div className="bg-[#09090e] border border-[#1e1e2f] rounded-lg p-4 space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-[#6366f1]" />
-              <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#ffffff]">
-                RESUME GROUNDING CONTEXT
-              </span>
-            </div>
-            <span
-              className={`text-[10px] font-mono uppercase px-2.5 py-0.5 rounded-full border ${
-                isResumeReady || profile?.resume_text
-                  ? 'bg-[#14142b] text-[#818cf8] border-[#3730a3]'
-                  : 'bg-[#2a0e15] text-[#f87171] border-[#5c1d28]'
-              }`}
-            >
-              {isResumeReady || profile?.resume_text ? 'ACTIVE SYNC' : 'NO RESUME LINKED'}
-            </span>
-          </div>
-
-          {isResumeReady && resumeData ? (
-            <div className="space-y-2">
-              <p className="text-xs text-[#9ca3af]">
-                Questions will be tailored to <strong className="text-[#ffffff]">{resumeData.name || 'your profile'}</strong> ({resumeData.targetRole || 'Software Engineer'}).
-              </p>
-              {resumeData.skills && resumeData.skills.length > 0 && (
-                <div className="flex flex-wrap gap-1.5 pt-1">
-                  {resumeData.skills.slice(0, 10).map((skill) => (
-                    <span
-                      key={skill}
-                      className="inline-flex items-center gap-1.5 text-[11px] font-mono bg-[#14142b] border border-[#1e1e2f] rounded-[4px] px-2.5 py-1 text-[#f8fafc] hover:border-[#3730a3] transition-colors"
-                    >
-                      <SkillIcon skill={skill} className="w-3.5 h-3.5" size={14} />
-                      {skill}
-                    </span>
-                  ))}
-                  {resumeData.skills.length > 10 && (
-                    <span className="text-[10px] font-mono text-[#64748b] self-center">
-                      +{resumeData.skills.length - 10} more
-                    </span>
-                  )}
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="space-y-3 pt-1">
-              <p className="text-xs text-[#9ca3af]">
-                Upload your resume to generate hyper-personalized questions matching your exact stack.
-              </p>
-              <ResumeDropzone source="interview-setup" />
-            </div>
-          )}
-        </div>
-
-        {/* 3. Interview Track Selection */}
-        <div className="space-y-3">
-          <label className="text-xs font-mono font-semibold uppercase tracking-wider text-[#ffffff] flex items-center gap-2">
-            <span className="text-[#6366f1]">02.</span> SELECT INTERVIEW TRACK
-          </label>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            {TYPE_OPTIONS.map((opt) => {
-              const isSelected = type === opt.id
-              const Icon = opt.icon
-              return (
-                <button
-                  key={opt.id}
-                  type="button"
-                  onClick={() => setType(opt.id)}
-                  className={`p-4 rounded-lg text-left transition-all border flex flex-col justify-between space-y-3 cursor-pointer ${
-                    isSelected
-                      ? 'bg-[#14142b] border-[#4f46e5] shadow-[0_0_20px_rgba(79,70,229,0.25)]'
-                      : 'bg-[#09090e] border-[#1e1e2f] hover:border-[#3730a3] hover:bg-[#0f0f18]'
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <div
-                      className={`p-2 rounded-md ${
-                        isSelected ? 'bg-gradient-to-r from-[#4f46e5] to-[#6366f1] text-white shadow-[0_0_12px_rgba(79,70,229,0.5)]' : 'bg-[#14142b] text-[#9ca3af]'
-                      }`}
-                    >
-                      <Icon className="w-4 h-4" />
-                    </div>
-                    {isSelected && (
-                      <span className="w-2 h-2 rounded-full bg-[#6366f1] led-pulse" />
-                    )}
-                  </div>
-                  <div>
-                    <h3 className="font-mono text-xs font-bold uppercase tracking-wider text-[#ffffff]">
-                      {opt.label}
-                    </h3>
-                    <p className="text-[11px] text-[#9ca3af] mt-1 leading-relaxed">
-                      {opt.desc}
-                    </p>
-                  </div>
-                </button>
-              )
-            })}
-          </div>
-        </div>
-
-        {/* 4. Target Seniority / Difficulty Level */}
-        <div className="space-y-3">
-          <label className="text-xs font-mono font-semibold uppercase tracking-wider text-[#ffffff] flex items-center gap-2">
-            <span className="text-[#6366f1]">03.</span> TARGET SENIORITY LEVEL
-          </label>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            {DIFFICULTY_OPTIONS.map((opt) => {
-              const isSelected = difficulty === opt.id
-              return (
-                <button
-                  key={opt.id}
-                  type="button"
-                  onClick={() => setDifficulty(opt.id)}
-                  className={`p-4 rounded-lg text-left transition-all border flex flex-col justify-between space-y-2 cursor-pointer ${
-                    isSelected
-                      ? 'bg-[#14142b] border-[#4f46e5] shadow-[0_0_20px_rgba(79,70,229,0.25)]'
-                      : 'bg-[#09090e] border-[#1e1e2f] hover:border-[#3730a3] hover:bg-[#0f0f18]'
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-mono text-[#818cf8] uppercase tracking-wider font-semibold">
-                      {opt.level}
-                    </span>
-                    {isSelected && (
-                      <span className="w-2 h-2 rounded-full bg-[#6366f1] led-pulse" />
-                    )}
-                  </div>
-                  <div>
-                    <h3 className="font-mono text-xs font-bold text-[#ffffff]">
-                      {opt.label}
-                    </h3>
-                    <p className="text-[11px] text-[#9ca3af] mt-0.5 leading-relaxed">
-                      {opt.desc}
-                    </p>
-                  </div>
-                </button>
-              )
-            })}
-          </div>
-        </div>
-
-        {/* Action Controls & Launch CTA */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-[#1e1e2f]">
-          <button
-            type="button"
-            onClick={() => router.push('/dashboard')}
-            className="w-full sm:w-auto rounded-md border border-[#27272a] hover:border-[#3f3f46] bg-[#000000] text-[#9ca3af] hover:text-white text-xs font-mono uppercase tracking-wider px-6 py-3 transition-colors cursor-pointer inline-flex items-center justify-center gap-2"
-          >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            Cancel & Return
-          </button>
-
-          <button
-            type="button"
-            onClick={handleStartInterview}
-            disabled={loading}
-            className="w-full sm:w-auto rounded-[6px] btn-neo-violet font-mono text-xs font-bold uppercase tracking-wider px-8 py-3.5 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-          >
-            {loading ? (
-              <>
-                <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                <span>INITIALIZING COCKPIT...</span>
-              </>
-            ) : (
-              <>
-                <span>LAUNCH SESSION</span>
-                <ArrowRight className="w-4 h-4" />
-              </>
-            )}
-          </button>
-        </div>
-      </div>
       </div>
     </div>
   )

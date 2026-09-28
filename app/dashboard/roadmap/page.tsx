@@ -25,7 +25,6 @@ import {
   Youtube,
   CheckCircle2,
 } from 'lucide-react'
-import { MacTrafficLights } from '@/components/ui/terminal-card'
 import { motion, AnimatePresence } from 'motion/react'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -56,11 +55,11 @@ interface RoadmapItem {
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function priorityLabel(p: number): { label: string; color: string; bg: string; border: string } {
-  if (p <= 1) return { label: 'Priority 1 — Critical', color: '#f87171', bg: '#2a0e15', border: '#5c1d28' }
+  if (p <= 1) return { label: 'Priority 1 — Critical', color: '#f43f5e', bg: '#2a0e15', border: '#5c1d28' }
   if (p <= 2) return { label: 'Priority 2 — High', color: '#fb923c', bg: '#2a1608', border: '#7c2d12' }
   if (p <= 3) return { label: 'Priority 3 — Medium', color: '#fbbf24', bg: '#1c1608', border: '#78350f' }
   if (p <= 4) return { label: 'Priority 4 — Low', color: '#34d399', bg: '#052016', border: '#065f46' }
-  return { label: 'Priority 5 — Optional', color: '#818cf8', bg: '#14142b', border: '#3730a3' }
+  return { label: 'Priority 5 — Optional', color: '#60a5fa', bg: '#0a1226', border: '#1e3a8a' }
 }
 
 // ── YouTube Video Carousel Component ──────────────────────────────────────────
@@ -101,17 +100,17 @@ function VideoCarousel({ videos, topicTitle }: { videos: Resource[]; topicTitle:
 
   if (videos.length === 0) {
     return (
-      <div className="p-4 bg-[#0c0d15] border border-[#1e2030] rounded-xl text-center font-mono text-xs text-[#64748b]">
+      <div className="p-4 bg-[#141414] border border-white/10 rounded-xl text-center font-mono text-xs text-[#8C8C88]">
         No video recommendations available for this topic.
       </div>
     )
   }
 
   return (
-    <div className="relative space-y-2">
+    <div className="relative space-y-2.5">
       <div className="flex items-center justify-between">
-        <span className="font-mono text-[11px] font-bold text-[#f87171] uppercase tracking-wider flex items-center gap-1.5">
-          <Youtube className="h-3.5 w-3.5" />
+        <span className="font-mono text-[11px] font-medium text-[#F4F2EC] uppercase tracking-wider flex items-center gap-1.5">
+          <Youtube className="h-3.5 w-3.5 text-[#2447FF]" />
           Recommended Video Tutorials ({videos.length})
         </span>
 
@@ -120,7 +119,7 @@ function VideoCarousel({ videos, topicTitle }: { videos: Resource[]; topicTitle:
           <button
             onClick={() => scroll('left')}
             disabled={!canScrollLeft}
-            className="p-1.5 rounded-md bg-[#14142b] border border-[#1e2030] text-[#9ca3af] hover:text-white hover:border-[#3730a3] disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer"
+            className="p-1.5 rounded-lg bg-[#141414] border border-white/10 text-[#8C8C88] hover:text-white hover:border-white/20 disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer"
             aria-label="Scroll left"
           >
             <ChevronLeft className="h-3.5 w-3.5" />
@@ -128,7 +127,7 @@ function VideoCarousel({ videos, topicTitle }: { videos: Resource[]; topicTitle:
           <button
             onClick={() => scroll('right')}
             disabled={!canScrollRight}
-            className="p-1.5 rounded-md bg-[#14142b] border border-[#1e2030] text-[#9ca3af] hover:text-white hover:border-[#3730a3] disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer"
+            className="p-1.5 rounded-lg bg-[#141414] border border-white/10 text-[#8C8C88] hover:text-white hover:border-white/20 disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer"
             aria-label="Scroll right"
           >
             <ChevronRight className="h-3.5 w-3.5" />
@@ -149,10 +148,10 @@ function VideoCarousel({ videos, topicTitle }: { videos: Resource[]; topicTitle:
             target="_blank"
             rel="noopener noreferrer"
             whileHover={{ y: -3 }}
-            className="flex-shrink-0 w-[240px] sm:w-[280px] max-w-[78vw] snap-start bg-[#0c0d15] hover:bg-[#12131f] border border-[#1e2030] hover:border-[#6366f1]/60 rounded-xl overflow-hidden shadow-lg transition-all group flex flex-col justify-between"
+            className="flex-shrink-0 w-[240px] sm:w-[280px] max-w-[78vw] snap-start bg-[#141414] hover:bg-[#1A1A1A] border border-white/10 hover:border-[#2447FF]/50 rounded-xl overflow-hidden shadow-lg transition-all group flex flex-col justify-between"
           >
             {/* Thumbnail Box */}
-            <div className="relative aspect-video w-full bg-[#14142b] overflow-hidden">
+            <div className="relative aspect-video w-full bg-[#0D0D0D] overflow-hidden">
               {vid.thumbnail ? (
                 <img
                   src={vid.thumbnail}
@@ -161,14 +160,14 @@ function VideoCarousel({ videos, topicTitle }: { videos: Resource[]; topicTitle:
                   loading="lazy"
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#14142b] to-[#1e1b4b]">
-                  <Youtube className="h-8 w-8 text-[#f87171] opacity-80" />
+                <div className="w-full h-full flex items-center justify-center bg-[#0D0D0D]">
+                  <Youtube className="h-8 w-8 text-[#2447FF] opacity-80" />
                 </div>
               )}
 
               {/* Play button overlay */}
               <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 flex items-center justify-center transition-colors">
-                <div className="h-10 w-10 rounded-full bg-[#f87171]/90 group-hover:bg-[#f87171] text-white flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform">
+                <div className="h-10 w-10 rounded-full bg-[#2447FF] text-white flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform">
                   <Play className="h-4 w-4 fill-white ml-0.5" />
                 </div>
               </div>
@@ -182,16 +181,16 @@ function VideoCarousel({ videos, topicTitle }: { videos: Resource[]; topicTitle:
             </div>
 
             {/* Video Meta info */}
-            <div className="p-3 space-y-1.5 flex-1 flex flex-col justify-between">
-              <h4 className="font-sans text-xs font-semibold text-white group-hover:text-[#818cf8] line-clamp-2 leading-snug transition-colors">
+            <div className="p-3.5 space-y-1.5 flex-1 flex flex-col justify-between">
+              <h4 className="font-sans text-xs font-semibold text-white group-hover:text-[#2447FF] line-clamp-2 leading-snug transition-colors">
                 {vid.title}
               </h4>
 
-              <div className="flex items-center justify-between font-mono text-[10px] text-[#9ca3af] pt-1 border-t border-[#1e2030]/60">
-                <span className="truncate max-w-[170px] text-[#c7d2fe]">
-                  {vid.channel || 'YouTube Video'}
+              <div className="flex items-center justify-between font-mono text-[10px] text-[#8C8C88] pt-2 border-t border-white/10">
+                <span className="truncate max-w-[170px] text-[#8C8C88]">
+                  {vid.channel || 'Video Guide'}
                 </span>
-                <span className="inline-flex items-center gap-0.5 text-[#818cf8] group-hover:text-white transition-colors shrink-0">
+                <span className="inline-flex items-center gap-0.5 text-[#2447FF] group-hover:text-white transition-colors shrink-0">
                   Watch <ExternalLink className="h-2.5 w-2.5" />
                 </span>
               </div>
@@ -207,9 +206,11 @@ function VideoCarousel({ videos, topicTitle }: { videos: Resource[]; topicTitle:
 
 function RoadmapCard({
   item,
+  index = 0,
   onToggle,
 }: {
   item: RoadmapItem
+  index?: number
   onToggle: (id: string, status: string) => void
 }) {
   const { label, color, bg, border } = priorityLabel(item.priority)
@@ -222,75 +223,84 @@ function RoadmapCard({
 
   return (
     <div
-      className={`rounded-xl border transition-all duration-200 overflow-hidden ${
+      className={`rounded-2xl border transition-all duration-200 overflow-hidden ${
         completed
-          ? 'border-[#1e2030]/50 bg-[#09090f]/60 opacity-80'
-          : 'border-[#1e2030] bg-[#09090f] shadow-[0_8px_32px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.05)] hover:border-[#3730a3]/80'
+          ? 'border-white/[0.06] bg-[#0D0D0D]/60 opacity-75'
+          : 'border-white/10 bg-[#0D0D0D] shadow-xl hover:border-white/20'
       }`}
     >
-      {/* Titlebar */}
-      <div className="flex items-center justify-between px-4 h-9 border-b border-[#1e2030] bg-[#11121b]/90 select-none">
-        <div className="flex items-center gap-2.5">
-          <MacTrafficLights size="sm" />
-          <span className="font-mono text-[10px] text-[#9ca3af] font-medium truncate max-w-[300px]">
-            {item.topic.toLowerCase().replace(/\s+/g, '-')}.module.ts
+      {/* Visual Journey Stepper Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between px-6 py-4 border-b border-white/10 bg-white/[0.02] gap-3 select-none">
+        <div className="flex items-center gap-3">
+          <span className="font-mono text-sm font-bold text-[#2447FF]">
+            {String(index + 1).padStart(2, '0')}
           </span>
+          <div className="flex items-center gap-2 text-[11px] font-mono text-[#8C8C88]">
+            <span className="text-white font-medium">WEAKNESS</span>
+            <span>↓</span>
+            <span className="text-white font-medium">SKILL</span>
+            <span>↓</span>
+            <span className="text-white font-medium">MODULE</span>
+            <span>↓</span>
+            <span className="text-[#2447FF] font-semibold">RE-TEST</span>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
+
+        <div className="flex items-center gap-3">
           <span
-            className="font-mono text-[9px] font-semibold px-2 py-0.5 rounded border uppercase tracking-wider"
+            className="font-mono text-[10px] font-semibold px-2.5 py-0.5 rounded-full border uppercase tracking-wider"
             style={{ color, backgroundColor: bg, borderColor: border }}
           >
             {label}
           </span>
-          <span className="font-mono text-[9px] text-[#9ca3af] bg-[#0c0d15] border border-[#1e2030] px-2 py-0.5 rounded">
+          <span className="font-mono text-[10px] text-[#8C8C88] bg-white/[0.04] border border-white/10 px-2.5 py-0.5 rounded-full">
             {item.estimated_hours}h
           </span>
         </div>
       </div>
 
       {/* Body */}
-      <div className="p-5 sm:p-6 space-y-5">
+      <div className="p-6 space-y-5">
         {/* Header & Mark Complete */}
-        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
-          <div className="space-y-1">
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+          <div className="space-y-1.5">
             <div className="flex items-center gap-2">
-              <span className="font-mono text-[10px] uppercase font-bold text-[#818cf8] bg-[#14142b] border border-[#3730a3]/40 px-2 py-0.5 rounded">
+              <span className="font-mono text-[10px] uppercase font-bold text-white bg-white/5 border border-white/10 px-2.5 py-0.5 rounded-md">
                 ⚡ {item.topic}
               </span>
               {item.weakness_score && (
-                <span className="font-mono text-[10px] text-[#f87171] bg-[#2a0e15] border border-[#5c1d28] px-1.5 py-0.5 rounded">
-                  Weakness: {item.weakness_score}%
+                <span className="font-mono text-[10px] text-[#f43f5e] bg-[#f43f5e]/10 border border-[#f43f5e]/20 px-2 py-0.5 rounded-md font-semibold">
+                  Blindspot: {item.weakness_score}%
                 </span>
               )}
             </div>
             <h3
-              className={`font-display text-lg font-bold transition-colors ${
-                completed ? 'line-through text-[#64748b]' : 'text-white'
+              className={`font-display text-xl font-bold tracking-tight transition-colors ${
+                completed ? 'line-through text-[#8C8C88]' : 'text-[#F4F2EC]'
               }`}
             >
               {item.title}
             </h3>
-            <p className="font-sans text-xs text-[#9ca3af] leading-relaxed max-w-3xl">
+            <p className="font-sans text-[13px] text-[#8C8C88] leading-relaxed max-w-3xl">
               {item.description}
             </p>
           </div>
 
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-2.5 shrink-0">
             <Link
               href={`/interview/new?topic=${encodeURIComponent(item.topic)}&type=technical&mode=targeted`}
-              className="font-mono text-xs font-semibold px-3 py-1.5 rounded-lg border border-[#6366f1]/50 bg-[#4f46e5]/20 text-[#818cf8] hover:bg-[#4f46e5] hover:text-white transition-all flex items-center gap-1.5 cursor-pointer shadow-[0_0_15px_rgba(79,70,229,0.2)]"
+              className="font-mono text-xs font-semibold px-4 py-2 rounded-xl border border-[#2447FF]/50 bg-[#2447FF]/10 text-white hover:bg-[#2447FF] transition-all flex items-center gap-1.5 cursor-pointer shadow-sm"
             >
-              <Zap className="h-3.5 w-3.5 text-[#fbbf24]" />
+              <Zap className="h-3.5 w-3.5 text-[#2447FF] group-hover:text-white" />
               <span>Practice Topic</span>
             </Link>
 
             <button
               onClick={() => onToggle(item.id, item.status)}
-              className={`font-mono text-xs font-semibold px-3 py-1.5 rounded-lg border transition-all flex items-center gap-1.5 cursor-pointer ${
+              className={`font-mono text-xs font-semibold px-4 py-2 rounded-xl border transition-all flex items-center gap-1.5 cursor-pointer ${
                 completed
                   ? 'bg-[#052016] border-[#065f46] text-[#34d399]'
-                  : 'bg-[#14142b] border-[#3730a3] text-[#818cf8] hover:bg-[#1e1b4b] hover:text-white'
+                  : 'bg-white/5 border-white/10 text-[#8C8C88] hover:bg-white/10 hover:text-white'
               }`}
             >
               <Check className="h-3.5 w-3.5" />
@@ -304,9 +314,9 @@ function RoadmapCard({
 
         {/* Curated Interactive Courses & Full Curriculum */}
         {courseResources.length > 0 && (
-          <div className="pt-2 border-t border-[#1e2030]/60 space-y-2">
-            <span className="font-mono text-[10px] text-[#fbbf24] uppercase font-bold tracking-wider flex items-center gap-1.5">
-              <BookOpen className="h-3.5 w-3.5" />
+          <div className="pt-3 border-t border-white/10 space-y-2">
+            <span className="font-mono text-[10px] text-[#8C8C88] uppercase font-semibold tracking-wider flex items-center gap-1.5">
+              <BookOpen className="h-3.5 w-3.5 text-[#2447FF]" />
               RECOMMENDED COURSES ({courseResources.length})
             </span>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -316,17 +326,17 @@ function RoadmapCard({
                   href={c.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-between p-2.5 rounded-lg bg-[#14142b]/60 hover:bg-[#1a1a36] border border-[#3730a3]/40 hover:border-[#6366f1] transition-all group"
+                  className="flex items-center justify-between p-3 rounded-xl bg-[#141414] hover:bg-[#1A1A1A] border border-white/10 hover:border-white/20 transition-all group"
                 >
                   <div className="min-w-0 pr-2">
-                    <p className="font-sans text-xs font-semibold text-white group-hover:text-[#a5b4fc] truncate">
+                    <p className="font-sans text-xs font-semibold text-white group-hover:text-[#2447FF] truncate">
                       {c.title}
                     </p>
-                    <span className="font-mono text-[10px] text-[#9ca3af] block">
+                    <span className="font-mono text-[10px] text-[#8C8C88] block">
                       {c.provider || 'Interactive Course'}
                     </span>
                   </div>
-                  <ExternalLink className="h-3 w-3 text-[#818cf8] shrink-0 opacity-70 group-hover:opacity-100" />
+                  <ExternalLink className="h-3 w-3 text-[#8C8C88] shrink-0 opacity-70 group-hover:opacity-100" />
                 </a>
               ))}
             </div>
@@ -335,8 +345,8 @@ function RoadmapCard({
 
         {/* Secondary Resources: Docs & Practice Links */}
         {(docsResources.length > 0 || practiceResources.length > 0) && (
-          <div className="pt-2 border-t border-[#1e2030]/60 flex flex-wrap items-center gap-2">
-            <span className="font-mono text-[10px] text-[#64748b] uppercase tracking-wider mr-1">
+          <div className="pt-3 border-t border-white/10 flex flex-wrap items-center gap-2">
+            <span className="font-mono text-[10px] text-[#8C8C88] uppercase tracking-wider mr-1">
               ADDITIONAL MATERIALS:
             </span>
 
@@ -346,7 +356,7 @@ function RoadmapCard({
                 href={d.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 font-mono text-[11px] text-[#60a5fa] hover:text-white bg-[#0c0d15] hover:bg-[#1e2030] border border-[#1e2030] px-2.5 py-1 rounded-md transition-colors"
+                className="inline-flex items-center gap-1.5 font-mono text-[11px] text-[#8C8C88] hover:text-white bg-[#141414] hover:bg-[#1A1A1A] border border-white/10 px-3 py-1.5 rounded-lg transition-colors"
               >
                 <FileText className="h-3 w-3" />
                 <span className="truncate max-w-[200px]">{d.title}</span>
@@ -360,7 +370,7 @@ function RoadmapCard({
                 href={p.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 font-mono text-[11px] text-[#34d399] hover:text-white bg-[#0c0d15] hover:bg-[#1e2030] border border-[#1e2030] px-2.5 py-1 rounded-md transition-colors"
+                className="inline-flex items-center gap-1.5 font-mono text-[11px] text-[#8C8C88] hover:text-white bg-[#141414] hover:bg-[#1A1A1A] border border-white/10 px-3 py-1.5 rounded-lg transition-colors"
               >
                 <Code2 className="h-3 w-3" />
                 <span className="truncate max-w-[200px]">{p.title}</span>
@@ -384,7 +394,6 @@ export default function RoadmapPage() {
   const [generating, setGenerating] = useState(false)
   const supabase = createClient()
 
-  // Load Roadmap items and extract weak skills from past interview weaknesses
   useEffect(() => {
     async function loadData() {
       setInitialLoading(true)
@@ -394,7 +403,6 @@ export default function RoadmapPage() {
         } = await supabase.auth.getUser()
         if (!user) return
 
-        // 1. Fetch existing roadmap items
         const { data: roadmapData } = await supabase
           .from('roadmap_items')
           .select('*')
@@ -405,7 +413,6 @@ export default function RoadmapPage() {
           setItems(roadmapData as RoadmapItem[])
         }
 
-        // 2. Fetch measured weaknesses from user_weaknesses table
         const { data: weaknesses } = await supabase
           .from('user_weaknesses')
           .select('topic, weakness_score')
@@ -413,7 +420,6 @@ export default function RoadmapPage() {
           .order('weakness_score', { ascending: false })
           .limit(10)
 
-        // Also fetch weaknesses recorded directly from recent interview sessions
         const { data: recentInterviews } = await supabase
           .from('interviews')
           .select('weaknesses, title')
@@ -438,7 +444,6 @@ export default function RoadmapPage() {
         if (combined.length > 0) {
           setFocusTopics(combined.slice(0, 6))
         } else {
-          // Default starter weak topics if no interview recorded yet
           setFocusTopics([
             'JavaScript Data Types',
             'React Hooks & State Management',
@@ -492,11 +497,9 @@ export default function RoadmapPage() {
 
       toast.success('Curated video roadmap generated successfully!')
 
-      // Instantly render items from API response
       if (Array.isArray(data.items) && data.items.length > 0) {
         setItems(data.items as RoadmapItem[])
       } else {
-        // Fallback fetch from DB
         const {
           data: { user },
         } = await supabase.auth.getUser()
@@ -546,50 +549,48 @@ export default function RoadmapPage() {
   const progressPercent = items.length > 0 ? Math.round((completedCount / items.length) * 100) : 0
 
   return (
-    <div className="p-4 sm:p-6 md:p-8 max-w-[1200px] space-y-6 pb-32 sm:pb-16 font-sans">
+    <div className="p-4 sm:p-6 md:p-8 max-w-[1300px] mx-auto space-y-8 pb-32 sm:pb-16 font-sans">
       {/* Page Header */}
       <div>
-        <p className="font-mono text-[11px] text-[#818cf8] uppercase tracking-[0.15em] mb-1 font-semibold">
-          // AI LEARNING ROADMAP & VIDEO CURATION
-        </p>
-        <h1 className="font-display text-[28px] sm:text-[32px] font-bold text-white leading-[1.1] tracking-[-0.02em]">
+        <div className="flex items-center gap-2 mb-2 font-mono text-[11px] text-[#2447FF] uppercase tracking-widest font-semibold">
+          <span className="h-1.5 w-1.5 rounded-full bg-[#2447FF]" />
+          <span>[JOURNEY // 05] CURRICULUM ARCHITECTURE</span>
+        </div>
+        <h1 className="font-display text-[32px] sm:text-[40px] font-bold text-[#F4F2EC] leading-[1.05] tracking-[-0.03em]">
           Adaptive Video Roadmap
         </h1>
-        <p className="font-body text-[14px] text-[#9ca3af] mt-1 max-w-2xl">
-          Auto-calibrated based on your interview weak skills with high-yield YouTube video suggestions and practice modules.
+        <p className="font-body text-[14px] sm:text-[15px] text-[#8C8C88] mt-2 max-w-2xl">
+          Auto-calibrated based on your interview weak signals with high-yield video modules and targeted practice drills.
         </p>
       </div>
 
-      {/* WEAK SKILLS & TOPICS SELECTION PANEL */}
-      <div className="rounded-xl border border-[#1e2030] bg-[#09090f] shadow-[0_8px_32px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.05)] overflow-hidden">
-        <div className="flex items-center justify-between px-4 h-9 border-b border-[#1e2030] bg-[#11121b]/90 select-none">
-          <div className="flex items-center gap-2.5">
-            <MacTrafficLights size="sm" />
-            <span className="font-mono text-[10px] text-[#9ca3af] font-medium">
-              interview-weakness-grabber.sh — focus-targets
-            </span>
-          </div>
-          <span className="font-mono text-[9px] text-[#22c55e] bg-[#22c55e]/10 border border-[#22c55e]/20 px-2 py-0.5 rounded-full uppercase tracking-wider">
-            INTERVIEW SYNC
+      {/* Focus Topics Selection Panel */}
+      <div className="rounded-2xl border border-white/10 bg-[#0D0D0D] overflow-hidden shadow-xl">
+        <div className="flex items-center justify-between px-6 h-12 border-b border-white/10 bg-white/[0.02] select-none">
+          <span className="font-mono text-[11px] text-[#8C8C88] font-semibold tracking-wider uppercase">
+            TARGETED FOCUS AREAS ({focusTopics.length} SKILLS)
+          </span>
+          <span className="font-mono text-[10px] text-[#34d399] bg-[#052016] border border-[#065f46] px-2.5 py-0.5 rounded-full uppercase tracking-wider font-semibold">
+            TELEMETRY SYNC
           </span>
         </div>
 
-        <div className="p-5 sm:p-6 space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="p-6 space-y-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h2 className="font-mono text-[12px] uppercase tracking-[0.08em] font-bold text-white flex items-center gap-2">
-                <Target className="h-4 w-4 text-[#818cf8]" />
-                Target Weak Skills ({focusTopics.length} Focus Areas)
+              <h2 className="font-display text-base font-bold text-white flex items-center gap-2">
+                <Target className="h-4 w-4 text-[#2447FF]" />
+                Target Identified Blindspots
               </h2>
-              <p className="text-xs text-[#9ca3af] mt-0.5">
-                Remove, add, or customize the weak skills identified from your single interview assessment.
+              <p className="text-xs text-[#8C8C88] mt-1">
+                Customize the weak topics detected from your mock interviews to build a personalized study track.
               </p>
             </div>
 
             <button
               onClick={handleGenerate}
               disabled={generating || focusTopics.length === 0}
-              className="btn-neo-violet font-mono text-[12px] font-bold uppercase tracking-[0.05em] px-6 py-2.5 rounded-lg disabled:opacity-40 flex items-center gap-2 shadow-[0_0_25px_rgba(79,70,229,0.35)] transition-all hover:scale-[1.02] cursor-pointer"
+              className="bg-[#2447FF] hover:bg-[#1f3ce0] text-white font-mono text-[12px] font-semibold uppercase tracking-wider px-6 py-3 rounded-xl disabled:opacity-40 flex items-center gap-2 transition-all cursor-pointer shadow-md"
             >
               {generating ? (
                 <>
@@ -606,10 +607,10 @@ export default function RoadmapPage() {
           </div>
 
           {/* Active Focus Tags */}
-          <div className="min-h-[48px] p-2.5 pr-14 sm:pr-2.5 bg-[#050508] border border-[#1e2030] rounded-xl flex flex-wrap items-center gap-2">
+          <div className="min-h-[52px] p-3 bg-[#141414] border border-white/10 rounded-xl flex flex-wrap items-center gap-2">
             <AnimatePresence>
               {focusTopics.length === 0 ? (
-                <span className="text-xs text-[#64748b] font-mono px-2">
+                <span className="text-xs text-[#8C8C88] font-mono px-2">
                   No skills selected. Type a topic below or add from interview weaknesses.
                 </span>
               ) : (
@@ -619,13 +620,13 @@ export default function RoadmapPage() {
                     initial={{ opacity: 0, scale: 0.85 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.85 }}
-                    className="inline-flex items-center gap-1.5 bg-[#14142b] border border-[#6366f1]/50 text-white font-mono text-xs pl-3 pr-1.5 py-1.5 rounded-lg shadow-sm group max-w-full"
+                    className="inline-flex items-center gap-2 bg-[#1A1A1A] border border-white/15 text-white font-mono text-xs pl-3.5 pr-2 py-1.5 rounded-lg shadow-sm group"
                   >
                     <span className="truncate">{topic}</span>
                     <button
                       type="button"
                       onClick={() => removeTopic(topic)}
-                      className="p-1 hover:bg-[#6366f1]/30 rounded text-[#9ca3af] hover:text-white transition-colors cursor-pointer shrink-0"
+                      className="p-1 hover:bg-white/10 rounded text-[#8C8C88] hover:text-white transition-colors cursor-pointer shrink-0"
                       title="Remove skill"
                       aria-label={`Remove ${topic}`}
                     >
@@ -642,16 +643,16 @@ export default function RoadmapPage() {
             <input
               value={topicInput}
               onChange={(e) => setTopicInput(e.target.value)}
-              placeholder="Type any skill or weak topic (e.g. JavaScript Data Types, Binary Trees) & press Enter..."
-              className="bg-[#050508] border border-[#1e2030] focus:border-[#6366f1] focus:ring-1 focus:ring-[#6366f1]/40 rounded-lg px-3.5 py-2.5 text-[13px] text-white placeholder:text-[#64748b] focus:outline-none transition-all w-full font-mono"
+              placeholder="Add skill or weak topic (e.g. Distributed Consensus, Dynamic Programming) & press Enter..."
+              className="bg-[#141414] border border-white/10 focus:border-[#2447FF] rounded-xl px-4 py-3 text-[13px] text-white placeholder:text-[#8C8C88] focus:outline-none transition-all w-full font-mono"
             />
             <button
               type="submit"
               disabled={!topicInput.trim()}
-              className="px-4 py-2 rounded-lg bg-[#14142b] hover:bg-[#6366f1] text-white font-mono text-xs font-semibold flex items-center gap-1.5 shrink-0 border border-[#1e2030] hover:border-[#6366f1] transition-colors disabled:opacity-40 cursor-pointer"
+              className="px-5 py-3 rounded-xl bg-white/5 hover:bg-[#2447FF] text-white font-mono text-xs font-semibold flex items-center gap-2 shrink-0 border border-white/10 hover:border-[#2447FF] transition-colors disabled:opacity-40 cursor-pointer"
             >
               <Plus className="h-4 w-4" />
-              <span>Add Tag</span>
+              <span>Add Topic</span>
             </button>
           </form>
         </div>
@@ -659,33 +660,33 @@ export default function RoadmapPage() {
 
       {/* OVERVIEW STATS BAR */}
       {items.length > 0 && (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div className="bg-[#09090f] border border-[#1e2030] rounded-xl p-3.5 shadow-sm">
-            <span className="font-mono text-[10px] text-[#9ca3af] uppercase tracking-wider block">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div className="bg-[#0D0D0D] border border-white/10 rounded-2xl p-5 shadow-sm">
+            <span className="font-mono text-[10px] text-[#8C8C88] uppercase tracking-wider block">
               TOTAL MODULES
             </span>
-            <p className="font-mono text-xl font-bold text-white mt-0.5">{items.length}</p>
+            <p className="font-display text-3xl font-bold text-[#F4F2EC] mt-1">{items.length}</p>
           </div>
 
-          <div className="bg-[#09090f] border border-[#1e2030] rounded-xl p-3.5 shadow-sm">
-            <span className="font-mono text-[10px] text-[#9ca3af] uppercase tracking-wider block">
+          <div className="bg-[#0D0D0D] border border-white/10 rounded-2xl p-5 shadow-sm">
+            <span className="font-mono text-[10px] text-[#8C8C88] uppercase tracking-wider block">
               COMPLETED
             </span>
-            <p className="font-mono text-xl font-bold text-[#22c55e] mt-0.5">{completedCount}</p>
+            <p className="font-display text-3xl font-bold text-[#34d399] mt-1">{completedCount}</p>
           </div>
 
-          <div className="bg-[#09090f] border border-[#1e2030] rounded-xl p-3.5 shadow-sm">
-            <span className="font-mono text-[10px] text-[#9ca3af] uppercase tracking-wider block">
-              REMAINING HOURS
+          <div className="bg-[#0D0D0D] border border-white/10 rounded-2xl p-5 shadow-sm">
+            <span className="font-mono text-[10px] text-[#8C8C88] uppercase tracking-wider block">
+              REMAINING TIME
             </span>
-            <p className="font-mono text-xl font-bold text-[#818cf8] mt-0.5">{remainingHours}h</p>
+            <p className="font-display text-3xl font-bold text-[#F4F2EC] mt-1">{remainingHours}h</p>
           </div>
 
-          <div className="bg-[#09090f] border border-[#1e2030] rounded-xl p-3.5 shadow-sm">
-            <span className="font-mono text-[10px] text-[#9ca3af] uppercase tracking-wider block">
-              PROGRESS
+          <div className="bg-[#0D0D0D] border border-white/10 rounded-2xl p-5 shadow-sm">
+            <span className="font-mono text-[10px] text-[#8C8C88] uppercase tracking-wider block">
+              MASTERY RATE
             </span>
-            <p className="font-mono text-xl font-bold text-[#38bdf8] mt-0.5">{progressPercent}%</p>
+            <p className="font-display text-3xl font-bold text-[#2447FF] mt-1">{progressPercent}%</p>
           </div>
         </div>
       )}
@@ -694,30 +695,30 @@ export default function RoadmapPage() {
       <div className="space-y-6">
         {initialLoading ? (
           <div className="py-20 flex flex-col items-center justify-center space-y-3">
-            <Loader2 className="h-8 w-8 text-[#818cf8] animate-spin" />
-            <p className="font-mono text-xs text-[#9ca3af]">LOADING ROADMAP MODULES...</p>
+            <Loader2 className="h-8 w-8 text-[#2447FF] animate-spin" />
+            <p className="font-mono text-xs text-[#8C8C88]">SYNCHRONIZING CURRICULUM TELEMETRY...</p>
           </div>
         ) : items.length > 0 ? (
           <div className="space-y-6">
-            {items.map((item) => (
-              <RoadmapCard key={item.id} item={item} onToggle={handleToggle} />
+            {items.map((item, idx) => (
+              <RoadmapCard key={item.id} item={item} index={idx} onToggle={handleToggle} />
             ))}
           </div>
         ) : (
-          <div className="rounded-xl border border-[#1e2030] bg-[#09090f] p-16 text-center space-y-4">
-            <BookOpen className="h-12 w-12 mx-auto text-[#64748b]" />
+          <div className="rounded-2xl border border-white/10 bg-[#0D0D0D] p-16 text-center space-y-4 shadow-xl">
+            <BookOpen className="h-12 w-12 mx-auto text-[#8C8C88]" />
             <div className="space-y-1">
-              <p className="font-mono text-sm text-[#818cf8] uppercase tracking-wider font-semibold">
-                // NO ACTIVE ROADMAP FOUND
+              <p className="font-mono text-sm text-[#F4F2EC] uppercase tracking-wider font-semibold">
+                NO ACTIVE CURRICULUM FOUND
               </p>
-              <p className="font-sans text-xs text-[#9ca3af] max-w-md mx-auto">
-                Customize your focus skills in the box above and click &quot;Generate Video Roadmap&quot; to build your tailored video curriculum.
+              <p className="font-sans text-xs text-[#8C8C88] max-w-md mx-auto">
+                Customize your focus skills above and click &quot;Generate Video Roadmap&quot; to build your tailored video syllabus.
               </p>
             </div>
             <button
               onClick={handleGenerate}
               disabled={generating}
-              className="btn-neo-violet font-mono text-xs font-bold uppercase tracking-wider px-6 py-2.5 rounded-lg inline-flex items-center gap-2 cursor-pointer shadow-[0_0_20px_rgba(79,70,229,0.3)]"
+              className="bg-[#2447FF] hover:bg-[#1f3ce0] text-white font-mono text-xs font-semibold uppercase tracking-wider px-7 py-3 rounded-xl inline-flex items-center gap-2 cursor-pointer shadow-md"
             >
               <Sparkles className="h-4 w-4" />
               <span>Generate Starter Roadmap</span>

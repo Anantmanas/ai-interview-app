@@ -248,31 +248,49 @@ export default async function InterviewDetailPage({ params }: { params: Promise<
     return `${mins}:${secs.toString().padStart(2, '0')}`
   }
 
+  const overallScore = interview.overall_score ?? 0
+  const scoreDiagnosis =
+    overallScore >= 80
+      ? 'Exceptional mastery across problem space and edge cases.'
+      : overallScore >= 65
+      ? 'Strong fundamentals. Actionable system-design gaps diagnosed.'
+      : 'Fundamental concepts require structured remediation.'
+
   return (
-    <div className="p-4 sm:p-6 md:p-8 max-w-[1300px] space-y-6 pb-12">
-      <div className="flex items-center justify-between gap-4">
+    <div className="p-6 sm:p-10 md:p-12 max-w-[1300px] mx-auto space-y-12 select-text pb-20">
+      {/* Top Navigation & Export Action */}
+      <div className="flex items-center justify-between gap-4 border-b border-white/10 pb-6">
         <Link 
           href="/dashboard/history"
-          className="inline-flex items-center gap-1.5 font-mono text-[12px] uppercase text-[#9ca3af] hover:text-[#818cf8] transition-colors py-1 px-2.5 rounded-[4px] hover:bg-[#09090e]"
+          className="inline-flex items-center gap-2 font-mono text-xs uppercase text-[#8C8C88] hover:text-white transition-colors"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
-          Back to History
+          <span>Session Archives</span>
         </Link>
 
         <ExportPDFButton title={interview.title} />
       </div>
 
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-[#1e1e2f] pb-6">
-        <div>
-          <div className="flex items-center gap-3 mb-2">
-            <h1 className="font-display text-[28px] sm:text-[34px] font-bold text-white">{interview.title}</h1>
-            <span className="font-mono text-[10px] uppercase text-[#818cf8] bg-[#4f46e5]/15 border border-[#4f46e5]/30 rounded-[4px] px-2.5 py-0.5">
-              {interview.type.replace('_', ' ')}
+      {/* Visual Narrative Headline: Large Number + Statement */}
+      <div className="border-b border-white/10 pb-10">
+        <div className="flex flex-col lg:flex-row lg:items-baseline justify-between gap-8 mb-6">
+          <div>
+            <span className="font-mono text-xs uppercase tracking-widest text-[#2447FF] font-semibold block mb-2">
+              COMPOSITE TELEMETRY // {interview.type?.toUpperCase()}
             </span>
+            <div className="flex items-baseline gap-4">
+              <span className="display-giant text-[#F4F2EC] font-bold leading-none">
+                {interview.overall_score !== null ? interview.overall_score : '—'}
+              </span>
+              <span className="font-mono text-sm uppercase tracking-wider text-[#8C8C88]">
+                INTERVIEW SIGNAL / 100
+              </span>
+            </div>
           </div>
-          <div className="flex flex-wrap items-center gap-4 font-mono text-[11px] text-[#9ca3af]">
-            <span className="flex items-center gap-1">
-              <Calendar className="h-3.5 w-3.5 text-[#64748b]" />
+
+          <div className="flex flex-wrap items-center gap-6 font-mono text-xs text-[#8C8C88]">
+            <span className="flex items-center gap-1.5">
+              <Calendar className="h-3.5 w-3.5 text-[#8C8C88]" />
               {new Date(interview.created_at).toLocaleDateString('en-US', {
                 month: 'long',
                 day: 'numeric',
@@ -280,114 +298,123 @@ export default async function InterviewDetailPage({ params }: { params: Promise<
               })}
             </span>
             <span>•</span>
-            <span className="flex items-center gap-1">
-              <Clock className="h-3.5 w-3.5 text-[#64748b]" />
+            <span className="flex items-center gap-1.5">
+              <Clock className="h-3.5 w-3.5 text-[#8C8C88]" />
               {formatDuration(interview.duration_seconds)}
             </span>
             <span>•</span>
-            <span className="capitalize text-[#9ca3af]">
-              Difficulty: {interview.difficulty}
+            <span className="capitalize">
+              Level: {interview.difficulty || 'medium'}
             </span>
           </div>
         </div>
-        
-        {interview.overall_score !== null && (
-          <div className="flex items-center gap-4 bg-[#09090e] border border-[#3730a3] rounded-[8px] p-4 pr-8 shadow-[0_0_20px_rgba(79,70,229,0.2)]">
-            <div className="bg-[#14142b] p-3 rounded-[6px] border border-[#3730a3]">
-              <Trophy className="h-7 w-7 text-[#818cf8]" />
-            </div>
-            <div>
-              <div className="font-display text-[32px] font-bold bg-gradient-to-r from-[#6366f1] to-[#818cf8] bg-clip-text text-transparent leading-none">
-                {interview.overall_score}%
-              </div>
-              <div className="font-mono text-[10px] uppercase text-[#64748b] mt-1">Overall Score</div>
-            </div>
-          </div>
-        )}
+
+        <h1 className="display-statement text-[#F4F2EC] font-semibold max-w-4xl">
+          "{scoreDiagnosis}"
+        </h1>
+        <p className="font-mono text-xs text-[#8C8C88] mt-3 uppercase tracking-wider">
+          TARGET: {interview.title}
+        </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-4">
-          <h2 className="font-mono text-[12px] uppercase tracking-[0.1em] text-[#818cf8] font-semibold flex items-center gap-2">
-            <CheckCircle2 className="h-4 w-4 text-[#6366f1]" />
-            Question-by-Question Assessment
-          </h2>
-          
-          {questions && questions.length > 0 ? (
-            <div className="space-y-4">
-              {questions.map((q, i) => (
-                <QuestionEvalCard
-                  key={q.id}
-                  question={q}
-                  index={i}
-                />
+      {/* Narrative Flow: Diagnosis → Weakness → Recommendation → Next action */}
+      <div className="space-y-10 max-w-4xl border-b border-white/10 pb-12">
+        {/* Step 1: Diagnosis */}
+        <div className="border-l-2 border-[#2447FF] pl-6 sm:pl-8 space-y-2">
+          <span className="font-mono text-xs uppercase tracking-[0.18em] text-[#2447FF] font-semibold">
+            01 // DIAGNOSTIC SYNTHESIS
+          </span>
+          <h3 className="font-display text-xl font-bold text-[#F4F2EC]">
+            Key Observed Strengths
+          </h3>
+          {interview.strengths && interview.strengths.length > 0 ? (
+            <ul className="space-y-1.5 pt-1">
+              {interview.strengths.map((s: string, i: number) => (
+                <li key={i} className="font-body text-base text-[#8C8C88] flex items-start gap-2">
+                  <span className="text-[#2447FF] mt-1 shrink-0 font-bold">•</span>
+                  <span>{s}</span>
+                </li>
               ))}
-            </div>
+            </ul>
           ) : (
-            <div className="rounded-xl border border-[#1e2030] bg-[#09090f] p-12 text-center">
-              <p className="font-mono text-[12px] text-[#64748b] uppercase">// NO QUESTIONS RECORDED</p>
-            </div>
+            <p className="font-body text-base text-[#8C8C88]">
+              Initial participation recorded.
+            </p>
           )}
         </div>
 
-        <div className="space-y-6">
-          {/* Strengths & Weaknesses */}
-          <div className="rounded-xl border border-[#1e2030] bg-[#09090f] shadow-[0_8px_32px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.05)] overflow-hidden">
-            <div className="flex items-center gap-2.5 px-4 h-9 border-b border-[#1e2030] bg-[#11121b]/90 select-none">
-              <MacTrafficLights size="sm" />
-              <span className="font-mono text-[10px] text-[#9ca3af]">
-                diagnostics.summary — bash
-              </span>
-            </div>
-            <div className="p-5 space-y-6">
-            <div className="border-b border-[#1e1e2f] pb-3">
-              <h4 className="font-mono text-[11px] text-white uppercase tracking-[0.08em] font-semibold">
-                Performance Diagnostics
-              </h4>
-            </div>
-
-            {interview.strengths && interview.strengths.length > 0 && (
-              <div className="space-y-2.5">
-                <h5 className="font-mono text-[11px] font-bold uppercase text-[#818cf8] flex items-center gap-1.5">
-                  <Star className="h-3.5 w-3.5" /> Key Strengths
-                </h5>
-                <ul className="space-y-2">
-                  {interview.strengths.map((s: string, i: number) => (
-                    <li key={i} className="font-body text-[13px] text-[#9ca3af] flex gap-2">
-                      <span className="text-[#6366f1] font-bold">•</span>
-                      <span>{s}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {interview.weaknesses && interview.weaknesses.length > 0 && (
-              <div className="space-y-2.5 pt-2 border-t border-[#1e1e2f]">
-                <h5 className="font-mono text-[11px] font-bold uppercase text-[#f87171] flex items-center gap-1.5">
-                  <AlertCircle className="h-3.5 w-3.5" /> Identified Weaknesses
-                </h5>
-                <ul className="space-y-2">
-                  {interview.weaknesses.map((w: any, i: number) => (
-                    <li key={i} className="font-body text-[13px] text-[#9ca3af] flex gap-2">
-                      <span className="text-[#f87171] font-bold">•</span>
-                      <div>
-                        <strong className="text-white font-medium">{w.topic}:</strong> {w.feedback}
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {!interview.strengths && !interview.weaknesses && (
-              <div className="font-mono text-[11px] text-[#64748b] italic text-center py-4">
-                Complete an evaluation to see strengths and weaknesses.
-              </div>
-            )}
+        {/* Step 2: Critical Weakness */}
+        {interview.weaknesses && interview.weaknesses.length > 0 && (
+          <div className="border-l-2 border-[#f43f5e] pl-6 sm:pl-8 space-y-2">
+            <span className="font-mono text-xs uppercase tracking-[0.18em] text-[#f43f5e] font-semibold">
+              02 // IDENTIFIED BLINDSPOTS
+            </span>
+            <h3 className="font-display text-xl font-bold text-[#F4F2EC]">
+              Gaps Requiring Remediation
+            </h3>
+            <div className="space-y-3 pt-1">
+              {interview.weaknesses.map((w: any, i: number) => (
+                <div key={i} className="p-4 rounded-xl bg-[#0D0D0D] border border-white/10 text-sm">
+                  <span className="font-mono text-xs uppercase text-[#f43f5e] font-semibold block mb-1">
+                    {w.topic}
+                  </span>
+                  <p className="text-[#8C8C88] leading-relaxed">
+                    {w.feedback}
+                  </p>
+                </div>
+              ))}
             </div>
           </div>
+        )}
+
+        {/* Step 3: Next Action */}
+        <div className="border-l-2 border-[#34d399] pl-6 sm:pl-8 space-y-2">
+          <span className="font-mono text-xs uppercase tracking-[0.18em] text-[#34d399] font-semibold">
+            03 // RECOMMENDED NEXT ACTION
+          </span>
+          <h3 className="font-display text-xl font-bold text-[#F4F2EC]">
+            Curriculum Remediation & Re-test
+          </h3>
+          <p className="font-body text-base text-[#8C8C88] leading-relaxed">
+            Review the prioritized video modules in your mastery roadmap and schedule a targeted 15-minute re-test session to verify progress.
+          </p>
+          <div className="pt-2">
+            <Link
+              href="/dashboard/roadmap"
+              className="inline-flex items-center gap-2 font-mono text-xs uppercase text-[#2447FF] hover:underline font-semibold"
+            >
+              <span>Navigate to Mastery Roadmap →</span>
+            </Link>
+          </div>
         </div>
+      </div>
+
+      {/* Supporting Evidence: Question Evaluation Log */}
+      <div className="space-y-6">
+        <div className="flex items-baseline justify-between border-b border-white/10 pb-4">
+          <h2 className="font-display text-2xl font-bold text-[#F4F2EC]">
+            Supporting Evaluation Evidence ({questions?.length || 0})
+          </h2>
+          <span className="font-mono text-xs text-[#8C8C88] uppercase">
+            AUDITED BY AI ENGINE
+          </span>
+        </div>
+        
+        {questions && questions.length > 0 ? (
+          <div className="space-y-4">
+            {questions.map((q, i) => (
+              <QuestionEvalCard
+                key={q.id}
+                question={q}
+                index={i}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="rounded-xl border border-white/10 bg-[#0D0D0D] p-12 text-center">
+            <p className="font-mono text-xs text-[#8C8C88] uppercase">NO QUESTIONS RECORDED</p>
+          </div>
+        )}
       </div>
     </div>
   )

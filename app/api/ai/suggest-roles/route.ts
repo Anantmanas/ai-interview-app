@@ -76,7 +76,7 @@ Respond with ONLY a JSON object in this exact format:
   "recommended": "Top Title"
 }`
 
-        const res = await createChatCompletion({
+        const res: any = await createChatCompletion({
           messages: [
             {
               role: 'system',
@@ -91,7 +91,7 @@ Respond with ONLY a JSON object in this exact format:
           maxTokens: 300,
         })
 
-        const content = res.choices[0]?.message?.content
+        const content = typeof res === 'string' ? res : res?.choices?.[0]?.message?.content
         if (content) {
           const parsed = JSON.parse(content)
           if (Array.isArray(parsed.roles) && parsed.roles.length > 0) {
