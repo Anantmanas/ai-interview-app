@@ -115,6 +115,9 @@ function SidebarInnerContent({ user, profile }: DashboardSidebarProps) {
               <span className="font-display text-[15px] font-bold text-[#F4F2EC] tracking-tight truncate">
                 InterviewAI
               </span>
+              <span className="font-mono text-[9px] uppercase tracking-wider text-[#2447FF] bg-[#2447FF]/10 border border-[#2447FF]/30 px-1.5 py-0.5 rounded font-bold">
+                v2.4.0
+              </span>
             </motion.div>
           )}
         </div>
