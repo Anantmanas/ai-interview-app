@@ -46,7 +46,15 @@ function isCorruptedResumeData(data: ResumeData): boolean {
   const summary = (data.summary || '').trim()
   if (name.startsWith('%PDF-') || name === 'linkdin data') return true
   if (summary.includes('/Type/Catalog')) return true
-  
+  if (summary.includes('/Creator')) return true
+  if (summary.includes('/Producer')) return true
+  if (summary.startsWith('%PDF-')) return true
+  if (summary.startsWith('PDF-')) return true
+  // Detect PDF-1.x header at start
+  if (/^PDF-\d|^%PDF-\d/.test(summary)) return true
+  // Raw PDF operator density
+  if ((summary.match(/\/(Type|Creator|Producer|Author|Title|ModDate|CreationDate)\b/g) || []).length >= 2) return true
+
   // Detect font glyph symbol noise e.g. "D D ! ! # $ % &"
   const specialSymbols = summary.match(/[$%&#!*+\\=~^`<>{}[\]|]/g) || []
   if (summary.length > 20 && specialSymbols.length / summary.length > 0.08) {

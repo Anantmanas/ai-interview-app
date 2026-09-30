@@ -36,11 +36,14 @@ const KNOWN_TECH_SKILLS = [
   'Django', 'Flask', 'Spring Boot', 'Angular', 'Vue.js', 'Svelte', 'WebSockets'
 ]
 
+const PDF_METADATA_PATTERN = /^\/|^%PDF|^\/Type|^\/Creator|^\/Producer|^\/Title|^\/Author|^endobj|^obj|^xref|^trailer|^startxref|^stream|^endstream|^BT|^ET|^Tf|^Td|^Tj|^\d+\s+\d+\s+obj/i
+
 const PDF_BINARY_NOISE = /^(endobj|obj|stream|endstream|xref|trailer|startxref|catalog|flatedecode|length|filter|type|pages|font|encoding|parent|annot)$/i
 
 function isNoiseToken(word: string): boolean {
   return (
     PDF_BINARY_NOISE.test(word.trim()) ||
+    PDF_METADATA_PATTERN.test(word.trim()) ||
     word.includes('%PDF-') ||
     word.includes('<<') ||
     word.includes('>>') ||
@@ -179,9 +182,18 @@ function buildFallbackResumeData(text: string, fileName: string): ResumeData {
   const targetRole = parseTargetRole(normalized)
   const education = parseEducation(normalized)
 
-  const cleanSummary = normalized && !isGarbageText(normalized) && normalized.length > 40
-    ? normalized.slice(0, 500)
-    : ''
+  // Strip PDF metadata/operator lines before building summary
+  const cleanLines = normalized
+    .split('\n')
+    .map((l) => l.trim())
+    .filter((l) => l.length > 0 && !PDF_METADATA_PATTERN.test(l) && !isGarbageText(l))
+
+  const cleanedText = cleanLines.join(' ')
+
+  const cleanSummary =
+    cleanedText && !isGarbageText(cleanedText) && cleanedText.length > 40
+      ? cleanedText.slice(0, 500)
+      : ''
 
   return {
     name,

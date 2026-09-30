@@ -46,8 +46,17 @@ export function ResumeSummary() {
 
         {/* Collapsible Executive Summary */}
         {(() => {
+          const isPdfMetadata = (s?: string) => {
+            if (!s) return true
+            if (s.startsWith('%PDF-') || s.startsWith('PDF-')) return true
+            if (s.includes('/Creator') || s.includes('/Producer') || s.includes('/Type/Catalog')) return true
+            if (/^PDF-\d|^%PDF-\d/.test(s)) return true
+            if ((s.match(/\/(Type|Creator|Producer|Author|Title|ModDate|CreationDate)\b/g) || []).length >= 2) return true
+            return false
+          }
           const isGlyphGarbage = (s?: string) => {
             if (!s) return true
+            if (isPdfMetadata(s)) return true
             const symbols = s.match(/[$%&#!*+\\=~^`<>{}[\]|]/g) || []
             return symbols.length / s.length > 0.08
           }
@@ -84,6 +93,7 @@ export function ResumeSummary() {
             </div>
           )
         })()}
+
 
         {/* Extracted Skills */}
         <div>
