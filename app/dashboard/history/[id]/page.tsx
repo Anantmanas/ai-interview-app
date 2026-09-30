@@ -17,6 +17,7 @@ import { MacTrafficLights } from '@/components/ui/terminal-card'
 import { QuestionEvalCard } from '@/components/history/question-eval-card'
 import { ExportPDFButton } from '@/components/history/export-pdf-button'
 import { updateWeaknessScores } from '@/lib/ai/weakness-tracker'
+import { formatSessionDate } from '@/lib/utils'
 
 export default async function InterviewDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -291,11 +292,7 @@ export default async function InterviewDetailPage({ params }: { params: Promise<
           <div className="flex flex-wrap items-center gap-6 font-mono text-xs text-[#8C8C88]">
             <span className="flex items-center gap-1.5">
               <Calendar className="h-3.5 w-3.5 text-[#8C8C88]" />
-              {new Date(interview.created_at).toLocaleDateString('en-US', {
-                month: 'long',
-                day: 'numeric',
-                year: 'numeric',
-              })}
+              {formatSessionDate(interview.created_at)}
             </span>
             <span>•</span>
             <span className="flex items-center gap-1.5">

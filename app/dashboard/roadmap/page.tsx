@@ -386,10 +386,13 @@ function RoadmapCard({
 
 // ── Main Page Component ───────────────────────────────────────────────────────
 
+const ROADMAP_STORAGE_KEY = 'interviewai_roadmap_cached_items'
+
 export default function RoadmapPage() {
   const [items, setItems] = useState<RoadmapItem[]>([])
   const [focusTopics, setFocusTopics] = useState<string[]>([])
   const [topicInput, setTopicInput] = useState('')
+  const [hasEvaluations, setHasEvaluations] = useState(false)
   const [initialLoading, setInitialLoading] = useState(true)
   const [generating, setGenerating] = useState(false)
   const supabase = createClient()
@@ -398,6 +401,17 @@ export default function RoadmapPage() {
     async function loadData() {
       setInitialLoading(true)
       try {
+        // Hydrate from localStorage first to prevent disappearance on reload
+        try {
+          const cached = localStorage.getItem(ROADMAP_STORAGE_KEY)
+          if (cached) {
+            const parsed = JSON.parse(cached)
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              setItems(parsed)
+            }
+          }
+        } catch {}
+
         const {
           data: { user },
         } = await supabase.auth.getUser()
@@ -409,8 +423,11 @@ export default function RoadmapPage() {
           .eq('user_id', user.id)
           .order('priority', { ascending: true })
 
-        if (roadmapData) {
+        if (roadmapData && roadmapData.length > 0) {
           setItems(roadmapData as RoadmapItem[])
+          try {
+            localStorage.setItem(ROADMAP_STORAGE_KEY, JSON.stringify(roadmapData))
+          } catch {}
         }
 
         const { data: weaknesses } = await supabase
@@ -442,8 +459,10 @@ export default function RoadmapPage() {
         const combined = Array.from(new Set([...extractedInterviewTopics, ...dbWeaknessTopics]))
 
         if (combined.length > 0) {
+          setHasEvaluations(true)
           setFocusTopics(combined.slice(0, 6))
         } else {
+          setHasEvaluations(false)
           setFocusTopics([
             'JavaScript Data Types',
             'React Hooks & State Management',
@@ -477,9 +496,16 @@ export default function RoadmapPage() {
   }
 
   const handleGenerate = async () => {
+    // If no topics selected, auto-seed starter curriculum topics
+    const topicsToUse = focusTopics.length > 0 ? focusTopics : [
+      'Algorithms & Data Structures',
+      'System Design & Scalability',
+      'Concurrency & Performance',
+      'API Architecture',
+    ]
+
     if (focusTopics.length === 0) {
-      toast.error('Please add at least one weak skill or focus topic.')
-      return
+      setFocusTopics(topicsToUse)
     }
 
     setGenerating(true)
@@ -487,7 +513,7 @@ export default function RoadmapPage() {
       const res = await fetch('/api/roadmap/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ topics: focusTopics }),
+        body: JSON.stringify({ topics: topicsToUse }),
       })
 
       const data = await res.json()
@@ -499,6 +525,9 @@ export default function RoadmapPage() {
 
       if (Array.isArray(data.items) && data.items.length > 0) {
         setItems(data.items as RoadmapItem[])
+        try {
+          localStorage.setItem(ROADMAP_STORAGE_KEY, JSON.stringify(data.items))
+        } catch {}
       } else {
         const {
           data: { user },
@@ -510,8 +539,11 @@ export default function RoadmapPage() {
             .eq('user_id', user.id)
             .order('priority', { ascending: true })
 
-          if (updated) {
+          if (updated && updated.length > 0) {
             setItems(updated as RoadmapItem[])
+            try {
+              localStorage.setItem(ROADMAP_STORAGE_KEY, JSON.stringify(updated))
+            } catch {}
           }
         }
       }
@@ -526,18 +558,24 @@ export default function RoadmapPage() {
     const newStatus = currentStatus === 'completed' ? 'pending' : 'completed'
     const completedAt = newStatus === 'completed' ? new Date().toISOString() : null
 
-    setItems((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, status: newStatus as any, completed_at: completedAt || undefined } : item))
-    )
+    setItems((prev) => {
+      const updated = prev.map((item) =>
+        item.id === id ? { ...item, status: newStatus as any, completed_at: completedAt || undefined } : item
+      )
+      try {
+        localStorage.setItem(ROADMAP_STORAGE_KEY, JSON.stringify(updated))
+      } catch {}
+      return updated
+    })
 
     try {
-      await supabase
-        .from('roadmap_items')
-        .update({ status: newStatus, completed_at: completedAt })
-        .eq('id', id)
+      await fetch('/api/roadmap/item', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, status: newStatus, completed_at: completedAt }),
+      })
     } catch (err) {
-      console.error('Failed to update status:', err)
-      toast.error('Failed to update item status')
+      console.warn('Failed to update status on server:', err)
     }
   }
 
@@ -570,8 +608,12 @@ export default function RoadmapPage() {
           <span className="font-mono text-[11px] text-[#8C8C88] font-semibold tracking-wider uppercase">
             TARGETED FOCUS AREAS ({focusTopics.length} SKILLS)
           </span>
-          <span className="font-mono text-[10px] text-[#34d399] bg-[#052016] border border-[#065f46] px-2.5 py-0.5 rounded-full uppercase tracking-wider font-semibold">
-            TELEMETRY SYNC
+          <span className={`font-mono text-[10px] px-2.5 py-0.5 rounded-full uppercase tracking-wider font-semibold ${
+            hasEvaluations
+              ? 'text-[#34d399] bg-[#052016] border border-[#065f46]'
+              : 'text-[#60a5fa] bg-[#0a1226] border border-[#1e3a8a]'
+          }`}>
+            {hasEvaluations ? 'TELEMETRY SYNC' : 'STARTER TOPICS'}
           </span>
         </div>
 
@@ -580,16 +622,18 @@ export default function RoadmapPage() {
             <div>
               <h2 className="font-display text-base font-bold text-white flex items-center gap-2">
                 <Target className="h-4 w-4 text-[#2447FF]" />
-                Target Identified Blindspots
+                {hasEvaluations ? 'Target Identified Blindspots' : 'Starter Curriculum Skills'}
               </h2>
               <p className="text-xs text-[#8C8C88] mt-1">
-                Customize the weak topics detected from your mock interviews to build a personalized study track.
+                {hasEvaluations
+                  ? 'Customize the weak topics detected from your mock interviews to build a personalized study track.'
+                  : 'Recommended foundation skills to build your initial study track. As you complete mock interviews, this list updates with your diagnosed blindspots.'}
               </p>
             </div>
 
             <button
               onClick={handleGenerate}
-              disabled={generating || focusTopics.length === 0}
+              disabled={generating}
               className="bg-[#2447FF] hover:bg-[#1f3ce0] text-white font-mono text-[12px] font-semibold uppercase tracking-wider px-6 py-3 rounded-xl disabled:opacity-40 flex items-center gap-2 transition-all cursor-pointer shadow-md"
             >
               {generating ? (
@@ -600,7 +644,7 @@ export default function RoadmapPage() {
               ) : (
                 <>
                   <Sparkles className="h-4 w-4" />
-                  <span>Generate Video Roadmap</span>
+                  <span>{focusTopics.length === 0 ? 'Generate Starter Roadmap' : 'Generate Video Roadmap'}</span>
                 </>
               )}
             </button>

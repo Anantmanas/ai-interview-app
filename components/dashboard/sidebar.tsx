@@ -36,27 +36,27 @@ import { cn } from '@/lib/utils'
 
 const navigation = [
   {
-    title: 'OPERATING CORE',
+    title: 'MAIN',
     items: [
-      { title: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-      { title: 'Start Interview', href: '/interview/new', icon: Mic },
-      { title: 'Session History', href: '/dashboard/history', icon: History },
+      { title: 'Home', href: '/dashboard', icon: LayoutDashboard },
+      { title: 'Practice Now', href: '/interview/new', icon: Mic },
+      { title: 'Past Sessions', href: '/dashboard/history', icon: History },
     ],
   },
   {
-    title: 'INTELLIGENCE',
+    title: 'PROGRESS',
     items: [
-      { title: 'Telemetry Analytics', href: '/dashboard/analytics', icon: BarChart3 },
-      { title: 'Mastery Roadmap', href: '/dashboard/roadmap', icon: Map },
+      { title: 'My Progress', href: '/dashboard/analytics', icon: BarChart3 },
+      { title: 'Study Plan', href: '/dashboard/roadmap', icon: Map },
     ],
   },
   {
-    title: 'CONFIGURATION',
+    title: 'ACCOUNT',
     items: [
-      { title: 'Billing & Quota', href: '/dashboard/billing', icon: CreditCard },
-      { title: 'Referral Engine', href: '/dashboard/referrals', icon: Gift },
-      { title: 'Candidate Profile', href: '/dashboard/profile', icon: UserIcon },
-      { title: 'Resume Grounding', href: '/dashboard/resume', icon: FileText },
+      { title: 'Billing', href: '/dashboard/billing', icon: CreditCard },
+      { title: 'Referrals', href: '/dashboard/referrals', icon: Gift },
+      { title: 'Profile', href: '/dashboard/profile', icon: UserIcon },
+      { title: 'My Resume', href: '/dashboard/resume', icon: FileText },
       { title: 'Settings', href: '/dashboard/settings', icon: Settings },
     ],
   },
@@ -226,7 +226,7 @@ function SidebarInnerContent({ user, profile }: DashboardSidebarProps) {
             <DropdownMenuItem asChild className="focus:bg-[#0a1226] focus:text-[#60a5fa] cursor-pointer rounded-lg font-mono text-[11px] uppercase tracking-wider py-2">
               <Link href="/dashboard/resume">
                 <FileText className="mr-2 h-4 w-4 text-[#3b82f6]" />
-                Resume Grounding
+                My Resume
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild className="focus:bg-[#0a1226] focus:text-[#60a5fa] cursor-pointer rounded-lg font-mono text-[11px] uppercase tracking-wider py-2">

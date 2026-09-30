@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { supabaseAdmin } from '@/lib/supabase/admin'
 import { formatResumeMarkdown, parseResumeMarkdown, structuredToDashboardResume } from '@/lib/resume/format'
 import { ResumeParsingService } from '@/lib/resume/parser-service'
 import { extractTextFromPdfBuffer, isGarbageText } from '@/lib/resume/pdf-extractor'
@@ -49,7 +50,7 @@ function isNoiseToken(word: string): boolean {
 
 function parseSkills(text: string): string[] {
   if (isGarbageText(text)) {
-    return ['JavaScript', 'TypeScript', 'React', 'Node.js', 'SQL', 'Git']
+    return []
   }
 
   const detected = new Set<string>()
@@ -84,7 +85,7 @@ function parseSkills(text: string): string[] {
     }
   }
 
-  return detected.size > 0 ? Array.from(detected).slice(0, 24) : ['JavaScript', 'TypeScript', 'React', 'Node.js', 'SQL', 'Git']
+  return Array.from(detected).slice(0, 24)
 }
 
 function parseName(text: string, fileName: string): string {
@@ -115,11 +116,11 @@ function parseName(text: string, fileName: string): string {
     .replace(/\s+/g, ' ')
     .trim()
 
-  return cleanedFileName && cleanedFileName.length >= 2 ? cleanedFileName : 'Candidate'
+  return cleanedFileName && cleanedFileName.length >= 2 ? cleanedFileName : ''
 }
 
 function parseYears(text: string): number {
-  if (isGarbageText(text)) return 2
+  if (isGarbageText(text)) return 0
   const m = text.match(/(\d{1,2})\+?\s*(years?|yrs?)\s*(of)?\s*experience/i)
   if (!m) return 0
   const n = Number.parseInt(m[1], 10)
@@ -127,18 +128,18 @@ function parseYears(text: string): number {
 }
 
 function parseTargetRole(text: string): string | undefined {
-  if (isGarbageText(text)) return 'Software Engineer'
+  if (isGarbageText(text)) return undefined
   const role = text.match(/(full\s*stack\s*engineer|software\s*engineer|frontend\s*engineer|backend\s*engineer|qa\s*engineer|devops\s*engineer|data\s*engineer|product\s*manager|ui\/ux\s*designer|mobile\s*developer)/i)
   return role?.[1]
 }
 
 function parseEducation(text: string): string[] {
-  if (isGarbageText(text)) return ['Bachelor of Technology in Computer Science']
+  if (isGarbageText(text)) return []
   const lines = text.split('\n').map((l) => l.trim())
   const filtered = lines
     .filter((l) => /(b\.tech|btech|m\.tech|mtech|bachelor|master|university|college|computer\s+science)/i.test(l) && !isGarbageText(l))
     .slice(0, 6)
-  return filtered.length > 0 ? filtered : ['Bachelor of Technology in Computer Science']
+  return filtered
 }
 
 function mapStructuredToResumeData(structured: StructuredResumeData, rawText: string, fileName: string): ResumeData {
@@ -146,7 +147,7 @@ function mapStructuredToResumeData(structured: StructuredResumeData, rawText: st
   const candidateName = structured.name && !isNoiseToken(structured.name) ? structured.name : fallback.name
   const targetPosition = structured.position && !/not answerable|unknown|n\/a/i.test(structured.position) && !isGarbageText(structured.position)
     ? structured.position
-    : (fallback.targetRole || 'Software Engineer')
+    : fallback.targetRole
 
   const detectedSkills = Array.from(
     new Set([
@@ -161,12 +162,12 @@ function mapStructuredToResumeData(structured: StructuredResumeData, rawText: st
     : fallback.summary
 
   return {
-    name: candidateName,
-    skills: detectedSkills.length > 0 ? detectedSkills.slice(0, 24) : ['JavaScript', 'TypeScript', 'React', 'Node.js', 'SQL', 'Git'],
+    name: candidateName || '',
+    skills: detectedSkills.slice(0, 24),
     experience: structured.experience && structured.experience.length > 0 ? structured.experience : fallback.experience,
     education: structured.education && structured.education.length > 0 ? structured.education : fallback.education,
-    targetRole: targetPosition,
-    summary: cleanSummary,
+    targetRole: targetPosition || undefined,
+    summary: cleanSummary || undefined,
   }
 }
 
@@ -175,17 +176,17 @@ function buildFallbackResumeData(text: string, fileName: string): ResumeData {
   const years = parseYears(normalized)
   const name = parseName(normalized, fileName)
   const skills = parseSkills(normalized)
-  const targetRole = parseTargetRole(normalized) || 'Software Engineer'
+  const targetRole = parseTargetRole(normalized)
   const education = parseEducation(normalized)
 
   const cleanSummary = normalized && !isGarbageText(normalized) && normalized.length > 40
     ? normalized.slice(0, 500)
-    : 'Experienced Software Engineer with proficiency in JavaScript, TypeScript, React, Node.js, and modern full-stack development.'
+    : ''
 
   return {
     name,
     skills,
-    experience: years > 0 ? [{ role: targetRole, company: 'Tech Solutions', years }] : [{ role: targetRole, company: 'Software Engineering', years: 2 }],
+    experience: years > 0 && targetRole ? [{ role: targetRole, company: 'Organization', years }] : [],
     education,
     targetRole,
     summary: cleanSummary,
@@ -231,9 +232,9 @@ function sanitizeFullName(raw: string): string {
 /**
  * Loads all stored resumes for a user (up to 2).
  */
-async function fetchUserResumes(supabase: any, userId: string): Promise<StoredResumeItem[]> {
+async function fetchUserResumes(client: any, userId: string): Promise<StoredResumeItem[]> {
   try {
-    const { data: versions, error: versionsError } = await supabase
+    const { data: versions, error: versionsError } = await client
       .from('resume_versions')
       .select('id, resume_id, file_url, file_name, created_at, status')
       .eq('user_id', userId)
@@ -244,13 +245,13 @@ async function fetchUserResumes(supabase: any, userId: string): Promise<StoredRe
       const items: StoredResumeItem[] = []
 
       for (const v of versions) {
-        const { data: parsed } = await supabase
+        const { data: parsed } = await client
           .from('parsed_resume_data')
           .select('structured_data, markdown')
           .eq('resume_version_id', v.id)
           .maybeSingle()
 
-        const { data: parentResume } = await supabase
+        const { data: parentResume } = await client
           .from('resumes')
           .select('is_active')
           .eq('id', v.resume_id)
@@ -264,14 +265,6 @@ async function fetchUserResumes(supabase: any, userId: string): Promise<StoredRe
           education: [],
           targetRole: undefined,
           summary: undefined,
-        }
-
-        // Guarantee no garbage summary in response
-        if (isGarbageText(dashboardData.summary)) {
-          dashboardData.summary = 'Experienced Software Engineer with proficiency in JavaScript, TypeScript, React, and modern full-stack web applications.'
-        }
-        if (dashboardData.skills.length === 0) {
-          dashboardData.skills = ['JavaScript', 'TypeScript', 'React', 'Node.js', 'SQL', 'Git']
         }
 
         items.push({
@@ -299,38 +292,36 @@ async function fetchUserResumes(supabase: any, userId: string): Promise<StoredRe
   }
 
   // Fallback: Check profile
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('resume_text, resume_url, full_name, target_role, updated_at')
-    .eq('id', userId)
-    .single()
+  try {
+    const { data: profile } = await client
+      .from('profiles')
+      .select('resume_text, resume_url, full_name, target_role, updated_at')
+      .eq('id', userId)
+      .single()
 
-  if (profile?.resume_text) {
-    const structured = parseResumeMarkdown(profile.resume_text)
-    if (structured) {
-      const dashboardData = structuredToDashboardResume(structured)
-      if (!dashboardData.name && profile.full_name) dashboardData.name = profile.full_name
-      if (!dashboardData.targetRole && profile.target_role) dashboardData.targetRole = profile.target_role
+    if (profile?.resume_text) {
+      const structured = parseResumeMarkdown(profile.resume_text)
+      if (structured) {
+        const dashboardData = structuredToDashboardResume(structured)
+        if (!dashboardData.name && profile.full_name) dashboardData.name = profile.full_name
+        if (!dashboardData.targetRole && profile.target_role) dashboardData.targetRole = profile.target_role
 
-      if (isGarbageText(dashboardData.summary)) {
-        dashboardData.summary = 'Experienced Software Engineer with proficiency in JavaScript, TypeScript, React, and modern full-stack development.'
+        return [
+          {
+            id: 'primary-resume',
+            fileName: profile.resume_url || 'Primary Resume.pdf',
+            fileUrl: profile.resume_url || null,
+            uploadedAt: profile.updated_at || new Date().toISOString(),
+            isActive: true,
+            skillsCount: dashboardData.skills.length,
+            targetRole: dashboardData.targetRole,
+            candidateName: dashboardData.name,
+            data: dashboardData,
+          },
+        ]
       }
-
-      return [
-        {
-          id: 'primary-resume',
-          fileName: 'Primary Resume.pdf',
-          fileUrl: profile.resume_url || null,
-          uploadedAt: profile.updated_at || new Date().toISOString(),
-          isActive: true,
-          skillsCount: dashboardData.skills.length,
-          targetRole: dashboardData.targetRole,
-          candidateName: dashboardData.name,
-          data: dashboardData,
-        },
-      ]
     }
-  }
+  } catch {}
 
   return []
 }
@@ -342,7 +333,7 @@ export async function GET() {
   } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const resumes = await fetchUserResumes(supabase, user.id)
+  const resumes = await fetchUserResumes(supabaseAdmin, user.id)
   const activeResume = resumes.find((r) => r.isActive) || resumes[0] || null
 
   return NextResponse.json({
@@ -361,25 +352,6 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
-    const supabase = await createClient()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-
-    // Check existing count — limit is strictly 2 resumes
-    const existingResumes = await fetchUserResumes(supabase, user.id)
-    if (existingResumes.length >= 2) {
-      return NextResponse.json(
-        {
-          error: 'Resume limit reached (2/2). Please remove at least 1 previous resume to upload a new one.',
-          limitReached: true,
-          currentCount: existingResumes.length,
-        },
-        { status: 400 }
-      )
-    }
-
     const formData = await req.formData()
     const file = formData.get('file') as File | null
 
@@ -397,6 +369,26 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'File must be under 10MB' }, { status: 413 })
     }
 
+    const supabase = await createClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    // If user is authenticated, check existing count — limit is strictly 2 resumes
+    if (user) {
+      const existingResumes = await fetchUserResumes(supabaseAdmin, user.id)
+      if (existingResumes.length >= 2) {
+        return NextResponse.json(
+          {
+            error: 'Resume limit reached (2/2). Please remove at least 1 previous resume to upload a new one.',
+            limitReached: true,
+            currentCount: existingResumes.length,
+          },
+          { status: 400 }
+        )
+      }
+    }
+
     let resumeText = ''
     try {
       resumeText = await extractRawText(file)
@@ -410,7 +402,7 @@ export async function POST(req: NextRequest) {
 
     if (normalized.length < 25) {
       resumeData = buildFallbackResumeData(normalized, file.name)
-      if (user.user_metadata?.full_name && resumeData.name === 'Candidate') {
+      if (user?.user_metadata?.full_name && !resumeData.name) {
         resumeData.name = user.user_metadata.full_name
       }
       markdown = formatResumeMarkdown({
@@ -445,11 +437,20 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Persist into DB: mark previous resumes inactive so new one is active
-    try {
-      await supabase.from('resumes').update({ is_active: false }).eq('user_id', user.id)
+    // If user is not authenticated (e.g. signed-out onboarding), return the parsed resume immediately
+    if (!user) {
+      return NextResponse.json({
+        ...resumeData,
+        resumes: [],
+        guest: true,
+      })
+    }
 
-      const { data: newResume } = await supabase
+    // Persist into DB using supabaseAdmin: mark previous resumes inactive so new one is active
+    try {
+      await supabaseAdmin.from('resumes').update({ is_active: false }).eq('user_id', user.id)
+
+      const { data: newResume } = await supabaseAdmin
         .from('resumes')
         .insert({
           user_id: user.id,
@@ -460,7 +461,7 @@ export async function POST(req: NextRequest) {
         .single()
 
       if (newResume?.id) {
-        const { data: newVersion } = await supabase
+        const { data: newVersion } = await supabaseAdmin
           .from('resume_versions')
           .insert({
             resume_id: newResume.id,
@@ -476,9 +477,9 @@ export async function POST(req: NextRequest) {
           .single()
 
         if (newVersion?.id) {
-          await supabase.from('resumes').update({ active_version_id: newVersion.id }).eq('id', newResume.id)
+          await supabaseAdmin.from('resumes').update({ active_version_id: newVersion.id }).eq('id', newResume.id)
 
-          await supabase.from('parsed_resume_data').insert({
+          await supabaseAdmin.from('parsed_resume_data').insert({
             resume_version_id: newVersion.id,
             user_id: user.id,
             raw_text: normalized,
@@ -501,16 +502,17 @@ export async function POST(req: NextRequest) {
 
     // Sync profile as active grounding
     const safeName = sanitizeFullName(resumeData.name || '')
-    await supabase
+    await supabaseAdmin
       .from('profiles')
       .update({
         resume_text: markdown,
+        resume_url: file.name,
         full_name: safeName || null,
         target_role: resumeData.targetRole || null,
       })
       .eq('id', user.id)
 
-    const updatedResumes = await fetchUserResumes(supabase, user.id)
+    const updatedResumes = await fetchUserResumes(supabaseAdmin, user.id)
 
     return NextResponse.json({
       ...resumeData,
@@ -551,7 +553,7 @@ export async function DELETE(req: NextRequest) {
     // 1. Locate file_url to purge from UploadThing
     let fileUrl: string | null = null
 
-    const { data: version } = await supabase
+    const { data: version } = await supabaseAdmin
       .from('resume_versions')
       .select('id, file_url, resume_id')
       .or(`id.eq.${targetId},resume_id.eq.${targetId}`)
@@ -563,7 +565,7 @@ export async function DELETE(req: NextRequest) {
     }
 
     // Also check profile's resume_url if matched
-    const { data: profile } = await supabase
+    const { data: profile } = await supabaseAdmin
       .from('profiles')
       .select('resume_url, resume_text')
       .eq('id', user.id)
@@ -578,29 +580,47 @@ export async function DELETE(req: NextRequest) {
       await deleteFromUploadThing(fileUrl)
     }
 
-    // 3. Delete from Supabase DB
+    // 3. Delete from Supabase DB using supabaseAdmin
     try {
       if (version?.id) {
-        await supabase.from('parsed_resume_data').delete().eq('resume_version_id', version.id)
-        await supabase.from('resume_versions').delete().eq('id', version.id)
+        await supabaseAdmin.from('parsed_resume_data').delete().eq('resume_version_id', version.id)
+        await supabaseAdmin.from('resume_versions').delete().eq('id', version.id)
       }
       if (version?.resume_id) {
-        await supabase.from('resumes').delete().eq('id', version.resume_id)
-      } else {
-        await supabase.from('resumes').delete().eq('id', targetId).eq('user_id', user.id)
+        await supabaseAdmin.from('resumes').delete().eq('id', version.resume_id)
+      } else if (targetId !== 'primary-resume') {
+        try {
+          await supabaseAdmin.from('resumes').delete().eq('id', targetId).eq('user_id', user.id)
+        } catch {}
       }
     } catch (dbErr) {
       console.warn('[api/resume] db delete warning:', dbErr)
     }
 
     // 4. Update remaining resumes and profile
-    const remaining = await fetchUserResumes(supabase, user.id)
+    let remaining = await fetchUserResumes(supabaseAdmin, user.id)
 
-    if (remaining.length > 0) {
+    // If deleting primary-resume or if no version resumes remain
+    if (targetId === 'primary-resume' || remaining.length === 0 || (remaining.length === 1 && remaining[0].id === targetId)) {
+      // Clear all resume records from DB and profile
+      await supabaseAdmin.from('parsed_resume_data').delete().eq('user_id', user.id)
+      await supabaseAdmin.from('resume_versions').delete().eq('user_id', user.id)
+      await supabaseAdmin.from('resumes').delete().eq('user_id', user.id)
+      await supabaseAdmin
+        .from('profiles')
+        .update({
+          resume_text: null,
+          resume_url: null,
+          target_role: null,
+        })
+        .eq('id', user.id)
+      remaining = []
+    } else {
       // Activate the first remaining resume
       const nextActive = remaining[0]
       try {
-        await supabase.from('resumes').update({ is_active: true }).eq('id', nextActive.id)
+        await supabaseAdmin.from('resumes').update({ is_active: false }).eq('user_id', user.id)
+        await supabaseAdmin.from('resumes').update({ is_active: true }).eq('id', nextActive.id)
         const activeData = nextActive.data
         const nextMarkdown = formatResumeMarkdown({
           name: activeData.name,
@@ -611,32 +631,22 @@ export async function DELETE(req: NextRequest) {
           experience: activeData.experience,
           education: activeData.education,
         })
-        await supabase
+        await supabaseAdmin
           .from('profiles')
           .update({
             resume_text: nextMarkdown,
-            resume_url: nextActive.fileUrl || null,
+            resume_url: nextActive.fileUrl || nextActive.fileName || null,
             full_name: sanitizeFullName(activeData.name) || null,
             target_role: activeData.targetRole || null,
           })
           .eq('id', user.id)
       } catch {}
-    } else {
-      // No resumes left — clear profile resume grounding
-      await supabase
-        .from('profiles')
-        .update({
-          resume_text: null,
-          resume_url: null,
-        })
-        .eq('id', user.id)
+      remaining = await fetchUserResumes(supabaseAdmin, user.id)
     }
-
-    const updatedResumes = await fetchUserResumes(supabase, user.id)
 
     return NextResponse.json({
       success: true,
-      resumes: updatedResumes,
+      resumes: remaining,
     })
   } catch (err) {
     console.error('[api/resume] DELETE error:', err)
@@ -663,12 +673,12 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: 'Target resume ID required' }, { status: 400 })
     }
 
-    // Mark all inactive, then activate target
-    await supabase.from('resumes').update({ is_active: false }).eq('user_id', user.id)
-    await supabase.from('resumes').update({ is_active: true }).eq('id', targetId).eq('user_id', user.id)
+    // Mark all inactive, then activate target using supabaseAdmin
+    await supabaseAdmin.from('resumes').update({ is_active: false }).eq('user_id', user.id)
+    await supabaseAdmin.from('resumes').update({ is_active: true }).eq('id', targetId).eq('user_id', user.id)
 
     // Sync profile with the newly activated resume
-    const allResumes = await fetchUserResumes(supabase, user.id)
+    const allResumes = await fetchUserResumes(supabaseAdmin, user.id)
     const active = allResumes.find((r) => r.id === targetId || r.versionId === targetId)
 
     if (active) {
@@ -683,11 +693,11 @@ export async function PATCH(req: NextRequest) {
         education: activeData.education,
       })
 
-      await supabase
+      await supabaseAdmin
         .from('profiles')
         .update({
           resume_text: nextMarkdown,
-          resume_url: active.fileUrl || null,
+          resume_url: active.fileUrl || active.fileName || null,
           full_name: sanitizeFullName(activeData.name) || null,
           target_role: activeData.targetRole || null,
         })

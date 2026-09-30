@@ -13,15 +13,23 @@ export async function GET(request: NextRequest) {
       const { data: { user } } = await supabase.auth.getUser()
 
       if (user) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('target_role')
-          .eq('id', user.id)
-          .maybeSingle()
+        const isRecovery =
+          next.includes('settings') ||
+          next.includes('password') ||
+          next.includes('reset') ||
+          searchParams.get('type') === 'recovery'
 
-        // If user has no profile record or has not set target_role, route to onboarding welcome
-        if (!profile || !profile.target_role || !profile.target_role.trim()) {
-          return NextResponse.redirect(`${origin}/auth/onboarding/welcome`)
+        if (!isRecovery) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('target_role')
+            .eq('id', user.id)
+            .maybeSingle()
+
+          // If user has no profile record or has not set target_role, route to onboarding welcome
+          if (!profile || !profile.target_role || !profile.target_role.trim()) {
+            return NextResponse.redirect(`${origin}/auth/onboarding/welcome`)
+          }
         }
       }
 

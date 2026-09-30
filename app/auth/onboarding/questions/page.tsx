@@ -112,13 +112,23 @@ export default function QuestionsPage() {
   const handleFinish = async () => {
     setLoading(true)
     try {
+      const finalRoleString = selectedRoles.length > 0 ? selectedRoles.join(', ') : 'Software Engineer'
       const supabase = createClient()
       const {
         data: { user },
       } = await supabase.auth.getUser()
-      if (!user) return
 
-      const finalRoleString = selectedRoles.length > 0 ? selectedRoles.join(', ') : 'Software Engineer'
+      if (!user) {
+        try {
+          localStorage.setItem('interviewai_guest_onboarding', JSON.stringify({
+            targetRole: finalRoleString,
+            selectedRoles,
+            completedAt: new Date().toISOString(),
+          }))
+        } catch {}
+        router.push('/dashboard')
+        return
+      }
 
       await supabase
         .from('profiles')

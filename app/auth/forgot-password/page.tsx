@@ -17,12 +17,17 @@ export default function ForgotPasswordPage() {
   const handleReset = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
-    setLoading(true)
+    const cleanEmail = email.trim().toLowerCase()
+    if (!cleanEmail) {
+      setError('Please enter a valid email address.')
+      setLoading(false)
+      return
+    }
 
     try {
       const supabase = createClient()
-      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth/callback?next=/dashboard/settings`,
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(cleanEmail, {
+        redirectTo: `${window.location.origin}/auth/callback?next=/dashboard/settings?reset=true`,
       })
 
       if (resetError) {

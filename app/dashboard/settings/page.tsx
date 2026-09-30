@@ -1,11 +1,14 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Switch } from '@/components/ui/switch'
 import { Bell, Lock, KeyRound, Eye, EyeOff, Loader2, CheckCircle2, AlertCircle } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
 import { motion, AnimatePresence } from 'motion/react'
+
+const EMAIL_NOTIFS_KEY = 'interviewai_setting_email_debriefs'
+const REMINDERS_KEY = 'interviewai_setting_reminders'
 
 export default function SettingsPage() {
   const [emailNotifs, setEmailNotifs] = useState(true)
@@ -22,8 +25,38 @@ export default function SettingsPage() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const [successMsg, setSuccessMsg] = useState<string | null>(null)
 
-  const handleToggle = (setter: React.Dispatch<React.SetStateAction<boolean>>, name: string) => (checked: boolean) => {
+  useEffect(() => {
+    try {
+      const storedEmail = localStorage.getItem(EMAIL_NOTIFS_KEY)
+      if (storedEmail !== null) {
+        setEmailNotifs(storedEmail === 'true')
+      }
+      const storedReminders = localStorage.getItem(REMINDERS_KEY)
+      if (storedReminders !== null) {
+        setReminders(storedReminders === 'true')
+      }
+
+      if (typeof window !== 'undefined') {
+        const query = window.location.search
+        const hash = window.location.hash
+        if (query.includes('reset=true') || hash.includes('type=recovery') || query.includes('type=recovery')) {
+          setShowPasswordForm(true)
+        }
+      }
+    } catch {}
+  }, [])
+
+  const handleToggle = (
+    setter: React.Dispatch<React.SetStateAction<boolean>>,
+    name: string,
+    storageKey?: string
+  ) => (checked: boolean) => {
     setter(checked)
+    if (storageKey) {
+      try {
+        localStorage.setItem(storageKey, String(checked))
+      } catch {}
+    }
     toast.success(`${name} ${checked ? 'enabled' : 'disabled'}`)
   }
 
@@ -116,7 +149,7 @@ export default function SettingsPage() {
                 }`}>
                   {emailNotifs ? 'ON' : 'OFF'}
                 </span>
-                <Switch checked={emailNotifs} onCheckedChange={handleToggle(setEmailNotifs, 'Email notifications')} aria-label="Toggle email notifications" />
+                <Switch checked={emailNotifs} onCheckedChange={handleToggle(setEmailNotifs, 'Email debriefs', EMAIL_NOTIFS_KEY)} aria-label="Toggle email notifications" />
               </div>
             </div>
 
@@ -133,7 +166,7 @@ export default function SettingsPage() {
                 }`}>
                   {reminders ? 'ON' : 'OFF'}
                 </span>
-                <Switch checked={reminders} onCheckedChange={handleToggle(setReminders, 'Interview reminders')} aria-label="Toggle interview reminders" />
+                <Switch checked={reminders} onCheckedChange={handleToggle(setReminders, 'Interview reminders', REMINDERS_KEY)} aria-label="Toggle interview reminders" />
               </div>
             </div>
           </div>

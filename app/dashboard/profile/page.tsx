@@ -66,7 +66,10 @@ export default function ProfilePage() {
           setProfile(data)
           setFullName(data.full_name || '')
           setTargetRole(data.target_role || '')
-          if (Array.isArray(data.target_companies)) {
+          const metaCompanies = user.user_metadata?.target_companies
+          if (Array.isArray(metaCompanies) && metaCompanies.length > 0) {
+            setTargetCompanies(metaCompanies)
+          } else if (Array.isArray(data.target_companies)) {
             setTargetCompanies(data.target_companies)
           } else if (typeof data.target_companies === 'string' && data.target_companies.trim()) {
             setTargetCompanies(data.target_companies.split(',').map((c: string) => c.trim()).filter(Boolean))
@@ -138,7 +141,18 @@ export default function ProfilePage() {
         return
       }
 
-      // Try updating with target_companies
+      // 1. Persist target_companies to user metadata
+      try {
+        await supabase.auth.updateUser({
+          data: {
+            target_companies: targetCompanies,
+            target_role: targetRole.trim() || undefined,
+            full_name: fullName.trim() || undefined,
+          },
+        })
+      } catch {}
+
+      // 2. Try updating profiles table with target_companies
       const updatePayload: any = {
         full_name: fullName.trim() || null,
         target_role: targetRole.trim() || null,
@@ -153,25 +167,21 @@ export default function ProfilePage() {
         .eq('id', user.id)
 
       if (error) {
-        // If column is missing in schema, fallback update without target_companies and notify user
-        if (error.message.includes('target_companies')) {
-          const { error: fallbackError } = await supabase
-            .from('profiles')
-            .update({
-              full_name: fullName.trim() || null,
-              target_role: targetRole.trim() || null,
-              experience_level: experienceLevel || 'mid',
-              updated_at: new Date().toISOString(),
-            })
-            .eq('id', user.id)
+        // If column is missing in profiles schema, update core profile fields without target_companies
+        const { error: fallbackError } = await supabase
+          .from('profiles')
+          .update({
+            full_name: fullName.trim() || null,
+            target_role: targetRole.trim() || null,
+            experience_level: experienceLevel || 'mid',
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', user.id)
 
-          if (!fallbackError) {
-            toast.warning('Profile saved, but please run the SQL migration in Supabase to enable target companies column.')
-            return
-          }
+        if (fallbackError) {
+          toast.error(`Failed to save: ${fallbackError.message}`)
+          return
         }
-        toast.error(`Failed to save: ${error.message}`)
-        return
       }
 
       setProfile((prev: any) => ({

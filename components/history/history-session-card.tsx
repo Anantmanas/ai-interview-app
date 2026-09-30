@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { Calendar, Clock, ArrowRight, ChevronDown, ChevronUp, Sparkles, CheckCircle2, AlertTriangle, Lightbulb } from 'lucide-react'
 import { motion, AnimatePresence } from 'motion/react'
+import { formatSessionDate } from '@/lib/utils'
 
 interface HistorySessionCardProps {
   interview: any
@@ -62,11 +63,7 @@ export function HistorySessionCard({ interview, index, totalCount }: HistorySess
             <div className="flex flex-wrap items-center gap-3 text-[12px] font-mono text-[#8C8C88]">
               <span className="flex items-center gap-1.5">
                 <Calendar className="h-3.5 w-3.5 text-[#8C8C88]" />
-                {new Date(interview.created_at).toLocaleDateString('en-US', {
-                  month: 'short',
-                  day: 'numeric',
-                  year: 'numeric',
-                })}
+                {formatSessionDate(interview.created_at)}
               </span>
               <span>•</span>
               <span className="flex items-center gap-1.5">

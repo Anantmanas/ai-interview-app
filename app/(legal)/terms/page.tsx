@@ -65,7 +65,7 @@ const sections = [
     ],
   },
   {
-    id: 'user-obligations',
+    id: 'your-obligations',
     label: '04 — Your Obligations',
     content: [
       {
@@ -188,7 +188,8 @@ export default function TermsPage() {
       {/* Sections */}
       <div className="space-y-14">
         {sections.map((section) => (
-          <section key={section.id} id={section.id}>
+          <section key={section.id} id={section.id} className="scroll-mt-24">
+            {section.id === 'your-obligations' && <span id="user-obligations" className="block -scroll-mt-24" />}
             <h2 className="font-mono text-[13px] text-[#818cf8] uppercase tracking-[0.12em] mb-6 border-b border-[#1e1e2f] pb-3">
               {section.label}
             </h2>

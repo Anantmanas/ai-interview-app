@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { supabaseAdmin } from '@/lib/supabase/admin'
 import { razorpay } from '@/lib/razorpay'
 
 export async function POST() {
@@ -9,6 +10,23 @@ export async function POST() {
 
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Exhibition Mode: If Razorpay keys or plan ID are not configured, unlock Pro access free of charge
+    if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_PRO_PLAN_ID) {
+      await supabaseAdmin
+        .from('profiles')
+        .update({
+          plan: 'pro',
+          plan_expires_at: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+        })
+        .eq('id', user.id)
+
+      return NextResponse.json({
+        success: true,
+        free_promo: true,
+        message: 'Exhibition Access: Pro tier unlocked 100% free!',
+      })
     }
 
     // Fetch or create Razorpay customer ID from profile

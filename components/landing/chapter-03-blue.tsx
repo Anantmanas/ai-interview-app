@@ -183,7 +183,13 @@ export function Chapter03Blue() {
 
             <div className="pt-6 border-t border-white/10 flex items-center justify-between text-xs font-mono text-[#8C8C88]">
               <span>Latency to diagnosis: 240ms</span>
-              <span className="text-[#F4F2EC]">Full radar matrix synthesized</span>
+              <span className="text-[#F4F2EC]">
+                {sliderVal < 40
+                  ? 'Surface signal extracted'
+                  : sliderVal <= 70
+                  ? 'Partial architectural scan'
+                  : 'Full radar matrix synthesized'}
+              </span>
             </div>
           </div>
         </div>

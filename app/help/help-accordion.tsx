@@ -1,15 +1,22 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { ChevronDown } from 'lucide-react'
 import { motion, AnimatePresence } from 'motion/react'
 
 interface HelpAccordionProps {
   items: Array<{ q: string; a: string }>
+  defaultOpen?: boolean
 }
 
-export function HelpAccordion({ items }: HelpAccordionProps) {
-  const [open, setOpen] = useState<number | null>(null)
+export function HelpAccordion({ items, defaultOpen = false }: HelpAccordionProps) {
+  const [open, setOpen] = useState<number | null>(defaultOpen ? 0 : null)
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.location.hash.includes('technical-issues')) {
+      setOpen(0)
+    }
+  }, [])
 
   return (
     <div className="space-y-2">

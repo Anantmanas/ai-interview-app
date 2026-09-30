@@ -707,8 +707,11 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
     setMobileTab('workspace');
   };
 
+  const [finalOverallScore, setFinalOverallScore] = useState<number | null>(null);
+  const [isEnding, setIsEnding] = useState(false);
+
   const handleEndInterview = async () => {
-    setIsInterviewEnded(true);
+    setIsEnding(true);
 
     try {
       const totalElapsedSeconds = Math.max(1, Math.floor((Date.now() - interviewStartTime) / 1000));
@@ -725,6 +728,12 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
       });
 
       const evalData = await res.json().catch(() => null);
+
+      let computedScore = answersCount > 0 ? Math.round(totalScore / answersCount) : 0;
+      if (evalData?.overall_score !== undefined && evalData.overall_score !== null) {
+        computedScore = evalData.overall_score;
+      }
+      setFinalOverallScore(computedScore);
 
       if (evalData?.questions && Array.isArray(evalData.questions)) {
         const mappedRecords: EvaluatedRecord[] = evalData.questions.map((q: any) => ({
@@ -746,7 +755,7 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
           },
         }));
 
-        const realCompleted = mappedRecords.filter(
+        const answeredRecords = mappedRecords.filter(
           (r) =>
             r.userAnswer &&
             r.userAnswer !== '(No answer provided)' &&
@@ -755,11 +764,12 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
             )
         );
 
-        setRecordedHistory(mappedRecords);
-        if (evalData.overall_score !== undefined) {
-          setTotalScore(realCompleted.length > 0 ? evalData.overall_score : 0);
-        }
-        setAnswersCount(realCompleted.length);
+        const mergedRecords = answeredRecords.length > 0 
+          ? answeredRecords 
+          : (recordedHistory.length > 0 ? recordedHistory : mappedRecords);
+
+        setRecordedHistory(mergedRecords);
+        setAnswersCount(answeredRecords.length > 0 ? answeredRecords.length : recordedHistory.length);
       }
 
       await fetch(`/api/interviews/${interviewId}`, {
@@ -768,10 +778,14 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
         body: JSON.stringify({
           status: 'completed',
           duration_seconds: totalElapsedSeconds,
+          overall_score: computedScore,
         }),
       });
     } catch (error) {
       console.error('Failed to end interview:', error);
+    } finally {
+      setIsEnding(false);
+      setIsInterviewEnded(true);
     }
   };
 
@@ -797,7 +811,7 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
   // RESULT SCREEN — Telemetry Scorecard
   // -------------------------------------------------------------
   if (isInterviewEnded) {
-    const avgScore = answersCount > 0 ? Math.round(totalScore / answersCount) : 0;
+    const avgScore = finalOverallScore !== null ? finalOverallScore : (answersCount > 0 ? Math.round(totalScore / answersCount) : 0);
     const totalElapsedSeconds = Math.max(1, Math.floor((Date.now() - interviewStartTime) / 1000));
     const mins = Math.floor(totalElapsedSeconds / 60);
     const secs = totalElapsedSeconds % 60;

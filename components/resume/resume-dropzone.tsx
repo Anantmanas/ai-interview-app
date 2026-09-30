@@ -16,6 +16,7 @@ export function ResumeDropzone({ source, onSuccess }: ResumeDropzoneProps) {
   const inputRef = useRef<HTMLInputElement | null>(null)
   const {
     isExtracting,
+    uploadingFileName,
     extractionError,
     handleResumeUpload,
     isLimitReached,
@@ -41,8 +42,8 @@ export function ResumeDropzone({ source, onSuccess }: ResumeDropzoneProps) {
         <div className="flex items-center justify-between px-4 h-10 border-b border-[#1e2030] bg-[#11121b]/90 select-none">
           <div className="flex items-center gap-3">
             <MacTrafficLights size="sm" />
-            <span className="font-mono text-[11px] text-[#9ca3af] font-medium tracking-wide">
-              parsing-resume.bin — active
+            <span className="font-mono text-[11px] text-[#9ca3af] font-medium tracking-wide truncate max-w-[280px]">
+              {uploadingFileName || 'resume.pdf'} — active
             </span>
           </div>
           <span className="font-mono text-[10px] text-[#f59e0b] bg-[#f59e0b]/10 border border-[#f59e0b]/20 px-2 py-0.5 rounded-full uppercase tracking-wider">
@@ -51,7 +52,7 @@ export function ResumeDropzone({ source, onSuccess }: ResumeDropzoneProps) {
         </div>
         <div className="p-6 flex items-center gap-3 font-mono text-xs text-[#818cf8]">
           <Spinner className="h-4 w-4 shrink-0" />
-          <span>Analyzing resume structure, extracting technical skills, experience and projects...</span>
+          <span>Analyzing {uploadingFileName ? `"${uploadingFileName}"` : 'resume'} structure, extracting technical skills, experience and projects...</span>
         </div>
       </div>
     )

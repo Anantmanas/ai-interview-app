@@ -17,6 +17,8 @@ import {
 } from 'lucide-react'
 import { ResumeUploadCard } from '@/components/dashboard/resume-upload-card'
 import { EditorialHeroMetric } from '@/components/dashboard/editorial-hero-metric'
+import { NextStepBanner } from '@/components/dashboard/next-step-banner'
+import { formatSessionDate } from '@/lib/utils'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -120,6 +122,17 @@ export default async function DashboardPage() {
         weaknessCount={weaknesses?.length ?? 0}
       />
 
+      {/* ── Persistent Next Step Banner ── */}
+      <NextStepBanner
+        hasResume={!!profile?.resume_text}
+        hasInterviews={(interviews?.length ?? 0) > 0}
+        interviewCount={interviews?.length ?? 0}
+        avgScore={averageScore}
+        hasRoadmap={(roadmapItems?.length ?? 0) > 0}
+        topRoadmapItem={roadmapItems?.find((r) => r.status !== 'completed')?.title ?? null}
+        weaknessCount={weaknesses?.length ?? 0}
+      />
+
       {/* ── Candidate Resume Grounding Layer ── */}
       <ResumeUploadCard />
 
@@ -163,7 +176,7 @@ export default async function DashboardPage() {
                           {interview.title}
                         </h4>
                         <div className="flex items-center gap-3 font-mono text-xs text-[#8C8C88] mt-1">
-                          <span>{new Date(interview.created_at).toLocaleDateString()}</span>
+                          <span>{formatSessionDate(interview.created_at)}</span>
                           <span>•</span>
                           <span className="uppercase">{interview.type || 'TECHNICAL'}</span>
                         </div>

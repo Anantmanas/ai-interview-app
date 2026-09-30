@@ -42,26 +42,30 @@ export class ResumeParsingService {
   private async extractStructuredData(resumeText: string): Promise<StructuredResumeData> {
     if (!resumeText || isGarbageText(resumeText)) {
       return {
-        name: 'Candidate',
-        position: 'Software Engineer',
-        experience_level: 'mid',
-        overview_summarized: 'Experienced Software Engineer with proficiency in JavaScript, TypeScript, React, and modern full-stack development.',
-        key_skills: ['JavaScript', 'TypeScript', 'React', 'Node.js', 'SQL', 'Git'],
-        experience: [{ role: 'Software Engineer', company: 'Tech Solutions', years: 2 }],
-        education: ['Bachelor of Technology in Computer Science'],
+        name: null,
+        position: null,
+        experience_level: null,
+        overview_summarized: null,
+        key_skills: [],
+        experience: [],
+        education: [],
       }
     }
 
     const prompt = `
       You are an expert technical recruiter and resume analyzer.
       Analyze the following resume text and extract all details accurately into the requested JSON schema.
+      Extract ONLY facts present in the resume text. Do NOT fabricate, invent, or assume employers, universities, dates, or degrees if they are not mentioned in the resume.
+      If candidate name is not mentioned, set name to null.
+      If education is not mentioned, return empty array [].
+      If experience is not mentioned, return empty array [].
       If the text contains spaced characters, font artifacts, or encoded character blocks from PDF streams, normalize and reconstruct the clean technical terms (e.g. React, TypeScript, Next.js, Frontend Engineer, etc.), candidate full name, and company names.
       You MUST return your response as a valid JSON object ONLY. Do not include markdown code block ticks or comments outside the JSON.
 
       JSON schema to return:
       {
-        "name": "Candidate's real full name (letters and spaces only, never filename).",
-        "position": "Current or target job title (e.g. Frontend Engineer, Full Stack Developer, Software Engineer)",
+        "name": "Candidate's real full name (letters and spaces only, never filename). Null if not found.",
+        "position": "Current or target job title (e.g. Frontend Engineer, Full Stack Developer, Software Engineer). Null if not found.",
         "experience_level": "junior" | "mid" | "senior" | "staff" | "principal",
         "overview_summarized": "A concise 2-3 sentence professional summary highlighting their core strengths, domain, and experience.",
         "key_skills": ["List", "of", "all", "technical", "skills", "languages", "frameworks", "libraries", "databases", "tools", "cloud"],
@@ -105,9 +109,9 @@ export class ResumeParsingService {
       const rawEducation = Array.isArray(analysis.education) ? analysis.education : []
 
       const cleanedExperience = rawExperience.map((item: any) => ({
-        role: String(item.role || item.position || item.title || 'Software Engineer'),
-        company: String(item.company || item.organization || item.employer || 'Company'),
-        years: typeof item.years === 'number' ? item.years : 1,
+        role: String(item.role || item.position || item.title || 'Role'),
+        company: String(item.company || item.organization || item.employer || 'Organization'),
+        years: typeof item.years === 'number' ? item.years : undefined,
         duration: typeof item.duration === 'string' ? item.duration : undefined,
         highlights: Array.isArray(item.highlights) ? item.highlights.map(String) : [],
       }))
@@ -118,29 +122,29 @@ export class ResumeParsingService {
 
       const summary = typeof analysis.overview_summarized === 'string' && !isGarbageText(analysis.overview_summarized)
         ? analysis.overview_summarized
-        : 'Experienced Software Engineer with proficiency in JavaScript, TypeScript, React, and modern full-stack development.'
+        : ''
 
       return {
         name: typeof analysis.name === 'string' && !isGarbageText(analysis.name) ? analysis.name : null,
         position: typeof analysis.position === 'string' && !isGarbageText(analysis.position) ? analysis.position : null,
         experience_level: normalizeExperienceLevel(analysis.experience_level),
-        overview_summarized: summary,
+        overview_summarized: summary || null,
         key_skills: Array.isArray(rawSkills)
           ? rawSkills.filter((skill: unknown) => typeof skill === 'string' && skill.trim().length > 0 && !isGarbageText(skill as string))
           : [],
-        experience: cleanedExperience.length > 0 ? cleanedExperience : undefined,
-        education: cleanedEducation.length > 0 ? cleanedEducation : undefined,
+        experience: cleanedExperience.length > 0 ? cleanedExperience : [],
+        education: cleanedEducation.length > 0 ? cleanedEducation : [],
       }
     } catch (error) {
       console.error('[ResumeParsingService] Failed to parse resume analysis JSON response:', error)
       return {
-        name: 'Candidate',
-        position: 'Software Engineer',
-        experience_level: 'mid',
-        overview_summarized: 'Experienced Software Engineer with proficiency in JavaScript, TypeScript, React, and modern web application development.',
-        key_skills: ['JavaScript', 'TypeScript', 'React', 'Node.js', 'SQL', 'Git'],
-        experience: [{ role: 'Software Engineer', company: 'Tech Solutions', years: 2 }],
-        education: ['Bachelor of Technology in Computer Science'],
+        name: null,
+        position: null,
+        experience_level: null,
+        overview_summarized: null,
+        key_skills: [],
+        experience: [],
+        education: [],
       }
     }
   }

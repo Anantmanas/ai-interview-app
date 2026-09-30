@@ -26,6 +26,7 @@ interface ResumeContextValue {
   activeResumeId: string | null
   isResumeReady: boolean
   isExtracting: boolean
+  uploadingFileName: string | null
   isLimitReached: boolean
   extractionError: string | null
   limitModalOpen: boolean
@@ -102,6 +103,7 @@ export function ResumeProvider({ children }: { children: ReactNode }) {
   const [resumeData, setResumeData] = useState<ResumeData | null>(null)
   const [resumeMeta, setResumeMeta] = useState<ResumeMeta | null>(null)
   const [isExtracting, setIsExtracting] = useState(false)
+  const [uploadingFileName, setUploadingFileName] = useState<string | null>(null)
   const [extractionError, setExtractionError] = useState<string | null>(null)
   const [limitModalOpen, setLimitModalOpen] = useState(false)
 
@@ -199,6 +201,7 @@ export function ResumeProvider({ children }: { children: ReactNode }) {
       return false
     }
 
+    setUploadingFileName(file.name)
     setIsExtracting(true)
     setExtractionError(null)
 
@@ -242,6 +245,7 @@ export function ResumeProvider({ children }: { children: ReactNode }) {
       return false
     } finally {
       setIsExtracting(false)
+      setUploadingFileName(null)
     }
   }
 
@@ -335,6 +339,7 @@ export function ResumeProvider({ children }: { children: ReactNode }) {
         activeResumeId,
         isResumeReady: resumeData !== null || storedResumes.length > 0,
         isExtracting,
+        uploadingFileName,
         isLimitReached,
         extractionError,
         limitModalOpen,

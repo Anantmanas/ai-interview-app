@@ -39,29 +39,42 @@ export function OnboardingWizard() {
 
   const handleFinish = async () => {
     setSaving(true)
-    const supabase = createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-
-    if (user) {
-      await supabase.from('profiles').update({
-        target_role: selectedRole,
-        target_companies: selectedCompanies,
-        onboarding_complete: true,
-        onboarding_step: 4,
-      }).eq('id', user.id)
-    }
-
-    // Send welcome email
     try {
-      const { data: profile } = await supabase.from('profiles').select('email, full_name').eq('id', user!.id).single()
-      await fetch('/api/emails/welcome', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: profile?.email ?? user?.email, fullName: profile?.full_name }),
-      })
-    } catch { /* non-fatal */ }
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
 
-    router.push(selectedType ? `/interview/new?type=${selectedType}` : '/dashboard')
+      if (user) {
+        await supabase.from('profiles').update({
+          target_role: selectedRole,
+          target_companies: selectedCompanies,
+          onboarding_complete: true,
+          onboarding_step: 4,
+        }).eq('id', user.id)
+
+        // Send welcome email
+        try {
+          const { data: profile } = await supabase.from('profiles').select('email, full_name').eq('id', user.id).single()
+          await fetch('/api/emails/welcome', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: profile?.email ?? user?.email, fullName: profile?.full_name }),
+          })
+        } catch { /* non-fatal */ }
+      } else {
+        try {
+          localStorage.setItem('interviewai_guest_onboarding', JSON.stringify({
+            targetRole: selectedRole,
+            targetCompanies: selectedCompanies,
+            selectedType,
+            completedAt: new Date().toISOString(),
+          }))
+        } catch {}
+      }
+
+      router.push(selectedType ? `/interview/new?type=${selectedType}` : '/dashboard')
+    } finally {
+      setSaving(false)
+    }
   }
 
   const canAdvance = () => {

@@ -76,14 +76,17 @@ export default function HelpPage() {
 
         {/* FAQ sections */}
         <div className="space-y-10">
-          {faqs.map((section) => (
-            <div key={section.category}>
-              <h2 className="font-mono text-[12px] text-[#818cf8] uppercase tracking-[0.15em] mb-4 pb-3 border-b border-[#1e1e2f]">
-                {section.category}
-              </h2>
-              <HelpAccordion items={section.items} />
-            </div>
-          ))}
+          {faqs.map((section) => {
+            const sectionId = section.category.toLowerCase().replace(/[^a-z0-9]+/g, '-')
+            return (
+              <div key={section.category} id={sectionId} className="scroll-mt-24">
+                <h2 className="font-mono text-[12px] text-[#818cf8] uppercase tracking-[0.15em] mb-4 pb-3 border-b border-[#1e1e2f]">
+                  {section.category}
+                </h2>
+                <HelpAccordion items={section.items} defaultOpen={sectionId === 'technical-issues'} />
+              </div>
+            )
+          })}
         </div>
 
         {/* Contact card */}

@@ -20,16 +20,17 @@ export async function GET() {
     .order('created_at', { ascending: true })
     .limit(30)
 
-  // Interview type breakdown
+  // Interview type breakdown and total count (includes all user sessions)
   const { data: allInterviews } = await supabase
     .from('interviews')
-    .select('type')
+    .select('type, status')
     .eq('user_id', user.id)
-    .eq('status', 'completed')
 
   const typeBreakdown: Record<string, number> = {}
   for (const i of allInterviews ?? []) {
-    typeBreakdown[i.type] = (typeBreakdown[i.type] ?? 0) + 1
+    if (i.type) {
+      typeBreakdown[i.type] = (typeBreakdown[i.type] ?? 0) + 1
+    }
   }
 
   // Topic weakness heatmap

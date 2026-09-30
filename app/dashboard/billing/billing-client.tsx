@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { motion } from 'motion/react'
-import { CreditCard, Zap, CheckCircle, AlertTriangle, XCircle, ArrowUpRight } from 'lucide-react'
+import { CreditCard, Zap, CheckCircle, AlertTriangle, XCircle, ArrowUpRight, Sparkles } from 'lucide-react'
 
 interface Profile {
   plan: string | null
@@ -69,34 +69,53 @@ export function BillingClient({ profile, subscriptions }: BillingClientProps) {
   }
 
   const handleUpgrade = async () => {
-    // Guard: fail loudly if keys not configured
-    if (!process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID) {
-      const { toast } = await import('sonner')
-      toast.error('Payment system is not configured. Please contact support.')
-      console.error('[Billing] NEXT_PUBLIC_RAZORPAY_KEY_ID is not set')
-      return
-    }
     setUpgrading(true)
-    const res = await fetch('/api/billing/create-subscription', { method: 'POST' })
-    const data = await res.json()
-    if (!res.ok) { alert(data.error); setUpgrading(false); return }
+    try {
+      const { toast } = await import('sonner')
+      const res = await fetch('/api/billing/create-subscription', { method: 'POST' })
+      const data = await res.json()
 
-    const script = document.createElement('script')
-    script.src = 'https://checkout.razorpay.com/v1/checkout.js'
-    script.onload = () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const rzp = new (window as any).Razorpay({
-        key: data.key_id,
-        subscription_id: data.subscription_id,
-        name: 'InterviewAI',
-        description: 'Pro Plan',
-        theme: { color: '#4f46e5' },
-        handler: () => { window.location.reload() },
-      })
-      rzp.open()
+      if (data?.free_promo) {
+        toast.success('Exhibition Promotion: Pro features unlocked 100% free!')
+        setTimeout(() => {
+          window.location.reload()
+        }, 1200)
+        return
+      }
+
+      if (!res.ok) {
+        toast.error(data?.message || data?.error || 'Upgrade request failed')
+        setUpgrading(false)
+        return
+      }
+
+      if (data?.key_id && data?.subscription_id) {
+        const script = document.createElement('script')
+        script.src = 'https://checkout.razorpay.com/v1/checkout.js'
+        script.onload = () => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const rzp = new (window as any).Razorpay({
+            key: data.key_id,
+            subscription_id: data.subscription_id,
+            name: 'InterviewAI',
+            description: 'Pro Plan',
+            theme: { color: '#4f46e5' },
+            handler: () => { window.location.reload() },
+          })
+          rzp.open()
+          setUpgrading(false)
+        }
+        document.body.appendChild(script)
+      } else {
+        toast.success('Pro access active!')
+        setTimeout(() => window.location.reload(), 1000)
+      }
+    } catch {
+      const { toast } = await import('sonner')
+      toast.error('Failed to process upgrade. Please try again.')
+    } finally {
       setUpgrading(false)
     }
-    document.body.appendChild(script)
   }
 
 
@@ -113,6 +132,19 @@ export function BillingClient({ profile, subscriptions }: BillingClientProps) {
         <p className="font-body text-[13px] text-[#94a3b8] mt-1">
           Manage your subscription tier, usage quotas, and invoice history.
         </p>
+      </div>
+
+      {/* Exhibition Promotion Notice */}
+      <div className="mb-6 p-4 rounded-xl border border-[#2563eb]/40 bg-[#0a1226]/80 flex items-start gap-3 shadow-lg">
+        <Sparkles className="h-5 w-5 text-[#38bdf8] shrink-0 mt-0.5" />
+        <div className="space-y-1">
+          <p className="font-mono text-xs font-bold text-white uppercase tracking-wider">
+            Limited Time Exhibition Access — 100% Free
+          </p>
+          <p className="font-body text-xs text-[#94a3b8] leading-relaxed">
+            During our current platform exhibition, Pro features, unlimited mock interviews, and AI analysis are completely free. Click Upgrade to activate instant Pro tier access.
+          </p>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 gap-5">
