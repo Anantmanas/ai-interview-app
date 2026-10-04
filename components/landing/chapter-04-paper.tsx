@@ -16,35 +16,35 @@ interface PipelineStep {
 const PIPELINE_STEPS: PipelineStep[] = [
   {
     number: '01',
-    title: 'Grounding',
-    subtitle: 'Contextual calibration from actual engineering tenure',
-    body: 'Upload your resume or specify target staff specialties. The model anchors its interrogation tree in your concrete distributed architecture, language familiarity, and past deliveries.',
-    takeaway: 'No generic LeetCode trivia out of context.',
-    tag: 'INPUT INGESTION',
+    title: 'Smart Onboarding',
+    subtitle: 'Upload your resume or pick your target role',
+    body: 'Takes just 30 seconds. The AI reads your tech stack, past projects, and experience level so every mock interview matches what companies actually ask you.',
+    takeaway: 'Tailored to your real tools.',
+    tag: 'STEP 1: ONBOARD',
   },
   {
     number: '02',
-    title: 'Simulation',
-    subtitle: 'Conversational interrogation with AST verification',
-    body: 'Engage via ultra-low latency voice STT or inside the Monaco IDE. The AI behaves like a principal engineer: probing assumptions, challenging edge cases, and testing Big-O intuition.',
-    takeaway: 'Sub-50ms conversational cadence.',
-    tag: 'ACTIVE DIALOGUE',
+    title: 'AI Mock Interview',
+    subtitle: 'Practice speaking and coding in real time',
+    body: 'Talk through your microphone and write real code in our built-in editor. The AI asks smart questions, gives hints when you get stuck, and behaves like a real interviewer.',
+    takeaway: 'Realistic, low-stress practice.',
+    tag: 'STEP 2: PRACTICE',
   },
   {
     number: '03',
-    title: 'Audit',
-    subtitle: 'Dual-layer actionable telemetry',
-    body: 'Instant evaluation delivers both Caveman feedback (brutally concise takeaways: what worked, what broke, exact fix) and deep multi-vector radar telemetry across system trade-offs.',
-    takeaway: 'Zero polite fluff. Exact delta.',
-    tag: 'DIAGNOSTIC MATRIX',
+    title: 'Find Knowledge Gaps',
+    subtitle: 'Instant scores and brutally honest feedback',
+    body: 'Within seconds, see what you answered well, what you missed, and an overall score out of 100 across coding, system design, and communication.',
+    takeaway: 'Never wonder why you got rejected.',
+    tag: 'STEP 3: FEEDBACK',
   },
   {
     number: '04',
-    title: 'Remediation',
-    subtitle: 'Curated curriculum with targeted re-tests',
-    body: 'Diagnosed blindspots are automatically mapped into YouTube masterclasses, engineering documentation, and focused single-topic practice sessions to close the gap before real interviews.',
-    takeaway: 'Direct path to senior mastery.',
-    tag: 'CONTINUOUS LOOP',
+    title: 'Personalized Roadmap',
+    subtitle: 'Custom study plan to ace your upcoming interview',
+    body: 'Your weak spots automatically turn into a personalized study plan with curated video masterclasses, cheat sheets, and targeted follow-up re-tests.',
+    takeaway: 'Walk into your interview confident.',
+    tag: 'STEP 4: ROADMAP',
   },
 ]
 
@@ -52,31 +52,31 @@ export function Chapter04Paper() {
   const [activeStep, setActiveStep] = useState<number>(0)
 
   return (
-    <section className="section-paper py-32 sm:py-44 px-6 md:px-12 lg:px-20 border-t border-[#0A0A0A]/10 relative overflow-hidden select-text">
+    <section className="section-paper py-28 sm:py-36 px-6 md:px-12 lg:px-20 border-t border-[#0A0A0A]/10 relative overflow-hidden select-text">
       {/* Chapter Marker Header */}
-      <div className="max-w-[1400px] mx-auto mb-16 md:mb-24 flex flex-col md:flex-row md:items-baseline justify-between gap-6 border-b border-[#0A0A0A]/10 pb-6">
+      <div className="max-w-[1400px] mx-auto mb-16 md:mb-20 flex flex-col md:flex-row md:items-baseline justify-between gap-6 border-b border-[#0A0A0A]/10 pb-6">
         <div className="flex items-center gap-3">
           <span className="font-mono text-xs font-semibold uppercase tracking-[0.2em] text-[#0A0A0A]">
-            04 / THE CONTINUOUS PIPELINE
+            04 / HOW IT WORKS
           </span>
           <span className="text-[#5C5953]">•</span>
           <span className="font-mono text-xs text-[#5C5953] tracking-wide uppercase">
-            EDITORIAL WORKFLOW
+            FROM ONBOARDING TO OFFER
           </span>
         </div>
         <div className="font-mono text-xs text-[#5C5953] uppercase tracking-wider">
-          NOT ISOLATED PRACTICE ROUNDS — A CLOSED LEARNING SYSTEM
+          A PROVEN 4-STEP SYSTEM TO ACE TECHNICAL INTERVIEWS
         </div>
       </div>
 
       <div className="max-w-[1400px] mx-auto">
-        {/* Giant Editorial Heading */}
-        <div className="mb-20 md:mb-28 max-w-5xl">
+        {/* Editorial Heading */}
+        <div className="mb-16 md:mb-24 max-w-4xl">
           <h2 className="display-giant text-[#0A0A0A] font-bold">
-            A closed-loop engineering curriculum.
+            From your first mock to your dream offer.
           </h2>
-          <p className="font-body text-xl md:text-2xl lg:text-3xl text-[#5C5953] mt-8 leading-[1.35] max-w-3xl font-light">
-            Every answer you submit recalibrates your mastery roadmap. Weaknesses become targeted practice units, transforming subjective anxiety into verifiable competence.
+          <p className="font-body text-xl md:text-2xl text-[#5C5953] mt-6 leading-relaxed font-normal">
+            You never have to guess what to study next. After every interview session, InterviewAI automatically creates a step-by-step roadmap with targeted videos and practice problems to close your knowledge gaps fast.
           </p>
         </div>
 
@@ -139,10 +139,10 @@ export function Chapter04Paper() {
 
           <Link
             href="/auth/sign-up"
-            className="btn-paper-primary inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.1em] px-8 py-4 rounded-xl shadow-lg shrink-0 self-start md:self-auto"
+            className="bg-[#0A0A0A] hover:bg-[#2447FF] text-[#F4F2EC] inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.12em] font-bold px-8 py-4 rounded-md shadow-md transition-all shrink-0 self-start md:self-auto group"
           >
             <span>Begin Guided Setup</span>
-            <ArrowRight className="w-4 h-4" />
+            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
           </Link>
         </div>
       </div>

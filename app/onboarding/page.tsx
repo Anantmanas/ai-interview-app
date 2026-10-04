@@ -75,6 +75,23 @@ export default function OnboardingPage() {
 
       <div className="relative z-10 w-full max-w-[520px]">
 
+        {/* Brand Header + Skip to Dashboard */}
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded-md bg-[#00D4AA]/20 flex items-center justify-center">
+              <div className="w-2 h-2 rounded-full bg-[#00D4AA]" />
+            </div>
+            <span className="font-display text-[15px] font-bold text-[#F0F0FF] tracking-tight">InterviewAI</span>
+          </div>
+          <button
+            type="button"
+            onClick={handleGoToDashboard}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#3A3A5C] hover:border-[#6B6B8A] bg-[#14142A]/50 text-[#8C8C88] hover:text-[#F0F0FF] font-mono text-[11px] uppercase tracking-wider transition-all"
+          >
+            Skip to Dashboard →
+          </button>
+        </div>
+
         {/* Progress bar */}
         <div className="flex items-center gap-3 mb-10">
           {STEPS.map((s, i) => (
@@ -295,12 +312,13 @@ export default function OnboardingPage() {
                   >
                     Start first interview →
                   </Button>
-                  <button
+                  <Button
+                    variant="outline"
                     onClick={handleGoToDashboard}
-                    className="text-[#6B6B8A] text-[12px] hover:text-[#B8B8D4] transition-colors py-2"
+                    className="w-full border-[#3A3A5C] text-[#B8B8D4] hover:text-[#F0F0FF] hover:border-[#6B6B8A] bg-transparent h-11 text-[14px]"
                   >
-                    Go to dashboard instead
-                  </button>
+                    Skip to Dashboard →
+                  </Button>
                 </div>
               </div>
             </motion.div>

@@ -44,15 +44,15 @@ function useTypewriter(words: string[], speed = 70, pause = 2200, initialValue =
 }
 
 const typewriterRoles = [
-  'Distributed Systems & Raft Consensus',
-  'Monaco Code AST & Algorithmic Bounds',
-  'Staff Engineering Trade-offs & STAR',
-  'High-Throughput Low-Latency Pipelines',
-  'FAANG Bar-Raiser Calibration',
+  'Frontend Engineer (React, Next.js, TS)',
+  'Full Stack Developer (Node, PostgreSQL, APIs)',
+  'Backend Engineer (System Design, DBs)',
+  'Software Engineer (Algorithms, DSA)',
+  'DevOps & Cloud Engineer (Docker, AWS)',
 ]
 
 export default function LandingPage() {
-  const currentRole = useTypewriter(typewriterRoles, 65, 2000, 'Distributed Systems & Raft Consensus')
+  const currentRole = useTypewriter(typewriterRoles, 65, 2000, 'Frontend Engineer (React, Next.js, TS)')
 
   return (
     <main className="relative min-h-screen bg-[#050505] text-[#F4F2EC] overflow-x-hidden selection:bg-[#2447FF]/30 selection:text-white">
@@ -65,100 +65,144 @@ export default function LandingPage() {
 
         {/* ── HERO CHAPTER (BLACK / VOID) with LOCKED AntigravityBackground ── */}
         <AntigravityBackground
-          className="pt-40 sm:pt-48 pb-32 sm:pb-40 px-6 md:px-12 text-center relative overflow-hidden"
+          className="pt-20 sm:pt-24 pb-8 sm:pb-12 px-6 md:px-12 text-center relative overflow-hidden"
           ringSpacing={20}
           dotSpacing={14}
         >
-          <div className="max-w-[1200px] mx-auto relative z-10">
-            {/* Minimalist Exhibition Eyebrow */}
+          <div className="max-w-[1280px] mx-auto relative z-10">
+            {/* 1. Clear Eyebrow: What it is */}
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, ease: 'easeOut' }}
+              className="inline-flex items-center gap-2.5 font-mono text-[11px] sm:text-xs uppercase tracking-[0.16em] text-[#E0DFD8] mb-4 border border-white/20 bg-white/[0.06] backdrop-blur-md px-4 py-1.5 rounded-full"
+            >
+              <span className="w-2 h-2 rounded-full bg-[#2447FF] shadow-[0_0_8px_#2447FF] animate-pulse" />
+              <span>AI Technical Interviewer • Real-Time Voice & Code</span>
+            </motion.div>
+
+            {/* 2. Definitive Headline: What it is & Why it matters */}
+            <motion.h1
+              initial={{ opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1, ease: 'easeOut' }}
+              className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-[60px] font-bold text-[#F4F2EC] max-w-4xl mx-auto mb-4 leading-[1.08] tracking-[-0.035em]"
+            >
+              Practice technical interviews with AI. Spot your blind spots before real interviewers do.
+            </motion.h1>
+
+            {/* 3. Subheadline: Who it is for & How it works */}
+            <motion.p
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.55, delay: 0.2, ease: 'easeOut' }}
+              className="font-body text-base sm:text-lg md:text-xl text-[#CBC8BF] leading-relaxed max-w-3xl mx-auto mb-4 font-normal"
+            >
+              Built for <span className="text-[#F4F2EC] font-semibold underline decoration-[#2447FF]/60 underline-offset-4">Frontend, Backend, Full-Stack, and System Design</span> engineers. Speak your reasoning out loud, write code live in your browser, and get instant scored feedback with a personalized study roadmap to close every gap.
+            </motion.p>
+
+            {/* 4. Live Practice Track Indicator */}
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.28, duration: 0.5 }}
+              className="max-w-xl mx-auto mb-5 p-2 rounded-lg bg-white/[0.04] border border-white/10 backdrop-blur-md flex flex-wrap items-center justify-between gap-3 text-left font-mono text-xs"
+            >
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-[#10b981] animate-pulse shrink-0" />
+                <span className="text-[#8C8C88] uppercase tracking-wider text-[10px]">CURRENT TRACK:</span>
+                <span className="text-[#F4F2EC] font-semibold text-xs sm:text-sm">
+                  {currentRole}
+                  <span className="inline-block w-[2px] h-[13px] bg-[#2447FF] ml-1 animate-pulse align-middle" />
+                </span>
+              </div>
+              <div className="flex items-center gap-2.5 text-[10px] text-[#A3A39E] uppercase tracking-wider">
+                <span className="text-white/80">VOICE + CODE</span>
+                <span className="text-white/20">•</span>
+                <span>15-MIN MOCK</span>
+              </div>
+            </motion.div>
+
+            {/* 5. Primary CTA: What to do next */}
             <motion.div
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, ease: 'easeOut' }}
-              className="inline-flex items-center gap-3 border border-white/10 bg-white/[0.04] backdrop-blur-md rounded-full px-4 py-1.5 mb-10"
-            >
-              <span className="w-1.5 h-1.5 rounded-full bg-[#2447FF]" />
-              <span className="font-mono text-[11px] text-[#F4F2EC] uppercase tracking-[0.16em] font-semibold">
-                AN INTERACTIVE EXHIBITION IN TECHNICAL COMPETENCE
-              </span>
-            </motion.div>
-
-            {/* Enormous Editorial Headline */}
-            <motion.h1
-              initial={{ opacity: 0, y: 22 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.65, delay: 0.1, ease: 'easeOut' }}
-              className="display-giant text-[#F4F2EC] font-bold max-w-5xl mx-auto mb-8 leading-[0.92]"
-            >
-              The shape of technical competence.
-            </motion.h1>
-
-            {/* Active Calibration Target */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.4 }}
-              className="flex items-center justify-center gap-2.5 mb-8"
-            >
-              <span className="font-mono text-xs text-[#8C8C88] uppercase tracking-wider">
-                CALIBRATING FOR:
-              </span>
-              <span className="font-mono text-xs sm:text-sm text-[#F4F2EC] font-semibold min-w-[280px] text-left">
-                {currentRole}
-                <span className="inline-block w-[2px] h-[14px] bg-[#2447FF] ml-1 animate-pulse align-middle" />
-              </span>
-            </motion.div>
-
-            {/* Minimalist Supporting Statement */}
-            <motion.p
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.25, ease: 'easeOut' }}
-              className="font-body text-lg sm:text-xl md:text-2xl text-[#8C8C88] leading-[1.4] max-w-2xl mx-auto mb-12 font-light"
-            >
-              InterviewAI is an intelligent rehearsal instrument. Conversational voice interrogation, live Monaco code AST compilation, and multi-dimensional radar scoring.
-            </motion.p>
-
-            {/* Restrained Action Controls */}
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.35, ease: 'easeOut' }}
-              className="flex items-center justify-center gap-4 flex-wrap mb-16"
+              transition={{ duration: 0.55, delay: 0.35, ease: 'easeOut' }}
+              className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-3"
             >
               <Link
                 href="/auth/sign-up"
-                className="bg-[#2447FF] hover:bg-[#1A3AE8] text-white font-mono text-xs uppercase tracking-[0.1em] font-semibold px-8 py-4 rounded-xl shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98] inline-flex items-center gap-2.5"
+                className="w-full sm:w-auto bg-[#2447FF] hover:bg-[#1A3AE8] text-white font-mono text-xs uppercase tracking-[0.14em] font-bold px-8 py-3.5 rounded-md shadow-[0_0_35px_rgba(36,71,255,0.45)] transition-all hover:scale-[1.02] active:scale-[0.98] inline-flex items-center justify-center gap-3 group"
               >
-                <span>Commence Simulation</span>
-                <ArrowRight className="h-4 w-4" />
+                <span>Start Free Mock Interview</span>
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Link>
               <Link
-                href="#features"
-                className="btn-ghost-dark font-mono text-xs uppercase tracking-[0.1em] px-7 py-4 rounded-xl transition-all"
+                href="#how-it-works"
+                className="w-full sm:w-auto border border-white/20 hover:border-white/50 text-[#F4F2EC] hover:bg-white/[0.06] font-mono text-xs uppercase tracking-[0.12em] px-6 py-3.5 rounded-md transition-all inline-flex items-center justify-center gap-2"
               >
-                Inspect Chapters ↓
+                <span>See How It Works ↓</span>
               </Link>
             </motion.div>
 
-            {/* Minimalist Metadata Badges */}
+            {/* Reassurance Strip */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 0.8, delay: 0.55 }}
-              className="flex items-center justify-center gap-6 sm:gap-8 flex-wrap pt-4 border-t border-white/[0.08]"
+              transition={{ duration: 0.5, delay: 0.42 }}
+              className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-[11px] sm:text-xs text-[#8C8C88] font-mono mb-5"
             >
-              <span className="font-mono text-xs text-[#8C8C88]">
-                01 RESUME GROUNDING
+              <span className="flex items-center gap-1.5 text-[#CBC8BF]">
+                <CheckCircle2 className="w-3.5 h-3.5 text-[#10B981] shrink-0" />
+                Free 15-min session
               </span>
-              <span className="text-white/20">•</span>
-              <span className="font-mono text-xs text-[#8C8C88]">
-                02 MONACO AST RUNTIME
+              <span className="text-white/20 hidden sm:inline">•</span>
+              <span className="flex items-center gap-1.5 text-[#CBC8BF]">
+                <CheckCircle2 className="w-3.5 h-3.5 text-[#10B981] shrink-0" />
+                No credit card required
               </span>
-              <span className="text-white/20">•</span>
-              <span className="font-mono text-xs text-[#8C8C88]">
-                03 SUB-50MS VOICE STT
+              <span className="text-white/20 hidden sm:inline">•</span>
+              <span className="flex items-center gap-1.5 text-[#CBC8BF]">
+                <CheckCircle2 className="w-3.5 h-3.5 text-[#10B981] shrink-0" />
+                Instant scorecard & roadmap
               </span>
+            </motion.div>
+
+            {/* 6. Above-the-fold 4-Step Process Strip */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.48 }}
+              className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-4xl mx-auto pt-4 border-t border-white/[0.08] text-left font-mono"
+            >
+              <div className="bg-white/[0.02] border border-white/[0.07] rounded-md p-3 hover:border-white/20 transition-colors">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-white font-bold text-xs">01 ONBOARD</span>
+                  <span className="text-[#2447FF] text-[10px]">1 MIN</span>
+                </div>
+                <p className="text-[11px] text-[#8C8C88] leading-tight">Upload resume or choose target role & seniority</p>
+              </div>
+              <div className="bg-white/[0.02] border border-white/[0.07] rounded-md p-3 hover:border-white/20 transition-colors">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-white font-bold text-xs">02 INTERVIEW</span>
+                  <span className="text-[#10B981] text-[10px]">LIVE</span>
+                </div>
+                <p className="text-[11px] text-[#8C8C88] leading-tight">Spoken AI dialogue & in-browser code editor</p>
+              </div>
+              <div className="bg-white/[0.02] border border-white/[0.07] rounded-md p-3 hover:border-white/20 transition-colors">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-white font-bold text-xs">03 FIND GAPS</span>
+                  <span className="text-[#2447FF] text-[10px]">SCORE</span>
+                </div>
+                <p className="text-[11px] text-[#8C8C88] leading-tight">Objective scoring on code, architecture & communication</p>
+              </div>
+              <div className="bg-white/[0.02] border border-white/[0.07] rounded-md p-3 hover:border-white/20 transition-colors">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-white font-bold text-xs">04 ROADMAP</span>
+                  <span className="text-[#10B981] text-[10px]">FIX</span>
+                </div>
+                <p className="text-[11px] text-[#8C8C88] leading-tight">Targeted study roadmap & curated videos before real day</p>
+              </div>
             </motion.div>
           </div>
         </AntigravityBackground>
@@ -197,11 +241,11 @@ export default function LandingPage() {
                   InterviewAI
                 </span>
                 <span className="font-mono text-[10px] text-[#8C8C88] border border-white/10 px-2 py-0.5 rounded">
-                  v2.4 EXHIBITION
+                  MOCK INTERVIEWS
                 </span>
               </div>
               <p className="font-mono text-xs text-[#8C8C88] max-w-md">
-                An intelligent technical interview instrument. Contextual grounding, real-time code AST evaluation, and adaptive curriculum generation.
+                Practice realistic technical mock interviews, identify your exact knowledge gaps, and follow a personalized roadmap to land your dream job.
               </p>
             </div>
 
@@ -213,7 +257,7 @@ export default function LandingPage() {
                 Terms
               </Link>
               <Link href="/dashboard" className="text-[#2447FF] hover:underline uppercase tracking-wider">
-                Console →
+                Dashboard →
               </Link>
             </div>
           </div>

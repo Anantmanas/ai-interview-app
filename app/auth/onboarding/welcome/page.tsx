@@ -145,6 +145,30 @@ export default function OnboardingWelcomePage() {
     }
   }
 
+  const handleSkipToDashboard = async () => {
+    setSaving(true)
+    try {
+      const supabase = createClient()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+      const finalRole = selectedRole || customRole.trim() || 'Software Engineer'
+      if (user) {
+        await supabase
+          .from('profiles')
+          .update({
+            target_role: finalRole,
+            onboarding_complete: true,
+            onboarding_step: 3,
+          })
+          .eq('id', user.id)
+      }
+      router.push('/dashboard')
+    } finally {
+      setSaving(false)
+    }
+  }
+
   const StepIcon = STEPS[step].icon
 
   return (
@@ -157,13 +181,25 @@ export default function OnboardingWelcomePage() {
 
       <div className="relative z-10 w-full max-w-[540px]">
         {/* ── Brand header ── */}
-        <div className="flex items-center gap-2.5 mb-10 justify-center">
-          <div className="h-7 w-7 rounded-lg bg-white/[0.06] border border-white/10 flex items-center justify-center">
-            <span className="h-2 w-2 rounded-full bg-[#2447FF]" />
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-2.5">
+            <div className="h-7 w-7 rounded-lg bg-white/[0.06] border border-white/10 flex items-center justify-center">
+              <span className="h-2 w-2 rounded-full bg-[#2447FF]" />
+            </div>
+            <span className="font-display text-[15px] font-bold text-[#F4F2EC] tracking-tight">
+              InterviewAI
+            </span>
           </div>
-          <span className="font-display text-[15px] font-bold text-[#F4F2EC] tracking-tight">
-            InterviewAI
-          </span>
+
+          <button
+            type="button"
+            onClick={handleSkipToDashboard}
+            disabled={saving}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/10 hover:border-white/20 bg-white/[0.04] hover:bg-white/[0.08] text-[#8C8C88] hover:text-white font-mono text-[11px] uppercase tracking-wider transition-all disabled:opacity-40"
+          >
+            Skip to Dashboard
+            <ArrowRight className="h-3 w-3" />
+          </button>
         </div>
 
         {/* ── Step indicator ── */}
@@ -392,24 +428,35 @@ export default function OnboardingWelcomePage() {
                   <ArrowRight className="h-3.5 w-3.5" />
                 </motion.button>
               ) : (
-                <motion.button
-                  whileTap={{ scale: 0.97 }}
-                  onClick={handleFinish}
-                  disabled={saving}
-                  className="flex items-center gap-2 px-6 py-2.5 bg-[#10b981] hover:bg-[#059669] border border-[#10b981]/40 text-white font-mono text-[12px] font-bold uppercase tracking-wider rounded-xl transition-all shadow-[0_0_20px_rgba(16,185,129,0.3)] disabled:opacity-50"
-                >
-                  {saving ? (
-                    <>
-                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                      Starting...
-                    </>
-                  ) : (
-                    <>
-                      Launch First Interview
-                      <Rocket className="h-3.5 w-3.5" />
-                    </>
-                  )}
-                </motion.button>
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={handleSkipToDashboard}
+                    disabled={saving}
+                    className="flex items-center gap-2 px-4 py-2.5 border border-white/10 hover:border-white/20 hover:bg-white/[0.04] text-[#8C8C88] hover:text-white font-mono text-[11px] uppercase tracking-wider rounded-xl transition-all disabled:opacity-50"
+                  >
+                    Skip to Dashboard
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </button>
+                  <motion.button
+                    whileTap={{ scale: 0.97 }}
+                    onClick={handleFinish}
+                    disabled={saving}
+                    className="flex items-center gap-2 px-6 py-2.5 bg-[#10b981] hover:bg-[#059669] border border-[#10b981]/40 text-white font-mono text-[12px] font-bold uppercase tracking-wider rounded-xl transition-all shadow-[0_0_20px_rgba(16,185,129,0.3)] disabled:opacity-50"
+                  >
+                    {saving ? (
+                      <>
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        Starting...
+                      </>
+                    ) : (
+                      <>
+                        Launch First Interview
+                        <Rocket className="h-3.5 w-3.5" />
+                      </>
+                    )}
+                  </motion.button>
+                </div>
               )}
             </div>
           </motion.div>
