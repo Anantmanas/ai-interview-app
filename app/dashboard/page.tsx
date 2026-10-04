@@ -206,19 +206,20 @@ export default async function DashboardPage() {
               })}
             </div>
           ) : (
-            <div className="py-12 text-center border border-dashed border-white/10 rounded-2xl">
-              <span className="font-mono text-xs uppercase text-[#8C8C88] tracking-widest block mb-2">
-                NO SESSIONS RECORDED
-              </span>
-              <p className="font-body text-sm text-[#8C8C88] mb-5">
-                Launch your first simulation to generate multi-dimensional telemetry.
+            <div className="flex flex-col items-center justify-center py-12 text-center border border-dashed border-white/10 rounded-2xl">
+              <div className="w-10 h-10 rounded-full bg-[#1C1C36] border border-[#3A3A5C] flex items-center justify-center mb-4">
+                <span className="text-[#6B6B8A] text-lg">▶</span>
+              </div>
+              <p className="text-[#B8B8D4] text-[14px] font-medium mb-1">No sessions yet</p>
+              <p className="text-[#6B6B8A] text-[12px] mb-4 max-w-[240px]">
+                Your first mock interview will appear here after you complete it.
               </p>
-              <Link
+              <a
                 href="/interview/new"
-                className="bg-[#2447FF] hover:bg-[#1A3AE8] text-white font-mono text-xs uppercase tracking-wider px-5 py-2.5 rounded-lg"
+                className="font-mono text-[11px] text-[#00D4AA] border border-[#00D4AA]/30 rounded-lg px-4 py-2 hover:bg-[#00D4AA]/5 transition-colors uppercase tracking-[0.06em]"
               >
-                Launch Mock Session
-              </Link>
+                Start practice →
+              </a>
             </div>
           )}
         </div>

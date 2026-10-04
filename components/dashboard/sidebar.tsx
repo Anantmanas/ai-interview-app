@@ -36,7 +36,7 @@ import { cn } from '@/lib/utils'
 
 const navigation = [
   {
-    title: 'MAIN',
+    title: 'PRACTICE',
     items: [
       { title: 'Home', href: '/dashboard', icon: LayoutDashboard },
       { title: 'Practice Now', href: '/interview/new', icon: Mic },
@@ -44,7 +44,7 @@ const navigation = [
     ],
   },
   {
-    title: 'PROGRESS',
+    title: 'INSIGHTS',
     items: [
       { title: 'My Progress', href: '/dashboard/analytics', icon: BarChart3 },
       { title: 'Study Plan', href: '/dashboard/roadmap', icon: Map },

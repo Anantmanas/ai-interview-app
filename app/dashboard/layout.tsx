@@ -24,7 +24,7 @@ export default async function DashboardLayout({
     .maybeSingle()
 
   if (!profile || !profile.target_role || !profile.target_role.trim()) {
-    redirect('/auth/onboarding/welcome')
+    redirect('/onboarding')
   }
 
   return (

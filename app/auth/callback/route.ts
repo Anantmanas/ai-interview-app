@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
 
           // If user has no profile record or has not set target_role, route to onboarding welcome
           if (!profile || !profile.target_role || !profile.target_role.trim()) {
-            return NextResponse.redirect(`${origin}/auth/onboarding/welcome`)
+            return NextResponse.redirect(`${origin}/onboarding`)
           }
         }
       }

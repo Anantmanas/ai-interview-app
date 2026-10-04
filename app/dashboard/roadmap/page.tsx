@@ -749,24 +749,24 @@ export default function RoadmapPage() {
             ))}
           </div>
         ) : (
-          <div className="rounded-2xl border border-white/10 bg-[#0D0D0D] p-16 text-center space-y-4 shadow-xl">
-            <BookOpen className="h-12 w-12 mx-auto text-[#8C8C88]" />
-            <div className="space-y-1">
-              <p className="font-mono text-sm text-[#F4F2EC] uppercase tracking-wider font-semibold">
-                NO ACTIVE CURRICULUM FOUND
-              </p>
-              <p className="font-sans text-xs text-[#8C8C88] max-w-md mx-auto">
-                Customize your focus skills above and click &quot;Generate Video Roadmap&quot; to build your tailored video syllabus.
-              </p>
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <div className="w-12 h-12 rounded-full bg-[#1C1C36] border border-[#3A3A5C] flex items-center justify-center mb-4">
+              <span className="text-[#6B6B8A] text-xl">🗺</span>
             </div>
-            <button
-              onClick={handleGenerate}
-              disabled={generating}
-              className="bg-[#2447FF] hover:bg-[#1f3ce0] text-white font-mono text-xs font-semibold uppercase tracking-wider px-7 py-3 rounded-xl inline-flex items-center gap-2 cursor-pointer shadow-md"
-            >
-              <Sparkles className="h-4 w-4" />
-              <span>Generate Starter Roadmap</span>
-            </button>
+            <p className="font-mono text-[11px] text-[#00D4AA] uppercase tracking-[0.1em] mb-2">
+              No plan generated yet
+            </p>
+            <p className="text-[#6B6B8A] text-[13px] max-w-[380px] leading-relaxed mb-6">
+              Complete a mock interview session to identify your weak areas, then generate a personalized study plan with curated resources.
+            </p>
+            <div className="flex gap-3">
+              <a
+                href="/interview/new"
+                className="font-mono text-[12px] bg-gradient-to-r from-[#00D4AA] to-[#7B6FFF] text-[#080810] font-semibold px-5 py-2.5 rounded-lg"
+              >
+                Run an interview first →
+              </a>
+            </div>
           </div>
         )}
       </div>

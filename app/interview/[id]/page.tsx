@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
 import { InterviewRoom } from '@/components/interview/interview-room'
 import { MobileDeviceWarning } from '@/components/interview/mobile-device-warning'
+import { RoadmapCTA } from '@/components/interview/roadmap-cta'
 
 interface InterviewPageProps {
   params: Promise<{ id: string }>
@@ -36,10 +37,14 @@ export default async function InterviewPage({ params }: InterviewPageProps) {
   return (
     <>
       <MobileDeviceWarning />
-      <InterviewRoom 
-        interview={interview} 
+      <InterviewRoom
+        interview={interview}
         profile={profile}
       />
+      {interview.status === 'completed' && (
+        <RoadmapCTA interview={interview} />
+      )}
     </>
   )
 }
+
