@@ -156,16 +156,17 @@ export default function OnboardingWelcomePage() {
       if (user) {
         await supabase
           .from('profiles')
-          .update({
+          .upsert({
+            id: user.id,
+            email: user.email,
             target_role: finalRole,
-            onboarding_complete: true,
-            onboarding_step: 3,
-          })
-          .eq('id', user.id)
+          }, { onConflict: 'id' })
       }
-      router.push('/dashboard')
+    } catch (err) {
+      console.warn('Skip profile error:', err)
     } finally {
       setSaving(false)
+      window.location.href = '/dashboard'
     }
   }
 

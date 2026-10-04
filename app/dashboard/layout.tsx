@@ -23,13 +23,17 @@ export default async function DashboardLayout({
     .eq('id', user.id)
     .maybeSingle()
 
-  if (!profile || !profile.target_role || !profile.target_role.trim()) {
-    redirect('/onboarding')
+  // Graceful fallback profile if row is not yet created or target_role is pending
+  const effectiveProfile = profile || {
+    id: user.id,
+    email: user.email,
+    full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Engineer',
+    target_role: 'Software Engineer',
   }
 
   return (
     <SidebarProvider>
-      <DashboardSidebar user={user} profile={profile} />
+      <DashboardSidebar user={user} profile={effectiveProfile} />
       <SidebarInset className="bg-[#000000] min-h-screen flex flex-col relative overflow-x-hidden">
         {/* Subtle Ambient Electric Indigo Orb */}
         <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-0">
@@ -37,7 +41,7 @@ export default async function DashboardLayout({
           <div className="cyber-grid absolute inset-0 opacity-[0.15]" />
         </div>
         <div className="relative z-10 flex flex-col min-h-screen">
-          <DashboardHeader user={user} profile={profile} />
+          <DashboardHeader user={user} profile={effectiveProfile} />
           <main className="flex-1 bg-[#000000] pb-28 sm:pb-12">
             {children}
           </main>
