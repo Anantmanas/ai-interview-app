@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState, useCallback } from 'react'
 import type { ReactNode } from 'react'
 import type { StoredResumeItem } from '@/lib/resume/types'
+import { resolveCandidateName, isValidCandidateName } from '@/lib/resume/name-utils'
 
 export interface ResumeData {
   name: string
@@ -65,7 +66,12 @@ function isCorruptedResumeData(data: ResumeData): boolean {
 
 export function saveResumePersistent(data: ResumeData, meta: ResumeMeta): void {
   try {
-    localStorage.setItem(DATA_KEY, JSON.stringify(data))
+    const cleanData = { ...data }
+    if (cleanData.name && !isValidCandidateName(cleanData.name)) {
+      const resolved = resolveCandidateName({ name: cleanData.name, fileName: meta.fileName })
+      cleanData.name = resolved !== 'Candidate Profile' ? resolved : ''
+    }
+    localStorage.setItem(DATA_KEY, JSON.stringify(cleanData))
     localStorage.setItem(META_KEY, JSON.stringify(meta))
   } catch {}
 }
@@ -80,6 +86,11 @@ export function loadResumePersistent(): ResumeData | null {
       localStorage.removeItem(DATA_KEY)
       localStorage.removeItem(META_KEY)
       return null
+    }
+    if (parsed.name && !isValidCandidateName(parsed.name)) {
+      const meta = loadResumeMetaPersistent()
+      const resolved = resolveCandidateName({ name: parsed.name, fileName: meta?.fileName })
+      parsed.name = resolved !== 'Candidate Profile' ? resolved : ''
     }
     return parsed
   } catch {
@@ -128,13 +139,21 @@ export function ResumeProvider({ children }: { children: ReactNode }) {
           setStoredResumes(payload.resumes)
           const active = payload.resumes.find((r: StoredResumeItem) => r.isActive) || payload.resumes[0]
           if (active) {
-            setResumeData(active.data)
+            const cleanName = resolveCandidateName({
+              name: active.data?.name || active.candidateName,
+              fileName: active.fileName,
+            })
+            const activeData: ResumeData = {
+              ...active.data,
+              name: cleanName !== 'Candidate Profile' ? cleanName : '',
+            }
+            setResumeData(activeData)
             setResumeMeta({
               uploadedAt: active.uploadedAt,
               fileName: active.fileName,
               source: 'dashboard',
             })
-            saveResumePersistent(active.data, {
+            saveResumePersistent(activeData, {
               uploadedAt: active.uploadedAt,
               fileName: active.fileName,
               source: 'dashboard',
@@ -179,13 +198,21 @@ export function ResumeProvider({ children }: { children: ReactNode }) {
             setStoredResumes(payload.resumes)
             const active = payload.resumes.find((r: StoredResumeItem) => r.isActive) || payload.resumes[0]
             if (active && !cancelled) {
-              setResumeData(active.data)
+              const cleanName = resolveCandidateName({
+                name: active.data?.name || active.candidateName,
+                fileName: active.fileName,
+              })
+              const activeData: ResumeData = {
+                ...active.data,
+                name: cleanName !== 'Candidate Profile' ? cleanName : '',
+              }
+              setResumeData(activeData)
               setResumeMeta({
                 uploadedAt: active.uploadedAt,
                 fileName: active.fileName,
                 source: 'dashboard',
               })
-              saveResumePersistent(active.data, {
+              saveResumePersistent(activeData, {
                 uploadedAt: active.uploadedAt,
                 fileName: active.fileName,
                 source: 'dashboard',

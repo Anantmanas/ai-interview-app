@@ -423,7 +423,8 @@ export default function RoadmapPage() {
           .eq('user_id', user.id)
           .order('priority', { ascending: true })
 
-        if (roadmapData && roadmapData.length > 0) {
+        const hasExistingRoadmap = Boolean(roadmapData && roadmapData.length > 0)
+        if (hasExistingRoadmap) {
           setItems(roadmapData as RoadmapItem[])
           try {
             localStorage.setItem(ROADMAP_STORAGE_KEY, JSON.stringify(roadmapData))
@@ -469,6 +470,30 @@ export default function RoadmapPage() {
             'Dynamic Programming',
             'System Design & Microservices',
           ])
+        }
+
+        // If no roadmap plan exists yet, but candidate has completed interviews / weak areas:
+        // Automatically generate their personalized curriculum so it is ready when they arrive!
+        if (!hasExistingRoadmap && combined.length > 0) {
+          try {
+            const autoTopics = combined.slice(0, 6)
+            const res = await fetch('/api/roadmap/generate', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ topics: autoTopics }),
+            })
+            if (res.ok) {
+              const data = await res.json()
+              if (Array.isArray(data.items) && data.items.length > 0) {
+                setItems(data.items as RoadmapItem[])
+                try {
+                  localStorage.setItem(ROADMAP_STORAGE_KEY, JSON.stringify(data.items))
+                } catch {}
+              }
+            }
+          } catch (autoGenErr) {
+            console.warn('[Roadmap] Auto-generate curriculum error:', autoGenErr)
+          }
         }
       } catch (err) {
         console.error('Failed to load roadmap data:', err)
@@ -754,18 +779,36 @@ export default function RoadmapPage() {
               <span className="text-[#6B6B8A] text-xl">🗺</span>
             </div>
             <p className="font-mono text-[11px] text-[#00D4AA] uppercase tracking-[0.1em] mb-2">
-              No plan generated yet
+              {hasEvaluations ? 'Weak Areas Diagnosed — Generate Study Plan' : 'No plan generated yet'}
             </p>
-            <p className="text-[#6B6B8A] text-[13px] max-w-[380px] leading-relaxed mb-6">
-              Complete a mock interview session to identify your weak areas, then generate a personalized study plan with curated resources.
+            <p className="text-[#6B6B8A] text-[13px] max-w-[420px] leading-relaxed mb-6">
+              {hasEvaluations
+                ? 'Your mock interview telemetry has diagnosed key target skills. Generate your personalized study curriculum with curated videos and practice drills.'
+                : 'Complete a mock interview session to diagnose your weak areas, or generate a starter curriculum covering core engineering foundations.'}
             </p>
-            <div className="flex gap-3">
-              <a
-                href="/interview/new"
-                className="font-mono text-[12px] bg-gradient-to-r from-[#00D4AA] to-[#7B6FFF] text-[#080810] font-semibold px-5 py-2.5 rounded-lg"
+            <div className="flex flex-wrap gap-3 justify-center">
+              <button
+                onClick={handleGenerate}
+                disabled={generating}
+                className="font-mono text-[12px] bg-gradient-to-r from-[#00D4AA] to-[#7B6FFF] text-[#080810] font-semibold px-5 py-2.5 rounded-lg hover:opacity-95 transition-all cursor-pointer shadow-lg disabled:opacity-50 flex items-center gap-2"
               >
-                Run an interview first →
-              </a>
+                {generating ? (
+                  <>
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    <span>Generating Plan...</span>
+                  </>
+                ) : (
+                  <span>{hasEvaluations ? 'Generate My Study Plan Now →' : 'Generate Starter Plan →'}</span>
+                )}
+              </button>
+              {!hasEvaluations && (
+                <a
+                  href="/interview/new"
+                  className="font-mono text-[12px] bg-[#141414] hover:bg-[#1f1f1f] text-[#8C8C88] hover:text-white border border-white/10 px-5 py-2.5 rounded-lg transition-all"
+                >
+                  Run an interview first →
+                </a>
+              )}
             </div>
           </div>
         )}

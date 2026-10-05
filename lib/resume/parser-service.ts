@@ -1,5 +1,6 @@
 import { createChatCompletion, GENERATION_MODEL } from '@/lib/ai/client'
 import { formatResumeMarkdown, normalizeExperienceLevel } from '@/lib/resume/format'
+import { isValidCandidateName } from '@/lib/resume/name-utils'
 import { extractTextFromPdfBuffer, isGarbageText } from '@/lib/resume/pdf-extractor'
 import type { StructuredResumeData } from '@/lib/resume/types'
 
@@ -125,7 +126,7 @@ export class ResumeParsingService {
         : ''
 
       return {
-        name: typeof analysis.name === 'string' && !isGarbageText(analysis.name) ? analysis.name : null,
+        name: typeof analysis.name === 'string' && isValidCandidateName(analysis.name) ? analysis.name.trim() : null,
         position: typeof analysis.position === 'string' && !isGarbageText(analysis.position) ? analysis.position : null,
         experience_level: normalizeExperienceLevel(analysis.experience_level),
         overview_summarized: summary || null,

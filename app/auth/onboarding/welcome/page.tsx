@@ -196,7 +196,7 @@ export default function OnboardingWelcomePage() {
             type="button"
             onClick={handleSkipToDashboard}
             disabled={saving}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/10 hover:border-white/20 bg-white/[0.04] hover:bg-white/[0.08] text-[#8C8C88] hover:text-white font-mono text-[11px] uppercase tracking-wider transition-all disabled:opacity-40"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#2447FF] hover:bg-[#1A3AE8] border border-[#2447FF] text-white font-mono text-[11px] uppercase tracking-wider transition-all disabled:opacity-40"
           >
             Skip to Dashboard
             <ArrowRight className="h-3 w-3" />
@@ -208,13 +208,7 @@ export default function OnboardingWelcomePage() {
           {STEPS.map((s, i) => (
             <div key={s.id} className="flex items-center gap-2">
               <div
-                className={`h-7 w-7 rounded-full flex items-center justify-center text-[11px] font-mono font-bold transition-all duration-300 ${
-                  i < step
-                    ? 'bg-[#2447FF] text-white shadow-[0_0_10px_rgba(36,71,255,0.4)]'
-                    : i === step
-                      ? 'bg-white/10 border border-white/20 text-white'
-                      : 'bg-white/[0.04] border border-white/10 text-[#8C8C88]'
-                }`}
+                className="h-7 w-7 rounded-full flex items-center justify-center text-[11px] font-mono font-bold bg-[#2447FF] border border-[#2447FF] text-white transition-all duration-300"
               >
                 {i < step ? <CheckCircle2 className="h-3.5 w-3.5" /> : s.number}
               </div>
@@ -399,7 +393,7 @@ export default function OnboardingWelcomePage() {
               {step > 0 ? (
                 <button
                   onClick={() => setStep((s) => s - 1)}
-                  className="flex items-center gap-2 px-4 py-2.5 border border-white/10 hover:border-white/20 text-[#8C8C88] hover:text-white font-mono text-[11px] uppercase tracking-wider rounded-xl transition-colors"
+                  className="flex items-center gap-2 px-4 py-2.5 bg-[#2447FF] hover:bg-[#1A3AE8] border border-[#2447FF] text-white font-mono text-[11px] uppercase tracking-wider rounded-xl transition-colors"
                 >
                   <ArrowLeft className="h-3.5 w-3.5" />
                   Back
@@ -408,7 +402,7 @@ export default function OnboardingWelcomePage() {
                 <button
                   onClick={handleSkipToRole}
                   disabled={saving || isExtracting}
-                  className="font-mono text-[11px] text-[#8C8C88] hover:text-white uppercase tracking-wider transition-colors disabled:opacity-40"
+                  className="px-3.5 py-2 rounded-xl bg-[#2447FF] hover:bg-[#1A3AE8] border border-[#2447FF] font-mono text-[11px] text-white uppercase tracking-wider transition-colors disabled:opacity-40"
                 >
                   Skip setup
                 </button>
@@ -434,7 +428,7 @@ export default function OnboardingWelcomePage() {
                     type="button"
                     onClick={handleSkipToDashboard}
                     disabled={saving}
-                    className="flex items-center gap-2 px-4 py-2.5 border border-white/10 hover:border-white/20 hover:bg-white/[0.04] text-[#8C8C88] hover:text-white font-mono text-[11px] uppercase tracking-wider rounded-xl transition-all disabled:opacity-50"
+                    className="flex items-center gap-2 px-4 py-2.5 bg-[#2447FF] hover:bg-[#1A3AE8] border border-[#2447FF] text-white font-mono text-[11px] uppercase tracking-wider rounded-xl transition-all disabled:opacity-50"
                   >
                     Skip to Dashboard
                     <ArrowRight className="h-3.5 w-3.5" />

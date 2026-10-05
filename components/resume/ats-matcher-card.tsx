@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useResume } from '@/components/resume/resume-provider'
+import { resolveCandidateName } from '@/lib/resume/name-utils'
 import { MacTrafficLights } from '@/components/ui/terminal-card'
 import {
   Sparkles,
@@ -109,7 +110,7 @@ export function ATSMatcherCard() {
               </span>
               {resumeData && (
                 <span className="font-mono text-[10px] text-[#94a3b8] bg-[#040814] border border-[#142347] px-2 py-0.5 rounded">
-                  Active: {resumeData.name || 'Candidate'} ({resumeData.targetRole || 'Software Engineer'})
+                  Active: {resolveCandidateName({ name: resumeData.name }) !== 'Candidate Profile' ? resolveCandidateName({ name: resumeData.name }) : 'Candidate'} ({resumeData.targetRole || 'Software Engineer'})
                 </span>
               )}
             </div>

@@ -4,6 +4,7 @@ import { supabaseAdmin } from '@/lib/supabase/admin'
 import { createChatCompletion, streamChatCompletion, EVALUATION_MODEL } from '@/lib/ai/client'
 import { updateWeaknessScores } from '@/lib/ai/weakness-tracker'
 import { checkRateLimit } from '@/lib/middleware/rate-limit'
+import { evaluateTechnicalAnswer, isNonAnswer } from '@/lib/ai/semantic-evaluator'
 
 function isNonAnswer(text?: string | null): boolean {
   if (!text) return true
@@ -221,6 +222,8 @@ Candidate Answer: ${userAnswer || '(No answer provided)'}
         const stream = new ReadableStream({
           async start(controller) {
             let accumulated = ''
+            let evaluationResult: any = null
+
             try {
               const tokenGenerator = streamChatCompletion({
                 system: EVALUATION_SYSTEM_PROMPT,
@@ -259,51 +262,64 @@ Candidate Answer: ${userAnswer || '(No answer provided)'}
                   cleanFeedback = nested.feedback || nested.caveman_feedback || ''
                 } catch {}
               }
-              if (!cleanFeedback || cleanFeedback.includes('{"score":')) {
-                cleanFeedback = isNonAnswer(userAnswer)
-                  ? 'Candidate submitted an empty or skipped response. Practice attempting all questions.'
-                  : 'Answer recorded and evaluated against technical requirements.'
-              }
 
               const parsedScore = Number(evalData?.score)
-              const score = Math.max(0, Math.min(100, !isNaN(parsedScore) ? parsedScore : (isNonAnswer(userAnswer) ? 0 : 35)))
-              const evaluationResult = {
-                score,
-                caveman_feedback: evalData.caveman_feedback || (score === 0 ? 'Bad: no solution. Score: 0%.' : `Score: ${score}%. Fix: elaborate on edge cases.`),
-                feedback: cleanFeedback,
-                technicalAccuracy: evalData.technicalAccuracy || evalData.technical_accuracy || '',
-                improvements: evalData.improvements || evalData.improvement || '',
-                topic: evalData.topic || topic,
+              if (!isNaN(parsedScore) && cleanFeedback && !cleanFeedback.includes('{"score":')) {
+                const score = Math.max(0, Math.min(100, parsedScore))
+                evaluationResult = {
+                  score,
+                  caveman_feedback: evalData.caveman_feedback || (score === 0 ? 'Bad: no solution. Score: 0%.' : `Score: ${score}%.`),
+                  feedback: cleanFeedback,
+                  technicalAccuracy: evalData.technicalAccuracy || evalData.technical_accuracy || '',
+                  improvements: evalData.improvements || evalData.improvement || '',
+                  topic: evalData.topic || topic,
+                  technicalAccuracyScore: evalData.technicalAccuracyScore || Math.min(100, Math.round(score * 1.02)),
+                  structureClarityScore: evalData.structureClarityScore || Math.min(100, Math.max(20, Math.round(score * 0.95))),
+                  depthEdgeCasesScore: evalData.depthEdgeCasesScore || Math.min(100, Math.max(20, Math.round(score * 0.92))),
+                }
+              } else {
+                evaluationResult = evaluateTechnicalAnswer(
+                  { text: questionText, type: questionType, topic, difficulty },
+                  userAnswer
+                )
               }
-
-              // Persist to database via upsert
-              await upsertQuestionRecord(id, sequenceOrder, {
-                question_text: questionText,
-                question_type: questionType,
-                topic: evaluationResult.topic,
-                difficulty,
-                user_answer: userAnswer,
-                ai_evaluation: evaluationResult,
-                time_taken_seconds: elapsedSeconds,
-              })
-
-              try {
-                await updateWeaknessScores(user.id, [
-                  {
-                    topic: evaluationResult.topic,
-                    score: evaluationResult.score,
-                    feedback: evaluationResult.feedback,
-                  },
-                ])
-              } catch {}
-
-              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ done: true, evaluation: evaluationResult })}\n\n`))
-              controller.close()
             } catch (err: any) {
-              console.error('[evaluate streaming] Error:', err)
-              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ error: err.message })}\n\n`))
-              controller.close()
+              console.warn('[evaluate streaming] AI stream unavailable, running semantic evaluator:', err?.message)
+              evaluationResult = evaluateTechnicalAnswer(
+                { text: questionText, type: questionType, topic, difficulty },
+                userAnswer
+              )
+
+              // Stream words from the semantic feedback so user gets smooth real-time response
+              const chunks = evaluationResult.feedback.match(/.{1,12}/g) || [evaluationResult.feedback]
+              for (const chunk of chunks) {
+                controller.enqueue(encoder.encode(`data: ${JSON.stringify({ chunk })}\n\n`))
+              }
             }
+
+            // Persist to database via upsert
+            await upsertQuestionRecord(id, sequenceOrder, {
+              question_text: questionText,
+              question_type: questionType,
+              topic: evaluationResult.topic,
+              difficulty,
+              user_answer: userAnswer,
+              ai_evaluation: evaluationResult,
+              time_taken_seconds: elapsedSeconds,
+            })
+
+            try {
+              await updateWeaknessScores(user.id, [
+                {
+                  topic: evaluationResult.topic,
+                  score: evaluationResult.score,
+                  feedback: evaluationResult.feedback,
+                },
+              ])
+            } catch {}
+
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify({ done: true, evaluation: evaluationResult })}\n\n`))
+            controller.close()
           },
         })
 
@@ -316,51 +332,64 @@ Candidate Answer: ${userAnswer || '(No answer provided)'}
         })
       }
 
-      const rawContent = await createChatCompletion({
-        system: EVALUATION_SYSTEM_PROMPT,
-        messages: [{ role: 'user', content: userContent }],
-        model: EVALUATION_MODEL,
-        responseFormat: { type: 'json_object' },
-      })
-      let evalData: any = {}
+      let evaluationResult: any = null
       try {
-        evalData = JSON.parse(rawContent)
-      } catch {
-        const match = rawContent.match(/\{[\s\S]*\}/)?.[0]
-        if (match) {
-          try {
-            evalData = JSON.parse(match)
-          } catch {
-            evalData = {}
+        const rawContent = await createChatCompletion({
+          system: EVALUATION_SYSTEM_PROMPT,
+          messages: [{ role: 'user', content: userContent }],
+          model: EVALUATION_MODEL,
+          responseFormat: { type: 'json_object' },
+        })
+        let evalData: any = {}
+        try {
+          evalData = JSON.parse(rawContent)
+        } catch {
+          const match = rawContent.match(/\{[\s\S]*\}/)?.[0]
+          if (match) {
+            try {
+              evalData = JSON.parse(match)
+            } catch {
+              evalData = {}
+            }
           }
         }
-      }
 
-      // Extract parsed feedback safely, never leaking raw JSON into the text
-      let cleanFeedback = evalData.feedback
-      if (typeof cleanFeedback === 'object' && cleanFeedback !== null) {
-        cleanFeedback = cleanFeedback.feedback || cleanFeedback.text || ''
-      } else if (typeof cleanFeedback === 'string' && cleanFeedback.trim().startsWith('{')) {
-        try {
-          const nested = JSON.parse(cleanFeedback)
-          cleanFeedback = nested.feedback || nested.caveman_feedback || ''
-        } catch {}
-      }
-      if (!cleanFeedback || cleanFeedback.includes('{"score":')) {
-        cleanFeedback = isNonAnswer(userAnswer)
-          ? 'Candidate submitted an empty or skipped response. Practice attempting all questions.'
-          : 'Answer recorded and evaluated against technical requirements.'
-      }
+        let cleanFeedback = evalData.feedback
+        if (typeof cleanFeedback === 'object' && cleanFeedback !== null) {
+          cleanFeedback = cleanFeedback.feedback || cleanFeedback.text || ''
+        } else if (typeof cleanFeedback === 'string' && cleanFeedback.trim().startsWith('{')) {
+          try {
+            const nested = JSON.parse(cleanFeedback)
+            cleanFeedback = nested.feedback || nested.caveman_feedback || ''
+          } catch {}
+        }
 
-      const parsedScore = Number(evalData?.score)
-      const score = Math.max(0, Math.min(100, !isNaN(parsedScore) ? parsedScore : (isNonAnswer(userAnswer) ? 0 : 35)))
-      const evaluationResult = {
-        score,
-        caveman_feedback: evalData.caveman_feedback || (score === 0 ? 'Bad: no solution. Score: 0%.' : `Score: ${score}%. Fix: elaborate on edge cases.`),
-        feedback: cleanFeedback,
-        technicalAccuracy: evalData.technicalAccuracy || evalData.technical_accuracy || '',
-        improvements: evalData.improvements || evalData.improvement || '',
-        topic: evalData.topic || topic,
+        const parsedScore = Number(evalData?.score)
+        if (!isNaN(parsedScore) && cleanFeedback && !cleanFeedback.includes('{"score":')) {
+          const score = Math.max(0, Math.min(100, parsedScore))
+          evaluationResult = {
+            score,
+            caveman_feedback: evalData.caveman_feedback || (score === 0 ? 'Bad: no solution. Score: 0%.' : `Score: ${score}%.`),
+            feedback: cleanFeedback,
+            technicalAccuracy: evalData.technicalAccuracy || evalData.technical_accuracy || '',
+            improvements: evalData.improvements || evalData.improvement || '',
+            topic: evalData.topic || topic,
+            technicalAccuracyScore: evalData.technicalAccuracyScore || Math.min(100, Math.round(score * 1.02)),
+            structureClarityScore: evalData.structureClarityScore || Math.min(100, Math.max(20, Math.round(score * 0.95))),
+            depthEdgeCasesScore: evalData.depthEdgeCasesScore || Math.min(100, Math.max(20, Math.round(score * 0.92))),
+          }
+        } else {
+          evaluationResult = evaluateTechnicalAnswer(
+            { text: questionText, type: questionType, topic, difficulty },
+            userAnswer
+          )
+        }
+      } catch (aiErr) {
+        console.warn('[evaluate non-streaming] AI call failed, using semantic evaluator:', aiErr)
+        evaluationResult = evaluateTechnicalAnswer(
+          { text: questionText, type: questionType, topic, difficulty },
+          userAnswer
+        )
       }
 
       // Persist to interview_questions table via upsert
@@ -486,16 +515,19 @@ Candidate Answer: ${userAnswer || '(No answer provided)'}
       if (!q.ai_evaluation || q.ai_evaluation.score === undefined) {
         const hasAnswer = (q.user_answer || '').trim().length > 0
         const isSkipped = !hasAnswer || isNonAnswer(q.user_answer)
-        const unattemptedEval = {
-          score: isSkipped ? 0 : 35,
-          caveman_feedback: isSkipped ? 'Bad: Unanswered question. Score: 0%. Fix: Attempt solution.' : 'Score: 35%. Fix: Add technical depth.',
-          feedback: isSkipped
-            ? 'Candidate did not complete or submit this question before finishing the interview.'
-            : 'Candidate attempted this question with partial technical depth.',
-          technicalAccuracy: isSkipped ? 'Unanswered.' : 'Partially attempted.',
-          improvements: 'Work through technical problems systematically under timed pressure.',
-          topic: q.topic || 'General',
-        }
+        const unattemptedEval = isSkipped
+          ? {
+              score: 0,
+              caveman_feedback: 'Bad: Unanswered question. Score: 0%. Fix: Attempt solution.',
+              feedback: 'Candidate did not complete or submit this question before finishing the interview.',
+              technicalAccuracy: 'Unanswered.',
+              improvements: 'Work through technical problems systematically under timed pressure.',
+              topic: q.topic || 'General',
+              technicalAccuracyScore: 0,
+              structureClarityScore: 0,
+              depthEdgeCasesScore: 0,
+            }
+          : evaluateTechnicalAnswer({ text: q.question_text, topic: q.topic, difficulty: q.difficulty }, q.user_answer)
 
         await supabaseAdmin
           .from('interview_questions')

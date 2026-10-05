@@ -126,7 +126,7 @@ export default function OnboardingPage() {
             type="button"
             onClick={handleGoToDashboard}
             disabled={saving}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-md border border-white/10 hover:border-white/25 bg-white/[0.03] hover:bg-white/[0.06] text-[#8C8C88] hover:text-[#F4F2EC] font-mono text-[11px] uppercase tracking-wider transition-all disabled:opacity-40"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-md bg-[#2447FF] hover:bg-[#1A3AE8] border border-[#2447FF] text-white font-mono text-[11px] uppercase tracking-wider transition-all disabled:opacity-40"
           >
             <span>Skip to Dashboard</span>
             <ArrowRight className="h-3 w-3" />
@@ -139,13 +139,7 @@ export default function OnboardingPage() {
             <div key={s.id} className="flex items-center gap-3 flex-1">
               <div className="flex items-center gap-2">
                 <div
-                  className={`w-6 h-6 rounded-md flex items-center justify-center text-[10px] font-mono font-bold border transition-all duration-200 ${
-                    step > s.id
-                      ? 'bg-[#2447FF]/20 border-[#2447FF] text-[#2447FF]'
-                      : step === s.id
-                        ? 'bg-[#2447FF] border-[#2447FF] text-white'
-                        : 'border-white/15 text-[#8C8C88] bg-transparent'
-                  }`}
+                  className="w-6 h-6 rounded-md flex items-center justify-center text-[10px] font-mono font-bold bg-[#2447FF] border border-[#2447FF] text-white transition-all duration-200"
                 >
                   {step > s.id ? '✓' : s.id}
                 </div>
@@ -260,9 +254,8 @@ export default function OnboardingPage() {
                     <span>{resumeUploaded ? 'Continue with Resume →' : 'Continue →'}</span>
                   </Button>
                   <Button
-                    variant="outline"
                     onClick={handleSkipResume}
-                    className="border border-white/15 hover:border-white/30 text-[#8C8C88] hover:text-[#F4F2EC] bg-transparent font-mono text-xs uppercase tracking-[0.1em] h-11 px-4 rounded-md"
+                    className="bg-[#2447FF] hover:bg-[#1A3AE8] border border-[#2447FF] text-white font-mono text-xs uppercase tracking-[0.1em] font-bold h-11 px-5 rounded-md transition-all shadow-sm"
                   >
                     Skip for now
                   </Button>
@@ -367,10 +360,9 @@ export default function OnboardingPage() {
                     <span>Start First Interview →</span>
                   </Button>
                   <Button
-                    variant="outline"
                     onClick={handleGoToDashboard}
                     disabled={saving}
-                    className="w-full border border-white/15 hover:border-white/30 text-[#8C8C88] hover:text-[#F4F2EC] bg-transparent font-mono text-xs uppercase tracking-[0.1em] h-11 rounded-md transition-all"
+                    className="w-full bg-[#2447FF] hover:bg-[#1A3AE8] border border-[#2447FF] text-white font-mono text-xs uppercase tracking-[0.12em] font-bold h-11 rounded-md transition-all disabled:opacity-40"
                   >
                     Go to Dashboard Instead
                   </Button>

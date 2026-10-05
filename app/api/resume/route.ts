@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { formatResumeMarkdown, parseResumeMarkdown, structuredToDashboardResume } from '@/lib/resume/format'
+import { resolveCandidateName, isValidCandidateName } from '@/lib/resume/name-utils'
 import { ResumeParsingService } from '@/lib/resume/parser-service'
 import { extractTextFromPdfBuffer, isGarbageText } from '@/lib/resume/pdf-extractor'
 import { deleteFromUploadThing } from '@/lib/resume/storage'
@@ -92,34 +93,8 @@ function parseSkills(text: string): string[] {
 }
 
 function parseName(text: string, fileName: string): string {
-  if (!isGarbageText(text)) {
-    const nameLabelMatch = text.match(/(?:name|candidate(?:\s+name)?)\s*[:\-]\s*([A-Za-z][A-Za-z\s.'-]{2,40})/i)
-    if (nameLabelMatch?.[1] && !isNoiseToken(nameLabelMatch[1])) {
-      return nameLabelMatch[1].trim()
-    }
-
-    const lines = text
-      .split('\n')
-      .map((l) => l.trim())
-      .filter((l) => l.length > 0 && !l.startsWith('%PDF-') && !l.startsWith('http') && !l.includes('@') && !isNoiseToken(l))
-
-    const candidate = lines.find((l) =>
-      /^[A-Za-z][A-Za-z\s.'-]{2,35}$/.test(l) &&
-      !/resume|curriculum|vitae|page|engineer|developer|software|technical|experience|education|projects|summary|profile|linkedin|linkdin|data/i.test(l) &&
-      !isNoiseToken(l)
-    )
-    if (candidate) return candidate
-  }
-
-  const cleanedFileName = fileName
-    .replace(/\.[^.]+$/, '')
-    .replace(/\[\d+\]|\(\d+\)|\d{4}/g, '')
-    .replace(/resume|cv|profile|candidate|linkedin|linkdin|data/gi, '')
-    .replace(/[-_]/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim()
-
-  return cleanedFileName && cleanedFileName.length >= 2 ? cleanedFileName : ''
+  const resolved = resolveCandidateName({ fileName, rawText: text })
+  return resolved !== 'Candidate Profile' ? resolved : ''
 }
 
 function parseYears(text: string): number {
@@ -147,7 +122,12 @@ function parseEducation(text: string): string[] {
 
 function mapStructuredToResumeData(structured: StructuredResumeData, rawText: string, fileName: string): ResumeData {
   const fallback = buildFallbackResumeData(rawText, fileName)
-  const candidateName = structured.name && !isNoiseToken(structured.name) ? structured.name : fallback.name
+  const candidateName = resolveCandidateName({
+    name: structured.name,
+    fileName,
+    rawText,
+    fallback: fallback.name,
+  })
   const targetPosition = structured.position && !/not answerable|unknown|n\/a/i.test(structured.position) && !isGarbageText(structured.position)
     ? structured.position
     : fallback.targetRole
@@ -165,7 +145,7 @@ function mapStructuredToResumeData(structured: StructuredResumeData, rawText: st
     : fallback.summary
 
   return {
-    name: candidateName || '',
+    name: candidateName !== 'Candidate Profile' ? candidateName : '',
     skills: detectedSkills.slice(0, 24),
     experience: structured.experience && structured.experience.length > 0 ? structured.experience : fallback.experience,
     education: structured.education && structured.education.length > 0 ? structured.education : fallback.education,
@@ -221,24 +201,9 @@ async function extractRawText(file: File): Promise<string> {
 
 function sanitizeFullName(raw: string): string {
   if (!raw) return ''
-
-  const PDF_ARTIFACTS = [
-    'endobj', 'endstream', 'stream', 'xref', 'trailer',
-    'startxref', 'obj', '>>', 'BT', 'ET', 'Tf', 'Td', 'Tj',
-  ]
-
-  const lower = raw.toLowerCase().trim()
-  if (PDF_ARTIFACTS.some((token) => lower === token.toLowerCase())) return ''
-  if (/^\d+\s+\d+\s+obj/.test(raw)) return ''
-  if (/^%PDF/.test(raw)) return ''
-  if (isGarbageText(raw)) return ''
-  if (raw.length < 2 || raw.length > 80) return ''
-
-  const cleaned = raw.replace(/[^a-zA-Z\s\-'.]/g, '').trim()
-  if (cleaned.length < 2) return ''
-  if (/\d{3,}/.test(cleaned)) return ''
-
-  return cleaned
+  const trimmed = raw.trim()
+  if (!isValidCandidateName(trimmed)) return ''
+  return trimmed
 }
 
 /**
@@ -279,6 +244,13 @@ async function fetchUserResumes(client: any, userId: string): Promise<StoredResu
           summary: undefined,
         }
 
+        const resolvedCandidateName = resolveCandidateName({
+          name: dashboardData.name || structured?.name,
+          fileName: v.file_name,
+          rawText: structured?.raw_text || parsed?.markdown,
+        })
+        dashboardData.name = resolvedCandidateName !== 'Candidate Profile' ? resolvedCandidateName : ''
+
         items.push({
           id: v.resume_id || v.id,
           versionId: v.id,
@@ -315,7 +287,13 @@ async function fetchUserResumes(client: any, userId: string): Promise<StoredResu
       const structured = parseResumeMarkdown(profile.resume_text)
       if (structured) {
         const dashboardData = structuredToDashboardResume(structured)
-        if (!dashboardData.name && profile.full_name) dashboardData.name = profile.full_name
+        const resolvedName = resolveCandidateName({
+          name: dashboardData.name || profile.full_name,
+          fileName: profile.resume_url,
+          rawText: profile.resume_text,
+          fallback: profile.full_name,
+        })
+        dashboardData.name = resolvedName !== 'Candidate Profile' ? resolvedName : ''
         if (!dashboardData.targetRole && profile.target_role) dashboardData.targetRole = profile.target_role
 
         return [
@@ -414,7 +392,7 @@ export async function POST(req: NextRequest) {
 
     if (normalized.length < 25) {
       resumeData = buildFallbackResumeData(normalized, file.name)
-      if (user?.user_metadata?.full_name && !resumeData.name) {
+      if (user?.user_metadata?.full_name && !resumeData.name && isValidCandidateName(user.user_metadata.full_name)) {
         resumeData.name = user.user_metadata.full_name
       }
       markdown = formatResumeMarkdown({

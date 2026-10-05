@@ -13,7 +13,7 @@ interface NotificationItem {
   created_at: string
 }
 
-function getDefaultNotifications(userId: string): NotificationItem[] {
+function getDefaultNotifications(userId: string, hasRoadmap = false, hasInterviews = false): NotificationItem[] {
   const now = Date.now()
   return [
     {
@@ -50,8 +50,16 @@ function getDefaultNotifications(userId: string): NotificationItem[] {
       id: `notif-roadmap-${userId.slice(0, 8)}`,
       user_id: userId,
       type: 'roadmap_ready',
-      title: '🗺️ Adaptive Study Roadmap Active',
-      body: 'Your personalized curriculum is ready. Explore targeted study modules and curated video prep before your real day.',
+      title: hasRoadmap
+        ? '🗺️ Adaptive Study Roadmap Active'
+        : hasInterviews
+        ? '🗺️ Generate Your Personalized Study Plan'
+        : '🗺️ Build Your Adaptive Study Plan',
+      body: hasRoadmap
+        ? 'Your personalized curriculum is ready. Explore targeted study modules and curated video prep before your real day.'
+        : hasInterviews
+        ? 'Your interview telemetry has pinpointed target skill gaps. Generate your personalized study curriculum with curated videos.'
+        : 'Calibrate an adaptive study curriculum with targeted video modules and practice drills to accelerate your prep.',
       action_url: '/dashboard/roadmap',
       read: false,
       created_at: new Date(now - 9 * 3600 * 1000).toISOString(), // 9 hrs ago
@@ -81,6 +89,31 @@ export async function GET() {
   const readCookieVal = cookieStore.get('read_notifications')?.value || ''
   const readIds = new Set(readCookieVal.split(',').filter(Boolean))
 
+  let hasRoadmap = false
+  try {
+    const { count, error: rmErr } = await supabase
+      .from('roadmap_items')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+
+    if (!rmErr && typeof count === 'number' && count > 0) {
+      hasRoadmap = true
+    }
+  } catch {}
+
+  let hasInterviews = false
+  try {
+    const { count, error: invErr } = await supabase
+      .from('interviews')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .eq('status', 'completed')
+
+    if (!invErr && typeof count === 'number' && count > 0) {
+      hasInterviews = true
+    }
+  } catch {}
+
   let notifications: NotificationItem[] = []
 
   try {
@@ -100,7 +133,21 @@ export async function GET() {
 
   // If no DB notifications exist yet, generate the sample marketing & journey notifications
   if (notifications.length === 0) {
-    notifications = getDefaultNotifications(user.id)
+    notifications = getDefaultNotifications(user.id, hasRoadmap, hasInterviews)
+  } else {
+    // If DB notifications exist, ensure any roadmap notification reflects current reality
+    notifications = notifications.map((n) => {
+      if (n.type === 'roadmap_ready' && !hasRoadmap) {
+        return {
+          ...n,
+          title: hasInterviews ? '🗺️ Generate Your Personalized Study Plan' : '🗺️ Build Your Adaptive Study Plan',
+          body: hasInterviews
+            ? 'Your interview telemetry has pinpointed target skill gaps. Generate your personalized study curriculum with curated videos.'
+            : 'Calibrate an adaptive study curriculum with targeted video modules and practice drills to accelerate your prep.',
+        }
+      }
+      return n
+    })
   }
 
   // Apply cookie-based read state

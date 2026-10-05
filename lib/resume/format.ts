@@ -1,5 +1,6 @@
 import type { ExperienceLevel } from '@/lib/types'
 import type { StructuredResumeData } from '@/lib/resume/types'
+import { isValidCandidateName } from '@/lib/resume/name-utils'
 
 const allowedExperienceLevels: ExperienceLevel[] = ['junior', 'mid', 'senior', 'staff', 'principal']
 
@@ -83,8 +84,9 @@ export function parseResumeMarkdown(markdown: string | null): StructuredResumeDa
 }
 
 export function structuredToDashboardResume(structured: StructuredResumeData) {
+  const cleanName = isValidCandidateName(structured.name) ? (structured.name?.trim() || '') : ''
   return {
-    name: structured.name || '',
+    name: cleanName,
     skills: structured.key_skills || [],
     experience: structured.experience || [],
     education: structured.education || [],

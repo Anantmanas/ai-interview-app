@@ -19,6 +19,7 @@ import { ResumeUploadCard } from '@/components/dashboard/resume-upload-card'
 import { EditorialHeroMetric } from '@/components/dashboard/editorial-hero-metric'
 import { NextStepBanner } from '@/components/dashboard/next-step-banner'
 import { formatSessionDate } from '@/lib/utils'
+import { isValidCandidateName } from '@/lib/resume/name-utils'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -72,8 +73,9 @@ export default async function DashboardPage() {
       : 0
 
   const recentInterviews = interviews?.slice(0, 5) ?? []
+  const safeFullName = isValidCandidateName(profile?.full_name) ? (profile?.full_name || '') : ''
   const name =
-    profile?.full_name?.split(' ')[0] || user.email?.split('@')[0] || 'Engineer'
+    safeFullName.split(' ')[0] || user.user_metadata?.full_name?.split(' ')[0] || user.email?.split('@')[0] || 'Engineer'
   const targetRole = profile?.target_role || 'Staff / Senior Engineer'
 
   return (

@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useResume } from '@/components/resume/resume-provider'
 import { SkillIcon } from '@/components/resume/skill-icon'
 import { CheckCircle2, FileText, ChevronDown, ChevronUp } from 'lucide-react'
+import { resolveCandidateName } from '@/lib/resume/name-utils'
 
 export function ResumeSummary() {
   const { resumeData, resumeMeta, isResumeReady } = useResume()
@@ -13,6 +14,11 @@ export function ResumeSummary() {
     return null
   }
 
+  const candidateName = resolveCandidateName({
+    name: resumeData.name,
+    fileName: resumeMeta?.fileName,
+  })
+  const hasValidName = candidateName !== 'Candidate Profile'
   const skills = resumeData.skills || []
 
   return (
@@ -34,10 +40,10 @@ export function ResumeSummary() {
 
       <div className="p-6 space-y-4">
         {/* Candidate & Target Role */}
-        {resumeData.name && (
+        {hasValidName && (
           <div className="flex flex-wrap items-center gap-3 text-xs font-mono">
             <span className="text-[#8C8C88]">Candidate:</span>
-            <strong className="text-[#F4F2EC] font-semibold text-sm font-sans">{resumeData.name}</strong>
+            <strong className="text-[#F4F2EC] font-semibold text-sm font-sans">{candidateName}</strong>
             <span className="text-[#8C8C88]">•</span>
             <span className="text-[#8C8C88]">Target:</span>
             <span className="text-[#2447FF] font-semibold">{resumeData.targetRole || 'Software Engineer'}</span>

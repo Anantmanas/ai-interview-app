@@ -26,6 +26,7 @@ import {
   Activity,
   Zap,
 } from 'lucide-react';
+import { evaluateTechnicalAnswer, isNonAnswer } from '@/lib/ai/semantic-evaluator';
 
 interface Question {
   id: string;
@@ -44,6 +45,9 @@ interface EvaluationResult {
   improvements?: string;
   technicalAccuracy?: string;
   topic?: string;
+  technicalAccuracyScore?: number;
+  structureClarityScore?: number;
+  depthEdgeCasesScore?: number;
 }
 
 interface ChatMessage {
@@ -96,6 +100,44 @@ function cleanFeedbackText(fb: any): string {
 
 const INTERVIEW_DURATION_MS = 30 * 60 * 1000; // 30 minutes
 const URGENT_THRESHOLD_MS = 5 * 60 * 1000; // 5 minutes
+
+function getInitialInterviewStartTime(interviewId?: string, createdAt?: string): number {
+  if (typeof window !== 'undefined' && interviewId) {
+    try {
+      const stored = localStorage.getItem(`interview_start_time_${interviewId}`);
+      if (stored) {
+        const parsed = parseInt(stored, 10);
+        if (!isNaN(parsed) && parsed > 0 && parsed <= Date.now()) {
+          if (Date.now() - parsed < INTERVIEW_DURATION_MS) {
+            return parsed;
+          }
+        }
+      }
+    } catch {}
+  }
+
+  if (createdAt) {
+    const createdTime = new Date(createdAt).getTime();
+    if (!isNaN(createdTime) && createdTime > 0 && createdTime <= Date.now()) {
+      if (Date.now() - createdTime < INTERVIEW_DURATION_MS) {
+        if (typeof window !== 'undefined' && interviewId) {
+          try {
+            localStorage.setItem(`interview_start_time_${interviewId}`, String(createdTime));
+          } catch {}
+        }
+        return createdTime;
+      }
+    }
+  }
+
+  const now = Date.now();
+  if (typeof window !== 'undefined' && interviewId) {
+    try {
+      localStorage.setItem(`interview_start_time_${interviewId}`, String(now));
+    } catch {}
+  }
+  return now;
+}
 
 function buildResumeContext(profile?: any): string {
   if (profile?.resume_text) return profile.resume_text;
@@ -214,7 +256,12 @@ function VoiceWaveform({ isActive }: { isActive: boolean }) {
  * Countdown Timer — Technical Monospace Readout
  */
 function CountdownTimer({ startTime, onTimeUp }: { startTime: number; onTimeUp: () => void }) {
-  const [timeLeft, setTimeLeft] = useState(INTERVIEW_DURATION_MS);
+  const calculateRemaining = () => {
+    const elapsed = Date.now() - startTime;
+    return Math.max(0, INTERVIEW_DURATION_MS - elapsed);
+  };
+
+  const [timeLeft, setTimeLeft] = useState<number>(calculateRemaining);
   const isUrgent = timeLeft <= URGENT_THRESHOLD_MS;
   const onTimeUpRef = useRef(onTimeUp);
 
@@ -223,9 +270,10 @@ function CountdownTimer({ startTime, onTimeUp }: { startTime: number; onTimeUp: 
   }, [onTimeUp]);
 
   useEffect(() => {
+    setTimeLeft(calculateRemaining());
+
     const interval = setInterval(() => {
-      const elapsed = Date.now() - startTime;
-      const remaining = Math.max(0, INTERVIEW_DURATION_MS - elapsed);
+      const remaining = calculateRemaining();
       setTimeLeft(remaining);
 
       if (remaining === 0) {
@@ -460,7 +508,9 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
   const [codeAnswer, setCodeAnswer] = useState('');
   const [selectedLanguage, setSelectedLanguage] = useState('javascript');
   const [evaluation, setEvaluation] = useState<EvaluationResult | null>(null);
-  const [interviewStartTime] = useState(Date.now());
+  const [interviewStartTime] = useState<number>(() =>
+    getInitialInterviewStartTime(interviewId, interview?.created_at)
+  );
   const [questionStartTime, setQuestionStartTime] = useState(Date.now());
   const [isInterviewEnded, setIsInterviewEnded] = useState(false);
   const [totalScore, setTotalScore] = useState(0);
@@ -474,6 +524,15 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
   const [showEndModal, setShowEndModal] = useState(false);
   const [showHint, setShowHint] = useState(false);
   const [recordedHistory, setRecordedHistory] = useState<EvaluatedRecord[]>([]);
+
+  // Synchronize start time to local storage
+  useEffect(() => {
+    if (interviewId && interviewStartTime) {
+      try {
+        localStorage.setItem(`interview_start_time_${interviewId}`, String(interviewStartTime));
+      } catch {}
+    }
+  }, [interviewId, interviewStartTime]);
 
   // Anti-Cheat (Restrict to max 2 pastes)
   const [pasteCount, setPasteCount] = useState(0);
@@ -532,6 +591,53 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
     async function loadQuestions() {
       setIsGenerating(true);
       try {
+        // 1. Check if questions already exist for this interview (e.g. on page reload/refresh)
+        if (interviewId) {
+          try {
+            const existingRes = await fetch(`/api/interviews/${interviewId}/questions`);
+            if (existingRes.ok) {
+              const existingData = await existingRes.json();
+              if (existingData?.questions && Array.isArray(existingData.questions) && existingData.questions.length > 0) {
+                if (mounted) {
+                  const mapped = existingData.questions.map((q: any) => ({
+                    id: q.id,
+                    text: q.question_text,
+                    type: q.question_type,
+                    difficulty: q.difficulty,
+                    topic: q.topic,
+                  }));
+                  setQuestions(mapped);
+                  setQuestionStartTime(Date.now());
+                  setIsGenerating(false);
+
+                  // Restore progress if questions were already answered/evaluated
+                  const answered = existingData.questions.filter((q: any) => q.ai_evaluation && q.ai_evaluation.score !== undefined);
+                  if (answered.length > 0) {
+                    setAnswersCount(answered.length);
+                    const totalSc = answered.reduce((acc: number, curr: any) => acc + (Number(curr.ai_evaluation.score) || 0), 0);
+                    setTotalScore(totalSc);
+                    setCurrentQIndex(Math.min(answered.length, mapped.length - 1));
+                    setRecordedHistory(answered.map((q: any) => ({
+                      question: {
+                        id: q.id,
+                        text: q.question_text,
+                        type: q.question_type,
+                        difficulty: q.difficulty,
+                        topic: q.topic,
+                      },
+                      userAnswer: q.user_answer || '',
+                      evaluation: q.ai_evaluation,
+                    })));
+                  }
+                  return;
+                }
+              }
+            }
+          } catch (fetchErr) {
+            console.warn('Could not fetch existing questions:', fetchErr);
+          }
+        }
+
         const targetTopic = interview?.target_role?.startsWith('Topic: ')
           ? interview.target_role.replace('Topic: ', '').trim()
           : (interview?.title?.startsWith('Targeted: ')
@@ -634,19 +740,9 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
           }
         }
 
-        const isSkipped = !submittedAnswer || submittedAnswer.trim().length < 5 || ['na', 'none', 'idk', 'skip', 'pass', 'nil', 'null'].includes(submittedAnswer.trim().toLowerCase().replace(/[^a-z0-9]/g, ''));
-        const rawEvalResult = finalEvalResult || {
-          score: isSkipped ? 0 : 30,
-          feedback: isSkipped
-            ? "No substantive technical answer was provided. In an interview, submitting 'NA' or skipping yields 0 points."
-            : 'Answer evaluated with incomplete technical depth.',
-          caveman_feedback: isSkipped
-            ? 'Bad: no answer provided. Score: 0%. Fix: communicate solution.'
-            : 'Score: 30%. Fix: elaborate on edge cases.',
-          technicalAccuracy: isSkipped ? 'Unanswered.' : 'Partially attempted.',
-          improvements: isSkipped ? 'Always attempt a solution or discuss trade-offs.' : 'Add concrete examples.',
-          topic: q.topic || 'General',
-        };
+        const rawEvalResult = (finalEvalResult && finalEvalResult.score !== undefined)
+          ? finalEvalResult
+          : evaluateTechnicalAnswer(q, submittedAnswer, { difficulty: q.difficulty, topic: q.topic });
 
         const evalResult: EvaluationResult = {
           ...rawEvalResult,
@@ -668,8 +764,10 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
         ]);
         setStreamingFeedback('');
       } else {
-        const result = await res.json();
-        const rawEval = (result.evaluation || {}) as EvaluationResult;
+        const result = await res.json().catch(() => ({}));
+        const rawEval = (result.evaluation && result.evaluation.score !== undefined)
+          ? (result.evaluation as EvaluationResult)
+          : evaluateTechnicalAnswer(q, submittedAnswer, { difficulty: q.difficulty, topic: q.topic });
         const evalResult: EvaluationResult = {
           ...rawEval,
           feedback: cleanFeedbackText(rawEval.feedback),
@@ -690,6 +788,24 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
       }
     } catch (error) {
       console.error('Failed to evaluate answer:', error);
+      const localEval = evaluateTechnicalAnswer(q, submittedAnswer, { difficulty: q.difficulty, topic: q.topic });
+      const evalResult: EvaluationResult = {
+        ...localEval,
+        feedback: cleanFeedbackText(localEval.feedback),
+      };
+      setEvaluation(evalResult);
+      setTotalScore((prev) => prev + (evalResult?.score ?? 0));
+      setAnswersCount((prev) => prev + 1);
+      setMobileTab('coach');
+
+      setRecordedHistory((prev) => [
+        ...prev,
+        {
+          question: q,
+          userAnswer: submittedAnswer,
+          evaluation: evalResult,
+        },
+      ]);
     } finally {
       setIsEvaluating(false);
       setStreamingFeedback('');
@@ -1395,15 +1511,15 @@ export function InterviewRoom({ interview, profile }: InterviewRoomProps) {
                 <div className="space-y-3 bg-[#1A3AE8] border border-white/25 rounded-xl p-4 text-white">
                   <MiniBar
                     label="TECHNICAL ACCURACY"
-                    value={Math.min(100, Math.round(evaluation.score * 1.02))}
+                    value={evaluation.technicalAccuracyScore ?? Math.min(100, Math.round(evaluation.score * 1.02))}
                   />
                   <MiniBar
                     label="STRUCTURE & CLARITY"
-                    value={Math.min(100, Math.max(20, Math.round(evaluation.score * 0.95)))}
+                    value={evaluation.structureClarityScore ?? Math.min(100, Math.max(20, Math.round(evaluation.score * 0.95)))}
                   />
                   <MiniBar
                     label="DEPTH & EDGE CASES"
-                    value={Math.min(100, Math.max(20, Math.round(evaluation.score * 0.92)))}
+                    value={evaluation.depthEdgeCasesScore ?? Math.min(100, Math.max(20, Math.round(evaluation.score * 0.92)))}
                   />
                 </div>
 

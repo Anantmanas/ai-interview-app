@@ -1,4 +1,5 @@
 import { parseResumeMarkdown } from '@/lib/resume/format'
+import { resolveCandidateName, isValidCandidateName } from '@/lib/resume/name-utils'
 import type { ResumeLifecycleState, ResumeSnapshot, StructuredResumeData } from '@/lib/resume/types'
 
 type SupabaseClientLike = {
@@ -11,12 +12,18 @@ function isMissingResumeTableError(error: any) {
 
 function fallbackSnapshot(userId: string, profile: any): ResumeSnapshot {
   const parsed = profile?.resume_text ? parseResumeMarkdown(profile.resume_text) : null
+  const cleanName = resolveCandidateName({
+    name: parsed?.name || profile?.full_name,
+    fileName: profile?.resume_url,
+    rawText: profile?.resume_text,
+    fallback: profile?.full_name,
+  })
   const structuredData = parsed
     ? {
         ...parsed,
-        name: parsed.name || profile.full_name || null,
-        position: parsed.position || profile.target_role || null,
-        experience_level: parsed.experience_level || profile.experience_level || null,
+        name: cleanName !== 'Candidate Profile' ? cleanName : null,
+        position: parsed.position || profile?.target_role || null,
+        experience_level: parsed.experience_level || profile?.experience_level || null,
       } as StructuredResumeData
     : null
 
@@ -96,12 +103,13 @@ export class ResumeDataService {
   }
 
   async syncProfile(userId: string, fileUrl: string, structuredData: StructuredResumeData, markdown: string) {
+    const cleanName = isValidCandidateName(structuredData.name) ? structuredData.name!.trim() : null
     const { error } = await this.supabase
       .from('profiles')
       .update({
         resume_url: fileUrl,
         resume_text: markdown,
-        full_name: structuredData.name || null,
+        full_name: cleanName,
         target_role: structuredData.position || null,
         experience_level: structuredData.experience_level || 'mid',
       })

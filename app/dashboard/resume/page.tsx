@@ -21,6 +21,7 @@ import {
   Calendar
 } from 'lucide-react'
 import { Spinner } from '@/components/ui/spinner'
+import { resolveCandidateName } from '@/lib/resume/name-utils'
 
 export default function ResumePage() {
   const {
@@ -125,6 +126,10 @@ export default function ResumePage() {
               const isDeleting = deletingId === resume.id || deletingId === resume.versionId
               const isActivating = activatingId === resume.id || activatingId === resume.versionId
               const isConfirmingDelete = confirmDeleteId === resume.id || confirmDeleteId === resume.versionId
+              const candidateDisplayName = resolveCandidateName({
+                name: data?.name || resume.candidateName,
+                fileName: resume.fileName,
+              })
 
               return (
                 <div
@@ -184,7 +189,7 @@ export default function ResumePage() {
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs font-mono bg-[#040814] border border-[#142347] p-3.5 rounded-lg">
                       <div>
                         <span className="text-[#64748b] uppercase block text-[10px] mb-0.5 font-semibold">CANDIDATE</span>
-                        <span className="text-white font-medium">{data?.name || resume.candidateName || 'Candidate Profile'}</span>
+                        <span className="text-white font-medium">{candidateDisplayName}</span>
                       </div>
                       <div>
                         <span className="text-[#64748b] uppercase block text-[10px] mb-0.5 font-semibold">TARGET ROLE</span>
