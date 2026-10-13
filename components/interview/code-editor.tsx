@@ -29,12 +29,12 @@ export function CodeEditor({ value, onChange, language = 'python', height = 300 
   return (
     <div className="w-full space-y-2">
       <div className="flex items-center gap-2">
-        <label className="text-sm font-medium">Language:</label>
+        <label className="text-xs font-mono uppercase text-[#9a9a9a]">Language:</label>
         <Select value={currentLang} onValueChange={setCurrentLang}>
-          <SelectTrigger className="w-40">
+          <SelectTrigger className="w-40 rounded-full bg-white/[0.04] border-white/10 text-xs font-mono text-white">
             <SelectValue />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-[#0a0a0a] border-white/10 text-white font-mono text-xs rounded-2xl shadow-2xl">
             {SUPPORTED_LANGUAGES.map((lang) => (
               <SelectItem key={lang.value} value={lang.value}>
                 {lang.label}
@@ -45,7 +45,7 @@ export function CodeEditor({ value, onChange, language = 'python', height = 300 
       </div>
 
       <div
-        className="border rounded-lg overflow-hidden"
+        className="border border-white/10 rounded-2xl overflow-hidden bg-white/[0.02] shadow-none"
         style={{ height: typeof height === 'number' ? `${height}px` : height }}
       >
         <Editor
@@ -61,7 +61,7 @@ export function CodeEditor({ value, onChange, language = 'python', height = 300 
             automaticLayout: true,
             scrollBeyondLastLine: false,
           }}
-          loading={<div className="p-4 text-sm text-muted-foreground animate-pulse">Loading Monaco Editor...</div>}
+          loading={<div className="p-4 text-xs font-mono text-zinc-400 animate-pulse">Loading Monaco Editor...</div>}
         />
       </div>
     </div>

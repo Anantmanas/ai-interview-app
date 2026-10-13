@@ -35,10 +35,10 @@ export default async function DashboardLayout({
     <SidebarProvider>
       <DashboardSidebar user={user} profile={effectiveProfile} />
       <SidebarInset className="bg-[#000000] min-h-screen flex flex-col relative overflow-x-hidden">
-        {/* Subtle Ambient Electric Indigo Orb */}
+        {/* Subtle Ambient Electric Iris Glow */}
         <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-0">
-          <div className="absolute top-0 right-1/4 h-[500px] w-[500px] rounded-full bg-[#4f46e5] opacity-[0.08] blur-[150px]" />
-          <div className="cyber-grid absolute inset-0 opacity-[0.15]" />
+          <div className="absolute top-0 right-1/4 h-[500px] w-[500px] rounded-full bg-[#8052ff] opacity-[0.05] blur-[150px]" />
+          <div className="cyber-grid absolute inset-0 opacity-[0.08]" />
         </div>
         <div className="relative z-10 flex flex-col min-h-screen">
           <DashboardHeader user={user} profile={effectiveProfile} />

@@ -59,27 +59,27 @@ export function DashboardHeader({ user, profile }: DashboardHeaderProps) {
   const breadcrumbs = getBreadcrumbs()
 
   return (
-    <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center gap-3 border-b border-white/10 bg-[#050505]/90 backdrop-blur-xl px-4 sm:px-6">
-      <SidebarTrigger className="-ml-1 text-[#8C8C88] hover:text-white hover:bg-white/5 rounded-lg p-1.5 transition-colors shrink-0" />
+    <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center gap-3 border-b border-white/10 bg-[#000000]/90 backdrop-blur-xl px-4 sm:px-6">
+      <SidebarTrigger className="-ml-1 text-[#9a9a9a] hover:text-white hover:bg-white/5 rounded-lg p-1.5 transition-colors shrink-0" />
       <div className="h-4 w-px bg-white/10 mx-1 shrink-0" />
 
       {/* Breadcrumb Navigation */}
       <div className="min-w-0 flex-1 overflow-hidden">
         <Breadcrumb>
-          <BreadcrumbList className="font-mono text-[11px] sm:text-[12px] text-[#8C8C88] flex-nowrap overflow-hidden">
+          <BreadcrumbList className="font-mono text-[11px] sm:text-[12px] text-[#9a9a9a] flex-nowrap overflow-hidden">
             {breadcrumbs.map((crumb, index) => {
               const isLast = index === breadcrumbs.length - 1
               return (
                 <Fragment key={crumb.href}>
                   <BreadcrumbItem className={!isLast ? 'hidden sm:inline-flex' : 'inline-flex truncate'}>
                     {isLast ? (
-                      <BreadcrumbPage className="text-[#F4F2EC] font-semibold truncate tracking-tight">
+                      <BreadcrumbPage className="text-white font-medium truncate tracking-tight">
                         {crumb.label}
                       </BreadcrumbPage>
                     ) : (
                       <BreadcrumbLink
                         href={crumb.href}
-                        className="text-[#8C8C88] hover:text-white transition-colors truncate"
+                        className="text-[#9a9a9a] hover:text-white transition-colors truncate"
                       >
                         {crumb.label}
                       </BreadcrumbLink>
@@ -99,7 +99,7 @@ export function DashboardHeader({ user, profile }: DashboardHeaderProps) {
       <div className="ml-auto shrink-0 flex items-center gap-3">
         <Link
           href="/interview/new"
-          className="hidden sm:inline-flex items-center gap-1.5 font-mono text-[11px] font-semibold uppercase tracking-wider text-white bg-[#2447FF] hover:bg-[#1f3ce0] px-3.5 py-1.5 rounded-lg transition-all shadow-sm"
+          className="hidden sm:inline-flex items-center gap-1.5 font-mono text-[11px] font-semibold uppercase tracking-wider text-white bg-[#8052ff] hover:bg-[#6c3df5] px-4 py-2 rounded-full transition-all shadow-[0_4px_16px_rgba(128,82,255,0.3)] hover:scale-[1.02]"
         >
           <Mic className="h-3.5 w-3.5" />
           <span>Start Session</span>

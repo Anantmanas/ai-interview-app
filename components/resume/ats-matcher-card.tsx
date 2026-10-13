@@ -86,38 +86,38 @@ export function ATSMatcherCard() {
   }
 
   return (
-    <div className="rounded-xl border border-white/10 bg-[#0D0D0D] shadow-xl overflow-hidden">
+    <div className="rounded-3xl border border-white/10 bg-white/[0.03] backdrop-blur-2xl shadow-[0_20px_60px_rgba(0,0,0,0.5)] hover:border-white/20 transition-all overflow-hidden font-sans">
       {/* Titlebar */}
-      <div className="flex items-center justify-between px-6 h-12 border-b border-white/10 bg-white/[0.02] select-none">
+      <div className="flex items-center justify-between px-6 sm:px-7 h-12 border-b border-white/10 bg-white/[0.02] select-none">
         <div className="flex items-center gap-2.5">
-          <FileSearch className="h-4 w-4 text-[#2447FF]" />
-          <span className="font-mono text-xs text-[#8C8C88] font-medium tracking-wide">
+          <FileSearch className="h-4 w-4 text-[#8052ff]" />
+          <span className="font-mono text-xs text-white/50 font-medium tracking-wide">
             ATS RELEVANCE MATCHER
           </span>
         </div>
-        <span className="font-mono text-[10px] text-[#2447FF] bg-[#2447FF]/10 border border-[#2447FF]/30 px-2.5 py-0.5 rounded-full uppercase tracking-wider font-semibold">
+        <span className="font-mono text-[10px] text-[#8052ff] bg-[#8052ff]/10 border border-[#8052ff]/30 px-3 py-0.5 rounded-full uppercase tracking-wider font-semibold">
           AI GROUNDING
         </span>
       </div>
 
       <div className="p-6 sm:p-7 space-y-6">
         {/* Header Briefing */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#142347]/60 pb-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-5">
           <div>
             <div className="flex items-center gap-2 mb-1.5">
-              <span className="font-mono text-[10px] uppercase font-bold text-[#38bdf8] bg-[#0a1226] border border-[#2563eb]/30 px-2 py-0.5 rounded">
+              <span className="font-mono text-[10px] uppercase font-semibold text-[#8052ff] bg-[#8052ff]/10 border border-[#8052ff]/30 px-2.5 py-0.5 rounded-full">
                 ⚡ ATS GAP ANALYSIS
               </span>
               {resumeData && (
-                <span className="font-mono text-[10px] text-[#94a3b8] bg-[#040814] border border-[#142347] px-2 py-0.5 rounded">
+                <span className="font-mono text-[10px] text-white/50 bg-white/5 border border-white/10 px-2.5 py-0.5 rounded-full">
                   Active: {resolveCandidateName({ name: resumeData.name }) !== 'Candidate Profile' ? resolveCandidateName({ name: resumeData.name }) : 'Candidate'} ({resumeData.targetRole || 'Software Engineer'})
                 </span>
               )}
             </div>
-            <h2 className="font-display text-lg sm:text-xl font-bold text-white tracking-tight">
+            <h2 className="font-sans text-lg sm:text-xl font-light text-white tracking-tight">
               Target Job Description Matcher
             </h2>
-            <p className="font-body text-xs sm:text-sm text-[#94a3b8] mt-0.5">
+            <p className="font-sans text-xs sm:text-sm text-white/60 font-light mt-0.5">
               Paste the job description you want to apply for. Our ATS model evaluates keyword density, tech stack alignment, and generates instant resume bullet fixes.
             </p>
           </div>
@@ -126,10 +126,10 @@ export function ATSMatcherCard() {
         {/* Input Area */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <label className="font-mono text-xs font-semibold text-[#f8fafc] uppercase tracking-wider">
+            <label className="font-mono text-xs font-semibold text-white/80 uppercase tracking-wider">
               Paste Job Description Text (JD)
             </label>
-            <span className="font-mono text-[10px] text-[#64748b]">
+            <span className="font-mono text-[10px] text-white/40">
               Supports postings from LinkedIn, Indeed, Greenhouse, Lever, etc.
             </span>
           </div>
@@ -139,7 +139,7 @@ export function ATSMatcherCard() {
             onChange={(e) => setJobDescription(e.target.value)}
             placeholder="Paste full job description requirements, responsibilities, and preferred qualifications here..."
             rows={5}
-            className="w-full bg-[#040814] border border-[#142347] focus:border-[#2563eb] focus:ring-1 focus:ring-[#2563eb]/40 focus:outline-none rounded-xl p-4 text-xs font-mono text-[#f8fafc] placeholder-[#64748b] leading-relaxed transition-all resize-y"
+            className="w-full bg-white/[0.03] border border-white/10 focus:border-[#8052ff] focus:outline-none rounded-2xl p-4 text-xs font-mono text-white placeholder-white/30 leading-relaxed transition-all resize-y"
           />
 
           <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 sm:gap-3 pt-2">
@@ -150,7 +150,7 @@ export function ATSMatcherCard() {
                   setJobDescription('')
                   setAnalysis(null)
                 }}
-                className="font-mono text-xs text-[#94a3b8] hover:text-white px-3 py-2.5 rounded-lg transition-colors cursor-pointer text-center sm:text-left"
+                className="font-mono text-xs text-white/50 hover:text-white px-4 py-2.5 rounded-full transition-colors cursor-pointer text-center sm:text-left"
               >
                 Clear
               </button>
@@ -159,9 +159,9 @@ export function ATSMatcherCard() {
             <button
               onClick={handleAuditMatch}
               disabled={analyzing || !jobDescription.trim()}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[#2563eb] to-[#1d4ed8] text-white hover:from-[#3b82f6] hover:to-[#2563eb] disabled:opacity-50 disabled:cursor-not-allowed border border-[#3b82f6]/40 shadow-[0_0_20px_rgba(37,99,235,0.35)] font-mono text-xs font-bold uppercase tracking-wider px-5 py-3 sm:py-2.5 rounded-lg transition-all cursor-pointer"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#8052ff] hover:bg-[#6e40f5] text-white disabled:opacity-50 disabled:cursor-not-allowed font-mono text-xs font-semibold uppercase tracking-wider px-6 py-3 sm:py-2.5 rounded-full transition-all cursor-pointer shadow-md"
             >
-              {analyzing ? <Spinner className="h-4 w-4" /> : <Sparkles className="h-4 w-4 text-[#fbbf24]" />}
+              {analyzing ? <Spinner className="h-4 w-4" /> : <Sparkles className="h-4 w-4 text-[#ffb829]" />}
               <span>{analyzing ? 'Auditing Resume Against JD...' : 'Audit ATS Match'}</span>
             </button>
           </div>

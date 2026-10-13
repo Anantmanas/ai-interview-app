@@ -17,16 +17,16 @@ import Link from "next/link";
 export default function ResizableNavbar() {
   const navItems = [
     {
-      name: "How It Works",
+      name: "HOW IT WORKS",
       link: "#how-it-works",
     },
     {
-      name: "Features",
-      link: "#features",
+      name: "CURRICULUM",
+      link: "#architecture",
     },
     {
-      name: "Practice & Feedback",
-      link: "#architecture",
+      name: "FEATURES",
+      link: "#features",
     },
   ];
 
@@ -38,12 +38,13 @@ export default function ResizableNavbar() {
       <NavBody>
         <NavbarLogo href="/">
           <div className="flex items-center gap-2.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#2447FF]" />
-            <span className="font-display text-[15px] font-bold text-[#F4F2EC] tracking-[-0.02em]">
+            {/* Geometric InterviewAI brand glyph with violet gradient */}
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2L22 20L12 16L12 2Z" fill="#8052ff" />
+              <path d="M12 2L2 20L12 16L12 2Z" fill="#15846e" />
+            </svg>
+            <span className="font-normal text-[16px] text-white tracking-[-0.02em]">
               InterviewAI
-            </span>
-            <span className="font-mono text-[9px] text-[#8C8C88] border border-white/10 bg-white/[0.04] rounded px-1.5 py-0.5 tracking-[0.1em] uppercase">
-              AI MOCK INTERVIEWS
             </span>
           </div>
         </NavbarLogo>
@@ -52,16 +53,9 @@ export default function ResizableNavbar() {
 
         <div className="flex items-center gap-3">
           <NavbarButton
-            href="/auth/login"
-            variant="secondary"
-            className="font-mono text-[11px] text-[#8C8C88] uppercase tracking-[0.08em] hover:text-[#F4F2EC] px-3.5 py-1.5 transition-colors"
-          >
-            Sign In
-          </NavbarButton>
-          <NavbarButton
             href="/auth/sign-up"
             variant="primary"
-            className="bg-[#2447FF] hover:bg-[#1A3AE8] text-white font-mono text-[11px] font-semibold uppercase tracking-[0.08em] px-4 py-2 rounded-lg transition-colors"
+            className="bg-[#8052ff] hover:bg-[#9a75ff] text-white font-mono text-[11px] uppercase tracking-[0.06em] font-medium px-5 py-2 rounded-full transition-all shadow-[0_0_20px_rgba(128,82,255,0.4)] border-none"
           >
             Start Free
           </NavbarButton>
@@ -73,12 +67,12 @@ export default function ResizableNavbar() {
         <MobileNavHeader>
           <NavbarLogo href="/">
             <div className="flex items-center gap-2.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#2447FF]" />
-              <span className="font-display text-[15px] font-bold text-[#F4F2EC] tracking-[-0.02em]">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2L22 20L12 16L12 2Z" fill="#8052ff" />
+                <path d="M12 2L2 20L12 16L12 2Z" fill="#15846e" />
+              </svg>
+              <span className="font-normal text-[15px] text-white tracking-[-0.02em]">
                 InterviewAI
-              </span>
-              <span className="font-mono text-[9px] text-[#8C8C88] border border-white/10 bg-white/[0.04] rounded px-1.5 py-0.5 tracking-[0.08em]">
-                MOCK INTERVIEWS
               </span>
             </div>
           </NavbarLogo>
@@ -98,7 +92,7 @@ export default function ResizableNavbar() {
                 key={`mobile-link-${idx}`}
                 href={item.link}
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="font-mono text-[12px] uppercase tracking-[0.08em] text-[#94a3b8] hover:text-[#f8fafc] transition-colors py-2 px-3 rounded-md hover:bg-white/[0.05]"
+                className="font-mono text-[12px] uppercase tracking-[0.08em] text-[#9a9a9a] hover:text-[#ffffff] transition-colors py-2.5 px-3 rounded-lg hover:bg-white/[0.05]"
               >
                 {item.name}
               </a>
@@ -109,14 +103,14 @@ export default function ResizableNavbar() {
             <Link
               href="/auth/login"
               onClick={() => setIsMobileMenuOpen(false)}
-              className="w-full font-mono text-[12px] uppercase tracking-[0.08em] text-[#94a3b8] hover:text-[#f8fafc] py-2 text-center rounded-md border border-white/10 bg-white/[0.02]"
+              className="w-full font-mono text-[11px] uppercase tracking-widest text-[#9a9a9a] hover:text-[#ffffff] py-2 text-center rounded-none border border-white/10 bg-white/[0.02]"
             >
               Sign In
             </Link>
             <Link
               href="/auth/sign-up"
               onClick={() => setIsMobileMenuOpen(false)}
-              className="bg-[#2447FF] hover:bg-[#1A3AE8] text-white w-full font-mono text-[12px] font-semibold uppercase tracking-[0.08em] py-2.5 rounded-md text-center"
+              className="bg-[#8052ff] hover:bg-[#9a75ff] text-white w-full font-mono text-[11px] uppercase tracking-[0.025em] font-medium py-2.5 rounded-full text-center transition-all shadow-[0_0_16px_rgba(128,82,255,0.3)] border-none"
             >
               Start Free Mock Interview
             </Link>

@@ -51,7 +51,11 @@ export async function PUT(
     const updatePayload: Record<string, any> = {}
     if (status !== undefined) updatePayload.status = status
     if (overall_score !== undefined) updatePayload.overall_score = overall_score
-    if (completed_at !== undefined) updatePayload.completed_at = completed_at
+    if (completed_at !== undefined) {
+      updatePayload.completed_at = completed_at
+    } else if (status === 'completed') {
+      updatePayload.completed_at = new Date().toISOString()
+    }
     if (duration_seconds !== undefined) updatePayload.duration_seconds = duration_seconds
 
     const { data: updated, error } = await supabaseAdmin

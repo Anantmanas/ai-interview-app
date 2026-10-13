@@ -1,5 +1,5 @@
 export type ExperienceLevel = 'junior' | 'mid' | 'senior' | 'staff' | 'principal'
-export type InterviewType = 'technical' | 'behavioral' | 'system_design' | 'coding'
+export type InterviewType = 'technical' | 'behavioral' | 'system_design' | 'coding' | 'mixed'
 export type InterviewStatus = 'in_progress' | 'completed' | 'abandoned'
 export type Difficulty = 'easy' | 'medium' | 'hard'
 export type Severity = 'low' | 'medium' | 'high'

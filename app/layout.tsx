@@ -86,7 +86,7 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${spaceGrotesk.variable} ${inter.variable} ${jetbrainsMono.variable} dark`}
     >
-      <body className="font-sans antialiased bg-[#02040a] text-[#f8fafc] selection:bg-[#2563eb]/30 selection:text-[#ffffff] overflow-x-hidden min-h-screen">
+      <body className="font-sans antialiased bg-[#000000] text-[#ffffff] selection:bg-[#8052ff]/30 selection:text-white overflow-x-hidden min-h-screen">
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"

@@ -18,7 +18,6 @@ import {
   ArrowRight,
 } from 'lucide-react'
 import { toast } from 'sonner'
-import { MacTrafficLights } from '@/components/ui/terminal-card'
 import { motion, AnimatePresence } from 'motion/react'
 
 const COMPANY_SUGGESTIONS_BY_ROLE: Record<string, string[]> = {
@@ -281,50 +280,45 @@ export default function ProfilePage() {
   const calibrationScore = (fullName ? 35 : 0) + (targetRole ? 35 : 0) + (targetCompanies.length > 0 ? 30 : 0)
 
   return (
-    <div className="p-4 sm:p-6 md:p-8 max-w-4xl mx-auto space-y-6 sm:space-y-8 pb-32 sm:pb-16 font-sans">
-      <div>
-        <p className="font-mono text-[11px] text-[#38bdf8] uppercase tracking-[0.15em] mb-1 font-semibold">// CANDIDATE CONFIG</p>
-        <h1 className="font-display text-[28px] sm:text-[32px] font-bold text-white leading-[1.1] tracking-[-0.03em]">Profile</h1>
-        <p className="font-body text-[13px] sm:text-[14px] text-[#94a3b8] mt-1">
+    <div className="p-4 sm:p-6 md:p-8 max-w-5xl mx-auto space-y-8 pb-32 font-sans">
+      <div className="border-b border-white/10 pb-6">
+        <div className="flex items-center gap-2 mb-1.5 font-mono text-[11px] text-[#8052ff] uppercase tracking-[0.18em] font-semibold">
+          <span className="h-1.5 w-1.5 rounded-full bg-[#8052ff] shadow-[0_0_8px_#8052ff]" />
+          <span>CANDIDATE CONFIG // CALIBRATION & TELEMETRY</span>
+        </div>
+        <h1 className="font-display text-[28px] sm:text-[34px] font-normal text-white leading-[1.1] tracking-[-0.03em]">
+          Profile Calibration
+        </h1>
+        <p className="font-sans text-[13px] sm:text-[14px] text-zinc-400 mt-1.5 font-light">
           Manage your target engineering goals, calibration settings, and account controls.
         </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column: Personal Details Terminal Window */}
+        {/* Left Column: Personal Details Card */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="rounded-xl border border-[#142347] bg-[#060b18] shadow-[0_8px_32px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.05)] overflow-hidden">
-            {/* macOS Titlebar */}
-            <div className="flex items-center justify-between px-3 sm:px-4 py-2 sm:h-10 border-b border-[#142347] bg-[#0a1226]/90 select-none flex-wrap gap-2">
-              <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-                <MacTrafficLights size="sm" />
-                <span className="font-mono text-[10px] sm:text-[11px] text-[#cbd5e1] font-medium tracking-wide truncate max-w-[160px] sm:max-w-none">
-                  candidate-profile.cfg — bash
+          <div className="rounded-3xl border border-white/10 bg-white/[0.03] backdrop-blur-2xl shadow-[0_20px_60px_rgba(0,0,0,0.5)] overflow-hidden font-sans">
+            {/* Dala Titlebar */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 bg-white/[0.02] select-none flex-wrap gap-2">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <span className="h-2 w-2 rounded-full bg-[#8052ff] shadow-[0_0_8px_#8052ff]" />
+                <span className="font-mono text-[11px] text-white/70 font-semibold tracking-wider uppercase truncate">
+                  candidate-profile.cfg
                 </span>
               </div>
               <div className="flex items-center gap-2 shrink-0">
-                <span className="font-mono text-[9px] sm:text-[10px] text-[#22c55e] bg-[#22c55e]/10 border border-[#22c55e]/20 px-2 py-0.5 rounded-full uppercase tracking-wider font-semibold">
+                <span className="font-mono text-[10px] text-[#15846e] bg-[#15846e]/20 border border-[#15846e]/40 px-2.5 py-0.5 rounded-full uppercase tracking-wider font-semibold">
                   CONFIG ACTIVE
                 </span>
               </div>
             </div>
 
-            {/* Terminal Command Cue */}
-            <div className="px-3 sm:px-5 py-2.5 border-b border-[#142347]/50 bg-[#040814]/70 flex flex-wrap items-center gap-1.5 sm:gap-2 font-mono text-[11px] sm:text-[12px] break-all">
-              <span className="text-[#38bdf8] font-semibold">engineer@interviewai</span>
-              <span className="text-[#94a3b8]">:</span>
-              <span className="text-[#60a5fa]">~/.config</span>
-              <span className="text-[#f8fafc]">$</span>
-              <span className="text-[#22c55e]">edit profile.env</span>
-              <span className="inline-block w-1.5 h-3.5 bg-[#f8fafc] animate-pulse ml-0.5" />
-            </div>
-
-            <div className="p-5 sm:p-6 space-y-5">
+            <div className="p-6 sm:p-7 space-y-6">
               <div>
                 <p className="font-mono text-[11px] text-white uppercase tracking-[0.08em] font-semibold">
                   Personal Details
                 </p>
-                <p className="font-body text-[13px] text-[#94a3b8] mt-1">
+                <p className="font-sans text-[13px] text-zinc-400 mt-1">
                   Your target role and companies calibrate the AI evaluation parameters and questions.
                 </p>
               </div>
@@ -332,7 +326,7 @@ export default function ProfilePage() {
               <div className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label htmlFor="fullName" className="font-mono text-[10px] text-[#94a3b8] uppercase tracking-[0.08em] block mb-1.5 font-semibold">
+                    <label htmlFor="fullName" className="font-mono text-[10px] text-white/50 uppercase tracking-[0.08em] block mb-1.5 font-semibold">
                       Full Name
                     </label>
                     <input
@@ -340,12 +334,12 @@ export default function ProfilePage() {
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
                       placeholder="e.g. Anant Manas"
-                      className="bg-[#040814] border border-[#142347] focus:border-[#2563eb] focus:ring-1 focus:ring-[#2563eb]/40 rounded-lg px-3.5 py-2.5 text-[13px] text-white placeholder:text-[#64748b] focus:outline-none transition-all w-full font-mono"
+                      className="bg-white/[0.03] border border-white/10 focus:border-[#8052ff] rounded-full px-4 py-2.5 text-[13px] text-white placeholder:text-white/30 focus:outline-none transition-all w-full font-mono"
                     />
                   </div>
                   <div>
                     <div className="flex items-center justify-between mb-1.5">
-                      <label htmlFor="email" className="font-mono text-[10px] text-[#94a3b8] uppercase tracking-[0.08em] font-semibold">
+                      <label htmlFor="email" className="font-mono text-[10px] text-white/50 uppercase tracking-[0.08em] font-semibold">
                         Email Address
                       </label>
                       {profile?.email && (
@@ -355,15 +349,15 @@ export default function ProfilePage() {
                             navigator.clipboard.writeText(profile.email)
                             toast.success('Email copied to clipboard')
                           }}
-                          className="font-mono text-[10px] text-[#38bdf8] hover:text-white transition-colors cursor-pointer"
+                          className="font-mono text-[10px] text-[#8052ff] hover:text-white transition-colors cursor-pointer"
                         >
                           Copy
                         </button>
                       )}
                     </div>
-                    <div className="bg-[#040814] border border-[#142347]/60 rounded-lg px-3.5 py-2.5 text-[12px] sm:text-[13px] text-[#94a3b8] font-mono break-all select-all flex items-center justify-between gap-2 min-h-[42px]">
+                    <div className="bg-white/[0.03] border border-white/10 rounded-full px-4 py-2.5 text-[12px] sm:text-[13px] text-white/70 font-mono break-all select-all flex items-center justify-between gap-2 min-h-[42px]">
                       <span>{profile?.email || 'No email attached'}</span>
-                      <span className="text-[9px] font-mono text-[#64748b] uppercase shrink-0">VERIFIED</span>
+                      <span className="text-[9px] font-mono text-[#15846e] uppercase shrink-0 font-semibold">VERIFIED</span>
                     </div>
                   </div>
                 </div>
@@ -371,10 +365,10 @@ export default function ProfilePage() {
                 {/* Target Role Section */}
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <label htmlFor="targetRole" className="font-mono text-[10px] text-[#9ca3af] uppercase tracking-[0.08em] block font-semibold">
+                    <label htmlFor="targetRole" className="font-mono text-[10px] text-white/50 uppercase tracking-[0.08em] block font-semibold">
                       Target Role
                     </label>
-                    <span className="text-[11px] text-[#38bdf8] flex items-center gap-1 font-mono font-medium">
+                    <span className="text-[11px] text-[#8052ff] flex items-center gap-1 font-mono font-medium">
                       <Sparkles className="h-3 w-3" />
                       Popular Roles
                     </span>
@@ -384,7 +378,7 @@ export default function ProfilePage() {
                     value={targetRole}
                     onChange={(e) => setTargetRole(e.target.value)}
                     placeholder="e.g. Frontend Engineer, Full Stack Engineer"
-                    className="bg-[#040814] border border-[#142347] focus:border-[#2563eb] focus:ring-1 focus:ring-[#2563eb]/40 rounded-lg px-3.5 py-2.5 text-[13px] text-white placeholder:text-[#64748b] focus:outline-none transition-all w-full font-mono"
+                    className="bg-white/[0.03] border border-white/10 focus:border-[#8052ff] rounded-full px-4 py-2.5 text-[13px] text-white placeholder:text-white/30 focus:outline-none transition-all w-full font-mono"
                   />
                   {/* Role suggestions chips */}
                   <div className="flex flex-wrap gap-1.5 pt-1">
@@ -404,17 +398,17 @@ export default function ProfilePage() {
                           key={role}
                           type="button"
                           onClick={() => setTargetRole(role)}
-                          className={`font-mono text-[11px] px-2.5 py-1 rounded-lg border transition-all cursor-pointer flex items-center gap-1 ${
+                          className={`font-mono text-[11px] px-3 py-1 rounded-full border transition-all cursor-pointer flex items-center gap-1.5 ${
                             isSelected
-                              ? 'bg-[#2563eb] border-[#3b82f6] text-white font-semibold shadow-[0_0_12px_rgba(37,99,235,0.4)]'
-                              : 'bg-[#0a1226] hover:bg-[#0f1b38] border-[#142347] text-[#94a3b8] hover:text-white'
+                              ? 'bg-[#8052ff] border-[#8052ff] text-white font-semibold'
+                              : 'bg-white/[0.03] hover:bg-white/[0.06] border-white/10 text-white/60 hover:text-white'
                           }`}
                         >
                           <span>{role}</span>
                           {isSelected ? (
                             <CheckCircle2 className="h-2.5 w-2.5 text-white/90" />
                           ) : (
-                            <Plus className="h-2.5 w-2.5 text-[#64748b]" />
+                            <Plus className="h-2.5 w-2.5 text-white/40" />
                           )}
                         </button>
                       )
@@ -425,20 +419,20 @@ export default function ProfilePage() {
                 {/* Target Companies Tag Selector */}
                 <div className="space-y-2.5 pt-1">
                   <div className="flex items-center justify-between">
-                    <label className="font-mono text-[10px] text-[#94a3b8] uppercase tracking-[0.08em] block font-semibold">
+                    <label className="font-mono text-[10px] text-white/50 uppercase tracking-[0.08em] block font-semibold">
                       Target Companies ({targetCompanies.length} selected)
                     </label>
-                    <span className="text-[11px] text-[#38bdf8] flex items-center gap-1 font-mono font-medium">
+                    <span className="text-[11px] text-[#8052ff] flex items-center gap-1 font-mono font-medium">
                       <Sparkles className="h-3 w-3" />
                       Role-Tailored Suggestions
                     </span>
                   </div>
 
                   {/* Selected Companies Badge Box */}
-                  <div className="min-h-[44px] p-2 bg-[#040814] border border-[#142347] rounded-lg flex flex-wrap items-center gap-1.5">
+                  <div className="min-h-[44px] p-2 bg-white/[0.02] border border-white/10 rounded-2xl flex flex-wrap items-center gap-1.5">
                     <AnimatePresence>
                       {targetCompanies.length === 0 ? (
-                        <span className="text-xs text-[#64748b] px-2 py-1 font-mono">
+                        <span className="text-xs text-white/40 px-2 py-1 font-mono">
                           No companies selected yet. Click suggestions below or type a company name.
                         </span>
                       ) : (
@@ -448,13 +442,13 @@ export default function ProfilePage() {
                             initial={{ opacity: 0, scale: 0.8 }}
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.8 }}
-                            className="inline-flex items-center gap-1.5 bg-[#0a1226] border border-[#2563eb]/40 text-[#60a5fa] text-[12px] font-mono pl-2.5 pr-1 py-1 rounded-md group font-medium"
+                            className="inline-flex items-center gap-1.5 bg-[#8052ff]/15 border border-[#8052ff]/30 text-white text-[12px] font-mono pl-3 pr-1.5 py-1 rounded-full group font-medium"
                           >
                             <span>{company}</span>
                             <button
                               type="button"
                               onClick={() => removeCompany(company)}
-                              className="p-0.5 hover:bg-[#2563eb]/30 rounded text-[#94a3b8] hover:text-white transition-colors"
+                              className="p-0.5 hover:bg-white/10 rounded-full text-white/50 hover:text-white transition-colors cursor-pointer"
                               title="Remove"
                             >
                               <X className="h-3 w-3" />
@@ -471,12 +465,12 @@ export default function ProfilePage() {
                       value={companyInput}
                       onChange={(e) => setCompanyInput(e.target.value)}
                       placeholder="Add company (e.g. Tesla, Netflix, Stripe) & press Enter..."
-                      className="bg-[#040814] border border-[#142347] focus:border-[#2563eb] focus:ring-1 focus:ring-[#2563eb]/40 rounded-lg px-3.5 py-2 text-[13px] text-white placeholder:text-[#64748b] focus:outline-none transition-all w-full font-mono"
+                      className="bg-white/[0.03] border border-white/10 focus:border-[#8052ff] rounded-full px-4 py-2 text-[12px] text-white placeholder:text-white/30 focus:outline-none transition-all w-full font-mono"
                     />
                     <button
                       type="submit"
                       disabled={!companyInput.trim()}
-                      className="px-3.5 py-2 rounded-lg bg-[#0a1226] hover:bg-[#2563eb] border border-[#142347] hover:border-[#3b82f6] text-white font-mono text-xs flex items-center gap-1 shrink-0 transition-all disabled:opacity-40 cursor-pointer"
+                      className="px-4 py-2 rounded-full bg-white/5 hover:bg-[#8052ff] border border-white/10 hover:border-[#8052ff] text-white font-mono text-xs font-semibold flex items-center gap-1 shrink-0 transition-all disabled:opacity-40 cursor-pointer"
                     >
                       <Plus className="h-3.5 w-3.5" />
                       <span>Add</span>
@@ -485,8 +479,8 @@ export default function ProfilePage() {
 
                   {/* Suggestions Chips */}
                   <div className="space-y-1.5 pt-1">
-                    <p className="font-mono text-[10px] text-[#64748b] uppercase tracking-wider flex items-center gap-1 font-semibold">
-                      <Building2 className="h-3 w-3 text-[#38bdf8]" />
+                    <p className="font-mono text-[10px] text-white/40 uppercase tracking-wider flex items-center gap-1 font-semibold">
+                      <Building2 className="h-3 w-3 text-[#8052ff]" />
                       <span>SUGGESTED FOR YOUR ROLE (CLICK TO TOGGLE):</span>
                     </p>
                     <div className="flex flex-wrap gap-1.5 pr-14 sm:pr-0">
@@ -497,17 +491,17 @@ export default function ProfilePage() {
                             key={company}
                             type="button"
                             onClick={() => toggleCompany(company)}
-                            className={`font-mono text-[11px] px-2.5 py-1 rounded-lg border transition-all cursor-pointer flex items-center gap-1 ${
+                            className={`font-mono text-[11px] px-3 py-1 rounded-full border transition-all cursor-pointer flex items-center gap-1.5 ${
                               isSelected
-                                ? 'bg-[#2563eb] border-[#3b82f6] text-white font-semibold shadow-[0_0_12px_rgba(37,99,235,0.4)]'
-                                : 'bg-[#0a1226] hover:bg-[#0f1b38] border-[#142347] text-[#94a3b8] hover:text-white'
+                                ? 'bg-[#8052ff] border-[#8052ff] text-white font-semibold'
+                                : 'bg-white/[0.03] hover:bg-white/[0.06] border-white/10 text-white/60 hover:text-white'
                             }`}
                           >
                             <span>{company}</span>
                             {isSelected ? (
                               <X className="h-2.5 w-2.5 text-white/80" />
                             ) : (
-                              <Plus className="h-2.5 w-2.5 text-[#64748b]" />
+                              <Plus className="h-2.5 w-2.5 text-white/40" />
                             )}
                           </button>
                         )
@@ -516,14 +510,14 @@ export default function ProfilePage() {
                   </div>
                 </div>
 
-                <div className="pt-3 border-t border-[#142347]/60 flex items-center justify-between">
-                  <span className="font-mono text-[11px] text-[#64748b]">
-                    Status: <span className="text-[#22c55e]">synced</span>
+                <div className="pt-4 border-t border-white/10 flex items-center justify-between">
+                  <span className="font-mono text-[11px] text-white/40">
+                    Status: <span className="text-[#15846e] font-semibold">synced</span>
                   </span>
                   <button
                     onClick={handleSave}
                     disabled={isSaving}
-                    className="bg-gradient-to-r from-[#2563eb] to-[#1d4ed8] text-white hover:from-[#3b82f6] hover:to-[#2563eb] font-mono text-[12px] font-bold uppercase tracking-[0.05em] px-6 py-2.5 rounded-lg cursor-pointer disabled:opacity-50 inline-flex items-center gap-2 shadow-[0_0_20px_rgba(37,99,235,0.35)] transition-all hover:scale-[1.02] border border-[#3b82f6]/40"
+                    className="btn-dala-primary px-6 py-2.5 rounded-full text-xs font-mono font-semibold uppercase tracking-wider inline-flex items-center gap-2 cursor-pointer disabled:opacity-50"
                   >
                     {isSaving ? (
                       <>
@@ -543,78 +537,78 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* Right Column: Profile Completion Terminal Window */}
+        {/* Right Column: Profile Readiness Card */}
         <div className="space-y-6">
-          <div className="rounded-xl border border-[#142347] bg-[#060b18] shadow-[0_8px_32px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.05)] overflow-hidden">
-            {/* macOS Titlebar */}
-            <div className="flex items-center justify-between px-4 h-10 border-b border-[#142347] bg-[#0a1226]/90 select-none">
-              <div className="flex items-center gap-3">
-                <MacTrafficLights size="sm" />
-                <span className="font-mono text-[11px] text-[#cbd5e1] font-medium tracking-wide">
-                  readiness-audit.sh — zsh
+          <div className="rounded-3xl border border-white/10 bg-white/[0.03] backdrop-blur-2xl shadow-[0_20px_60px_rgba(0,0,0,0.5)] overflow-hidden font-sans">
+            {/* Dala Titlebar */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 bg-white/[0.02] select-none">
+              <div className="flex items-center gap-2.5">
+                <span className="h-2 w-2 rounded-full bg-[#8052ff] shadow-[0_0_8px_#8052ff]" />
+                <span className="font-mono text-[11px] text-white/70 font-semibold tracking-wider uppercase">
+                  readiness-audit.sh
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-mono text-[10px] text-[#60a5fa] bg-[#0a1226] border border-[#2563eb]/40 px-2.5 py-0.5 rounded-full uppercase tracking-wider font-semibold">
+                <span className="font-mono text-[10px] text-[#8052ff] bg-[#8052ff]/20 border border-[#8052ff]/40 px-2.5 py-0.5 rounded-full uppercase tracking-wider font-semibold">
                   AUDIT
                 </span>
               </div>
             </div>
 
-            <div className="p-5 space-y-5">
+            <div className="p-6 sm:p-7 space-y-6">
               <div className="flex items-center justify-between">
                 <p className="font-mono text-[11px] text-white uppercase tracking-[0.08em] font-semibold">
                   Profile Completion
                 </p>
-                <span className="font-mono text-[12px] font-bold text-[#38bdf8]">
+                <span className="font-display text-2xl font-light text-[#8052ff]">
                   {calibrationScore}%
                 </span>
               </div>
 
-              <div className="space-y-3.5">
-                <div className="flex justify-between items-center text-[13px] font-mono bg-[#040814] border border-[#142347] p-2.5 rounded-lg">
-                  <span className="text-[#94a3b8]">Full Name</span>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center text-[13px] font-mono bg-white/[0.02] border border-white/10 p-3 rounded-2xl">
+                  <span className="text-zinc-400">Full Name</span>
                   {fullName ? (
-                    <span className="flex items-center gap-1.5 font-mono text-[11px] text-[#22c55e]">
+                    <span className="flex items-center gap-1.5 font-mono text-[11px] text-[#15846e] font-semibold">
                       <CheckCircle2 className="h-3.5 w-3.5" /> DONE
                     </span>
                   ) : (
-                    <span className="font-mono text-[11px] text-[#f87171]">MISSING</span>
+                    <span className="font-mono text-[11px] text-[#ffb829] font-semibold">MISSING</span>
                   )}
                 </div>
 
-                <div className="flex justify-between items-center text-[13px] font-mono bg-[#040814] border border-[#142347] p-2.5 rounded-lg">
-                  <span className="text-[#94a3b8]">Target Role Set</span>
+                <div className="flex justify-between items-center text-[13px] font-mono bg-white/[0.02] border border-white/10 p-3 rounded-2xl">
+                  <span className="text-zinc-400">Target Role Set</span>
                   {targetRole ? (
-                    <span className="flex items-center gap-1.5 font-mono text-[11px] text-[#22c55e]">
+                    <span className="flex items-center gap-1.5 font-mono text-[11px] text-[#15846e] font-semibold">
                       <CheckCircle2 className="h-3.5 w-3.5" /> DONE
                     </span>
                   ) : (
-                    <span className="font-mono text-[11px] text-[#64748b]">NOT SET</span>
+                    <span className="font-mono text-[11px] text-zinc-500">NOT SET</span>
                   )}
                 </div>
 
-                <div className="flex justify-between items-center text-[13px] font-mono bg-[#040814] border border-[#142347] p-2.5 rounded-lg">
-                  <span className="text-[#94a3b8]">Target Companies</span>
+                <div className="flex justify-between items-center text-[13px] font-mono bg-white/[0.02] border border-white/10 p-3 rounded-2xl">
+                  <span className="text-zinc-400">Target Companies</span>
                   {targetCompanies.length > 0 ? (
-                    <span className="flex items-center gap-1.5 font-mono text-[11px] text-[#22c55e]">
+                    <span className="flex items-center gap-1.5 font-mono text-[11px] text-[#15846e] font-semibold">
                       <CheckCircle2 className="h-3.5 w-3.5" /> {targetCompanies.length} SET
                     </span>
                   ) : (
-                    <span className="font-mono text-[11px] text-[#64748b]">OPTIONAL</span>
+                    <span className="font-mono text-[11px] text-zinc-500">OPTIONAL</span>
                   )}
                 </div>
 
-                <div className="space-y-1.5 pt-1">
-                  <div className="h-2 w-full bg-[#040814] rounded-full overflow-hidden border border-[#142347]">
+                <div className="space-y-2 pt-2">
+                  <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden border border-white/10">
                     <div
-                      className="h-full bg-gradient-to-r from-[#2563eb] to-[#38bdf8] transition-all duration-300 shadow-[0_0_12px_rgba(37,99,235,0.5)]"
+                      className="h-full bg-gradient-to-r from-[#8052ff] to-[#a78bfa] transition-all duration-300"
                       style={{
                         width: `${calibrationScore}%`,
                       }}
                     />
                   </div>
-                  <p className="font-mono text-[10px] text-[#64748b] text-right font-medium">
+                  <p className="font-mono text-[10px] text-zinc-400 text-right font-medium">
                     Calibration score: {calibrationScore} / 100
                   </p>
                 </div>
@@ -625,29 +619,29 @@ export default function ProfilePage() {
       </div>
 
       {/* ── DANGER ZONE: ACCOUNT DELETION & DATA PURGE ── */}
-      <div className="rounded-xl border border-rose-500/30 bg-[#0c090a] shadow-[0_8px_32px_rgba(244,63,94,0.1),inset_0_1px_0_rgba(255,255,255,0.05)] overflow-hidden">
-        {/* macOS Titlebar */}
-        <div className="flex items-center justify-between px-4 h-10 border-b border-rose-500/20 bg-[#160b0d] select-none">
-          <div className="flex items-center gap-3">
-            <MacTrafficLights size="sm" />
-            <span className="font-mono text-[11px] text-rose-300 font-medium tracking-wide">
-              danger-zone::purge-account.sh — root
+      <div className="rounded-3xl border border-rose-500/20 bg-rose-950/[0.08] backdrop-blur-2xl shadow-[0_20px_60px_rgba(0,0,0,0.5)] overflow-hidden font-sans">
+        {/* Titlebar */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-rose-500/20 bg-rose-500/[0.03] select-none">
+          <div className="flex items-center gap-2.5">
+            <span className="h-2 w-2 rounded-full bg-rose-500 shadow-[0_0_8px_#f43f5e]" />
+            <span className="font-mono text-[11px] text-rose-300 font-semibold tracking-wider uppercase">
+              danger-zone::purge-account
             </span>
           </div>
-          <span className="font-mono text-[10px] text-rose-400 bg-rose-500/10 border border-rose-500/30 px-2 py-0.5 rounded-full uppercase tracking-wider font-semibold flex items-center gap-1">
+          <span className="font-mono text-[10px] text-rose-400 bg-rose-500/10 border border-rose-500/30 px-2.5 py-0.5 rounded-full uppercase tracking-wider font-semibold flex items-center gap-1">
             <ShieldAlert className="h-3 w-3" />
             DANGER ZONE
           </span>
         </div>
 
-        <div className="p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-          <div className="space-y-1 max-w-xl">
-            <h3 className="font-mono text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+        <div className="p-6 sm:p-7 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+          <div className="space-y-1.5 max-w-xl">
+            <h3 className="font-mono text-sm font-semibold text-white uppercase tracking-wider flex items-center gap-2">
               <Trash2 className="h-4 w-4 text-rose-400" />
               Delete Account & Purge Data
             </h3>
-            <p className="text-xs text-neutral-400 leading-relaxed font-sans">
-              Permanently delete your user profile, interview history, weakness evaluations, custom roadmaps, and resume files from the database. Requires 6-digit confirmation code sent to your email.
+            <p className="text-xs text-zinc-400 leading-relaxed font-sans font-light">
+              Permanently delete your candidate profile, interview recordings, weakness evaluations, custom roadmaps, and resume files. Requires a 6-digit confirmation code sent to your email.
             </p>
           </div>
 
@@ -658,7 +652,7 @@ export default function ProfilePage() {
               setCodeSent(false)
               setDeleteCode('')
             }}
-            className="px-5 py-2.5 rounded-lg bg-rose-600/20 hover:bg-rose-600 border border-rose-500/50 hover:border-rose-500 text-rose-300 hover:text-white font-mono text-xs font-bold uppercase tracking-wider transition-all shadow-lg shadow-rose-900/20 cursor-pointer shrink-0"
+            className="px-5 py-2.5 rounded-full bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 hover:border-rose-500/60 text-rose-300 hover:text-white font-mono text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer shrink-0"
           >
             Delete Account...
           </button>
@@ -674,20 +668,20 @@ export default function ProfilePage() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 10 }}
               transition={{ duration: 0.2 }}
-              className="w-full max-w-md bg-[#060b18] border border-rose-500/40 rounded-2xl shadow-[0_16px_48px_rgba(0,0,0,0.9),0_0_30px_rgba(244,63,94,0.15)] overflow-hidden"
+              className="w-full max-w-md bg-[#0a0a0a]/95 backdrop-blur-2xl border border-rose-500/30 rounded-3xl shadow-[0_24px_80px_rgba(0,0,0,0.9),0_0_40px_rgba(244,63,94,0.15)] overflow-hidden font-sans"
             >
               {/* Modal Header */}
-              <div className="flex items-center justify-between px-5 h-11 border-b border-[#142347] bg-[#0a1226]/90">
+              <div className="flex items-center justify-between px-6 py-4 border-b border-rose-500/20 bg-rose-500/[0.04]">
                 <div className="flex items-center gap-2">
                   <ShieldAlert className="h-4 w-4 text-rose-400" />
-                  <span className="font-mono text-xs text-rose-300 font-bold uppercase tracking-wider">
+                  <span className="font-mono text-xs text-rose-300 font-semibold uppercase tracking-wider">
                     Confirm Account Purge
                   </span>
                 </div>
                 <button
                   type="button"
                   onClick={() => setShowDeleteModal(false)}
-                  className="p-1 rounded-md text-neutral-400 hover:text-white hover:bg-white/10 transition-colors"
+                  className="p-1 rounded-full text-zinc-400 hover:text-white hover:bg-white/10 transition-colors"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -695,30 +689,28 @@ export default function ProfilePage() {
 
               {/* Modal Body */}
               <div className="p-6 space-y-5">
-                <div className="space-y-2">
-                  <div className="p-3.5 bg-rose-500/10 border border-rose-500/30 rounded-xl flex items-start gap-3">
-                    <AlertTriangle className="h-5 w-5 text-rose-400 shrink-0 mt-0.5" />
-                    <p className="text-xs text-rose-200 leading-relaxed font-sans">
-                      This action is <strong>irreversible</strong>. All your interview recordings, scores, roadmap milestones, and account records will be permanently deleted from the database.
-                    </p>
-                  </div>
+                <div className="p-3.5 bg-rose-500/10 border border-rose-500/30 rounded-2xl flex items-start gap-3">
+                  <AlertTriangle className="h-5 w-5 text-rose-400 shrink-0 mt-0.5" />
+                  <p className="text-xs text-rose-200 leading-relaxed font-sans">
+                    This action is <strong>irreversible</strong>. All your interview recordings, scores, roadmap milestones, and account records will be permanently deleted from the database.
+                  </p>
                 </div>
 
                 {/* Step 1: Send Verification Code */}
-                <div className="space-y-2 bg-[#040814] border border-[#142347] rounded-xl p-4">
+                <div className="space-y-2 bg-white/[0.03] border border-white/10 rounded-2xl p-4">
                   <div className="flex items-center justify-between">
-                    <span className="font-mono text-[10px] uppercase tracking-wider text-neutral-400 font-semibold flex items-center gap-1.5">
-                      <Mail className="h-3.5 w-3.5 text-[#38bdf8]" />
+                    <span className="font-mono text-[10px] uppercase tracking-wider text-zinc-400 font-semibold flex items-center gap-1.5">
+                      <Mail className="h-3.5 w-3.5 text-[#8052ff]" />
                       1. Email Confirmation Code
                     </span>
                     {codeSent && (
-                      <span className="font-mono text-[10px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded">
+                      <span className="font-mono text-[10px] text-[#15846e] bg-[#15846e]/20 border border-[#15846e]/40 px-2 py-0.5 rounded-full font-semibold">
                         CODE SENT
                       </span>
                     )}
                   </div>
 
-                  <p className="text-xs text-[#cbd5e1] font-mono">
+                  <p className="text-xs text-zinc-300 font-mono">
                     Send to: <span className="text-white font-semibold">{profile?.email}</span>
                   </p>
 
@@ -726,7 +718,7 @@ export default function ProfilePage() {
                     type="button"
                     onClick={handleSendDeleteCode}
                     disabled={isSendingCode}
-                    className="w-full mt-2 py-2 rounded-lg bg-[#0a1226] hover:bg-[#0f1b38] border border-[#2563eb]/40 hover:border-[#3b82f6] text-[#60a5fa] font-mono text-xs font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer disabled:opacity-50"
+                    className="w-full mt-2 py-2.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-white font-mono text-xs font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer disabled:opacity-50"
                   >
                     {isSendingCode ? (
                       <>
@@ -745,12 +737,12 @@ export default function ProfilePage() {
                   </button>
 
                   {devCodeHint && (
-                    <div className="p-2.5 rounded-lg bg-[#0a1226] border border-[#2563eb]/40 text-[#60a5fa] text-xs font-mono flex items-center justify-between">
+                    <div className="p-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-zinc-300 text-xs font-mono flex items-center justify-between">
                       <span>Testing Code: <strong className="text-white tracking-widest text-sm">{devCodeHint}</strong></span>
                       <button
                         type="button"
                         onClick={() => setDeleteCode(devCodeHint)}
-                        className="text-[10px] text-[#38bdf8] hover:text-white underline cursor-pointer"
+                        className="text-[10px] text-[#8052ff] hover:text-white underline cursor-pointer"
                       >
                         Auto-fill
                       </button>
@@ -760,7 +752,7 @@ export default function ProfilePage() {
 
                 {/* Step 2: Enter 6-Digit Code */}
                 <div className="space-y-2">
-                  <label className="font-mono text-[10px] uppercase tracking-wider text-neutral-400 font-semibold block">
+                  <label className="font-mono text-[10px] uppercase tracking-wider text-zinc-400 font-semibold block">
                     2. Enter 6-Digit Verification Code
                   </label>
                   <input
@@ -770,17 +762,17 @@ export default function ProfilePage() {
                     onChange={(e) => setDeleteCode(e.target.value.replace(/\D/g, ''))}
                     placeholder="e.g. 849201"
                     disabled={!codeSent}
-                    className="w-full h-12 bg-[#040814] border border-[#142347] focus:border-rose-500 focus:ring-1 focus:ring-rose-500/40 rounded-xl px-4 text-center font-mono text-xl tracking-[0.3em] text-white placeholder:text-neutral-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                    className="w-full h-12 bg-white/[0.03] border border-white/10 focus:border-rose-500 focus:ring-1 focus:ring-rose-500/40 rounded-full px-4 text-center font-mono text-xl tracking-[0.3em] text-white placeholder:text-zinc-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
                   />
                 </div>
 
                 {/* Modal Footer Controls */}
-                <div className="pt-2 flex items-center justify-end gap-3 border-t border-[#142347]">
+                <div className="pt-3 flex items-center justify-end gap-3 border-t border-white/10">
                   <button
                     type="button"
                     onClick={() => setShowDeleteModal(false)}
                     disabled={isDeleting}
-                    className="px-4 py-2.5 rounded-lg border border-[#142347] text-neutral-400 hover:text-white font-mono text-xs uppercase tracking-wider transition-colors cursor-pointer"
+                    className="px-5 py-2.5 rounded-full border border-white/10 hover:border-white/20 text-zinc-400 hover:text-white font-mono text-xs uppercase tracking-wider transition-colors cursor-pointer"
                   >
                     Cancel
                   </button>
@@ -789,7 +781,7 @@ export default function ProfilePage() {
                     type="button"
                     onClick={handleVerifyAndDelete}
                     disabled={isDeleting || !codeSent || deleteCode.length !== 6}
-                    className="px-5 py-2.5 rounded-lg bg-rose-600 hover:bg-rose-500 disabled:opacity-40 disabled:hover:bg-rose-600 text-white font-mono text-xs font-bold uppercase tracking-wider shadow-lg shadow-rose-600/30 transition-all flex items-center gap-2 cursor-pointer disabled:cursor-not-allowed"
+                    className="px-6 py-2.5 rounded-full bg-rose-600 hover:bg-rose-500 disabled:opacity-40 disabled:hover:bg-rose-600 text-white font-mono text-xs font-semibold uppercase tracking-wider shadow-lg shadow-rose-600/30 transition-all flex items-center gap-2 cursor-pointer disabled:cursor-not-allowed"
                   >
                     {isDeleting ? (
                       <>
@@ -799,7 +791,7 @@ export default function ProfilePage() {
                     ) : (
                       <>
                         <Trash2 className="h-3.5 w-3.5" />
-                        <span>Permanently Delete Account</span>
+                        <span>Permanently Delete</span>
                       </>
                     )}
                   </button>

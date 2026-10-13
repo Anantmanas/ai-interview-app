@@ -29,15 +29,15 @@ export const openai = new OpenAI({
 })
 
 // Model names per provider
-// OpenRouter falls back to free Llama model — avoid invalid 'openrouter/free' or 'openrouter/auto' IDs
+// OpenRouter default to verified active openrouter/free router which automatically routes to available free models
 export const GENERATION_MODEL = isOpenRouter
-  ? (process.env.OPENROUTER_MODEL || 'meta-llama/llama-3.3-70b-instruct')
+  ? (process.env.OPENROUTER_MODEL || 'openrouter/free')
   : isGemini
     ? (process.env.GEMINI_MODEL || 'gemini-1.5-flash')
     : (process.env.OPENAI_MODEL || 'gpt-4o-mini')
 
 export const EVALUATION_MODEL = isOpenRouter
-  ? (process.env.OPENROUTER_EVAL_MODEL || 'meta-llama/llama-3.3-70b-instruct')
+  ? (process.env.OPENROUTER_EVAL_MODEL || 'openrouter/free')
   : isGemini
     ? (process.env.GEMINI_MODEL || 'gemini-1.5-flash')
     : (process.env.OPENAI_EVAL_MODEL || 'gpt-4o')
@@ -90,13 +90,13 @@ export async function createChatCompletion({
 
       const freeModels = [
         ...(suggestedSlug ? [suggestedSlug] : []),
-        'meta-llama/llama-3.3-70b-instruct:free',
-        'meta-llama/llama-3.3-70b-instruct',
-        'qwen/qwen-2.5-coder-32b-instruct:free',
-        'qwen/qwen-2.5-coder-32b-instruct',
-        'meta-llama/llama-3.1-8b-instruct:free',
-        'mistralai/mistral-7b-instruct:free',
-        'microsoft/phi-3-mini-128k-instruct:free',
+        'openrouter/free',
+        'google/gemma-4-26b-a4b-it:free',
+        'google/gemma-4-31b-it:free',
+        'nvidia/nemotron-3.5-lightning:free',
+        'nvidia/nemotron-3-ultra-550b-a55b:free',
+        'liquid/lfm-2.5-2.6b:free',
+        'apodex/apodex-1.1-mini:free',
       ]
 
       const tried = new Set<string>([chosenModel])

@@ -79,34 +79,35 @@ export default async function DashboardPage() {
   const targetRole = profile?.target_role || 'Staff / Senior Engineer'
 
   return (
-    <div className="p-6 sm:p-10 md:p-12 max-w-[1400px] mx-auto space-y-12 select-text">
-      {/* ── Large Editorial Welcome Statement (No terminal chrome) ── */}
-      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 border-b border-white/10 pb-10">
+    <div className="p-6 sm:p-10 md:p-12 max-w-[1440px] mx-auto space-y-12 select-text">
+      {/* ── Large Dala Editorial Welcome Statement ── */}
+      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 pb-4">
         <div>
           <div className="flex items-center gap-3 mb-3">
-            <span className="font-mono text-xs font-semibold uppercase tracking-[0.2em] text-[#8C8C88]">
-              CONSOLE // OVERVIEW
+            <span className="font-mono text-[11px] sm:text-xs font-medium uppercase tracking-[0.2em] text-[#ffb829] inline-flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#ffb829]" />
+              <span>CONSOLE // OVERVIEW</span>
             </span>
             <span className="text-white/20">•</span>
-            <span className="font-mono text-xs text-[#2447FF] uppercase tracking-wider font-medium">
+            <span className="font-mono text-[10px] sm:text-[11px] text-[#8052ff] uppercase tracking-wider font-medium px-3 py-1 rounded-full bg-[#8052ff]/10 border border-[#8052ff]/30">
               {targetRole}
             </span>
           </div>
 
-          <h1 className="display-statement text-[#F4F2EC] font-bold">
+          <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl text-white font-normal tracking-[-0.035em]">
             Welcome back, {name}.
           </h1>
 
-          <p className="font-body text-base sm:text-lg text-[#8C8C88] mt-3 max-w-2xl font-light">
+          <p className="font-sans text-base sm:text-lg text-zinc-400 mt-3 max-w-2xl font-light leading-relaxed">
             Telemetry synchronized. Review diagnosed blindspots or initiate a focused practice simulation.
           </p>
         </div>
 
-        {/* Quick Launch Action & Mode Selectors */}
+        {/* Quick Launch Action */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 shrink-0">
           <Link
             href="/interview/new"
-            className="inline-flex items-center justify-center gap-2.5 bg-[#2447FF] hover:bg-[#1A3AE8] text-white font-mono text-xs uppercase tracking-[0.1em] font-semibold px-6 py-4 rounded-xl shadow-lg transition-all hover:scale-[1.01]"
+            className="btn-dala-primary inline-flex items-center justify-center gap-2 px-6 py-2.5"
           >
             <Mic className="h-4 w-4" />
             <span>Launch Simulation</span>
@@ -139,19 +140,19 @@ export default async function DashboardPage() {
       <ResumeUploadCard />
 
       {/* ── Asymmetric Dual Column: Editorial Timeline & Visual Signal Matrix ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-        {/* Left Column (7 cols): Recent Sessions as Editorial Timeline */}
-        <div className="lg:col-span-7 space-y-6">
-          <div className="flex items-baseline justify-between border-b border-white/10 pb-4">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        {/* Left Column (7 cols): Recent Sessions inside Sculptural Glass Chassis */}
+        <div className="lg:col-span-7 bg-white/[0.03] backdrop-blur-2xl hover:bg-white/[0.04] border border-white/10 hover:border-white/15 transition-all duration-300 rounded-3xl p-6 sm:p-8 lg:p-10 shadow-[0_25px_70px_rgba(0,0,0,0.5)] space-y-6">
+          <div className="flex items-baseline justify-between border-b border-white/[0.08] pb-4">
             <div className="flex items-center gap-2.5">
-              <span className="w-2 h-2 rounded-full bg-[#2447FF]" />
-              <h3 className="font-display text-xl font-bold text-[#F4F2EC]">
+              <span className="w-2 h-2 rounded-full bg-[#8052ff] shadow-[0_0_8px_#8052ff]" />
+              <h3 className="font-display text-2xl font-normal text-white tracking-[-0.03em]">
                 Recent Sessions
               </h3>
             </div>
             <Link
               href="/dashboard/history"
-              className="font-mono text-xs text-[#8C8C88] hover:text-white uppercase tracking-wider transition-colors inline-flex items-center gap-1"
+              className="font-mono text-xs text-zinc-400 hover:text-white uppercase tracking-wider transition-colors inline-flex items-center gap-1 font-medium"
             >
               <span>View full archive</span>
               <ChevronRight className="w-3.5 h-3.5" />
@@ -159,7 +160,7 @@ export default async function DashboardPage() {
           </div>
 
           {recentInterviews.length > 0 ? (
-            <div className="divide-y divide-white/[0.08]">
+            <div className="divide-y divide-white/[0.06]">
               {recentInterviews.map((interview, index) => {
                 const isCompleted = interview.status === 'completed'
                 const score = interview.overall_score
@@ -167,17 +168,17 @@ export default async function DashboardPage() {
                   <Link
                     key={interview.id}
                     href={`/interview/${interview.id}`}
-                    className="group py-5 flex items-center justify-between gap-4 transition-colors hover:bg-white/[0.02] px-2 rounded-lg"
+                    className="group py-4 sm:py-5 flex items-center justify-between gap-4 transition-colors hover:bg-white/[0.03] px-3 -mx-3 rounded-2xl"
                   >
                     <div className="flex items-baseline gap-4 min-w-0">
-                      <span className="font-mono text-xs text-[#8C8C88] shrink-0">
+                      <span className="font-mono text-xs text-zinc-500 shrink-0">
                         0{index + 1}
                       </span>
                       <div className="min-w-0">
-                        <h4 className="font-display text-base font-semibold text-[#F4F2EC] group-hover:text-[#2447FF] transition-colors truncate">
+                        <h4 className="font-sans text-base font-medium text-white group-hover:text-[#8052ff] transition-colors truncate">
                           {interview.title}
                         </h4>
-                        <div className="flex items-center gap-3 font-mono text-xs text-[#8C8C88] mt-1">
+                        <div className="flex items-center gap-3 font-mono text-xs text-zinc-500 mt-1">
                           <span>{formatSessionDate(interview.created_at)}</span>
                           <span>•</span>
                           <span className="uppercase">{interview.type || 'TECHNICAL'}</span>
@@ -188,37 +189,37 @@ export default async function DashboardPage() {
                     <div className="flex items-center gap-3 shrink-0">
                       {isCompleted ? (
                         score !== null ? (
-                          <span className="font-mono text-xs font-bold text-[#34d399] bg-[#34d399]/10 border border-[#34d399]/30 px-3 py-1 rounded-full">
+                          <span className="font-mono text-xs font-medium text-[#15846e] bg-[#15846e]/10 border border-[#15846e]/30 px-3 py-1 rounded-full">
                             {score}% SIGNAL
                           </span>
                         ) : (
-                          <span className="font-mono text-xs text-[#8C8C88] bg-white/[0.05] border border-white/10 px-3 py-1 rounded-full">
+                          <span className="font-mono text-xs text-zinc-400 bg-white/[0.04] border border-white/10 px-3 py-1 rounded-full">
                             EVALUATED
                           </span>
                         )
                       ) : (
-                        <span className="font-mono text-xs text-[#fbbf24] bg-[#fbbf24]/10 border border-[#fbbf24]/30 px-3 py-1 rounded-full">
+                        <span className="font-mono text-xs text-[#ffb829] bg-[#ffb829]/10 border border-[#ffb829]/30 px-3 py-1 rounded-full">
                           IN PROGRESS
                         </span>
                       )}
-                      <ChevronRight className="w-4 h-4 text-[#8C8C88] group-hover:text-white transition-colors" />
+                      <ChevronRight className="w-4 h-4 text-zinc-500 group-hover:text-white transition-colors" />
                     </div>
                   </Link>
                 )
               })}
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center py-12 text-center border border-dashed border-white/10 rounded-2xl">
-              <div className="w-10 h-10 rounded-full bg-[#1C1C36] border border-[#3A3A5C] flex items-center justify-center mb-4">
-                <span className="text-[#6B6B8A] text-lg">▶</span>
+            <div className="flex flex-col items-center justify-center py-12 text-center border border-dashed border-white/10 rounded-2xl bg-white/[0.01]">
+              <div className="w-10 h-10 rounded-full bg-white/[0.04] border border-white/10 flex items-center justify-center mb-4">
+                <span className="text-zinc-500 text-lg">▶</span>
               </div>
-              <p className="text-[#B8B8D4] text-[14px] font-medium mb-1">No sessions yet</p>
-              <p className="text-[#6B6B8A] text-[12px] mb-4 max-w-[240px]">
+              <p className="text-white text-sm font-medium mb-1">No sessions yet</p>
+              <p className="text-zinc-500 text-xs mb-4 max-w-[240px]">
                 Your first mock interview will appear here after you complete it.
               </p>
               <a
                 href="/interview/new"
-                className="font-mono text-[11px] text-[#00D4AA] border border-[#00D4AA]/30 rounded-lg px-4 py-2 hover:bg-[#00D4AA]/5 transition-colors uppercase tracking-[0.06em]"
+                className="font-mono text-[11px] text-[#8052ff] border border-[#8052ff]/30 rounded-full px-4 py-2 hover:bg-[#8052ff]/10 transition-colors uppercase tracking-[0.06em]"
               >
                 Start practice →
               </a>
@@ -226,20 +227,20 @@ export default async function DashboardPage() {
           )}
         </div>
 
-        {/* Right Column (5 cols): Weaknesses as Visual Signals & Roadmap as a Journey */}
-        <div className="lg:col-span-5 space-y-10">
+        {/* Right Column (5 cols): Blindspots & Mastery Journey inside Sculptural Glass Chassis */}
+        <div className="lg:col-span-5 bg-white/[0.03] backdrop-blur-2xl hover:bg-white/[0.04] border border-white/10 hover:border-white/15 transition-all duration-300 rounded-3xl p-6 sm:p-8 lg:p-10 shadow-[0_25px_70px_rgba(0,0,0,0.5)] space-y-10">
           {/* Section A: Weaknesses as Visual Signals */}
           <div>
-            <div className="flex items-baseline justify-between border-b border-white/10 pb-4 mb-5">
+            <div className="flex items-baseline justify-between border-b border-white/[0.08] pb-4 mb-5">
               <div className="flex items-center gap-2.5">
-                <span className="w-2 h-2 rounded-full bg-[#f43f5e]" />
-                <h3 className="font-display text-xl font-bold text-[#F4F2EC]">
+                <span className="w-2 h-2 rounded-full bg-[#f43f5e] shadow-[0_0_8px_#f43f5e]" />
+                <h3 className="font-display text-2xl font-normal text-white tracking-[-0.03em]">
                   Diagnosed Blindspots
                 </h3>
               </div>
               <Link
                 href="/dashboard/roadmap"
-                className="font-mono text-xs text-[#8C8C88] hover:text-white uppercase tracking-wider transition-colors inline-flex items-center gap-1"
+                className="font-mono text-xs text-zinc-400 hover:text-white uppercase tracking-wider transition-colors inline-flex items-center gap-1 font-medium"
               >
                 <span>Remediate</span>
                 <ChevronRight className="w-3.5 h-3.5" />
@@ -254,30 +255,30 @@ export default async function DashboardPage() {
                   return (
                     <div
                       key={weakness.id}
-                      className="p-4 rounded-xl border border-white/10 bg-[#0D0D0D] flex items-center justify-between gap-4"
+                      className="p-4 rounded-2xl border border-white/[0.08] bg-white/[0.02] hover:bg-white/[0.05] transition-all flex items-center justify-between gap-4"
                     >
                       <div className="min-w-0">
                         <div className="flex items-center gap-2 mb-1">
                           <span
                             className={`w-1.5 h-1.5 rounded-full ${
-                              isHigh ? 'bg-[#f43f5e]' : isMed ? 'bg-[#fbbf24]' : 'bg-[#34d399]'
+                              isHigh ? 'bg-[#f43f5e]' : isMed ? 'bg-[#ffb829]' : 'bg-[#15846e]'
                             }`}
                           />
-                          <span className="font-mono text-[10px] uppercase tracking-wider text-[#8C8C88]">
+                          <span className="font-mono text-[10px] uppercase tracking-wider text-zinc-400 font-medium">
                             {isHigh ? 'CRITICAL GAP' : isMed ? 'MODERATE' : 'MINOR'}
                           </span>
                         </div>
-                        <h5 className="font-display text-sm font-bold text-[#F4F2EC] truncate">
+                        <h5 className="font-sans text-sm font-medium text-white truncate">
                           {weakness.topic}
                         </h5>
-                        <p className="font-mono text-xs text-[#8C8C88] truncate mt-0.5">
+                        <p className="font-mono text-xs text-zinc-500 truncate mt-0.5">
                           {weakness.subtopic}
                         </p>
                       </div>
 
                       <Link
                         href={`/interview/new?topic=${encodeURIComponent(weakness.topic)}`}
-                        className="shrink-0 font-mono text-[11px] text-[#2447FF] hover:underline uppercase tracking-wider font-semibold"
+                        className="shrink-0 font-mono text-[11px] text-[#8052ff] hover:text-[#9a75ff] uppercase tracking-wider font-semibold"
                       >
                         Re-test →
                       </Link>
@@ -286,12 +287,12 @@ export default async function DashboardPage() {
                 })}
               </div>
             ) : (
-              <div className="p-6 rounded-xl border border-white/10 bg-[#0D0D0D] text-center">
-                <CheckCircle2 className="w-5 h-5 text-[#34d399] mx-auto mb-2" />
-                <span className="font-mono text-xs text-[#34d399] uppercase font-semibold block">
+              <div className="p-6 rounded-2xl border border-white/[0.08] bg-white/[0.02] text-center">
+                <CheckCircle2 className="w-5 h-5 text-[#15846e] mx-auto mb-2" />
+                <span className="font-mono text-xs text-[#15846e] uppercase font-semibold block">
                   All Systems Calibrated
                 </span>
-                <p className="font-body text-xs text-[#8C8C88] mt-1">
+                <p className="font-sans text-xs text-zinc-500 mt-1 font-light">
                   No active blindspots diagnosed yet.
                 </p>
               </div>
@@ -300,49 +301,49 @@ export default async function DashboardPage() {
 
           {/* Section B: Roadmap as a Journey */}
           <div>
-            <div className="flex items-baseline justify-between border-b border-white/10 pb-4 mb-5">
+            <div className="flex items-baseline justify-between border-b border-white/[0.08] pb-4 mb-5">
               <div className="flex items-center gap-2.5">
-                <Compass className="w-4 h-4 text-[#2447FF]" />
-                <h3 className="font-display text-xl font-bold text-[#F4F2EC]">
+                <Compass className="w-4 h-4 text-[#8052ff]" />
+                <h3 className="font-display text-2xl font-normal text-white tracking-[-0.035em]">
                   Mastery Journey
                 </h3>
               </div>
               <Link
                 href="/dashboard/roadmap"
-                className="font-mono text-xs text-[#8C8C88] hover:text-white uppercase tracking-wider transition-colors inline-flex items-center gap-1"
+                className="font-mono text-xs text-zinc-400 hover:text-white uppercase tracking-wider transition-colors inline-flex items-center gap-1 font-medium"
               >
                 <span>Curriculum</span>
                 <ChevronRight className="w-3.5 h-3.5" />
               </Link>
             </div>
 
-            <div className="p-6 rounded-xl border border-white/10 bg-[#0D0D0D] space-y-6">
+            <div className="p-6 rounded-2xl border border-white/[0.08] bg-white/[0.02] space-y-6">
               {/* Stepped Journey Markers */}
               <div className="flex items-center justify-between text-xs font-mono">
-                <span className="text-white font-semibold">01 DIAGNOSE</span>
-                <span className="text-white/30">→</span>
-                <span className="text-white font-semibold">02 LEARN</span>
-                <span className="text-white/30">→</span>
-                <span className="text-[#2447FF] font-bold">03 RE-TEST</span>
+                <span className="text-white font-medium">01 DIAGNOSE</span>
+                <span className="text-white/20">→</span>
+                <span className="text-white font-medium">02 LEARN</span>
+                <span className="text-white/20">→</span>
+                <span className="text-[#8052ff] font-medium">03 RE-TEST</span>
               </div>
 
               {/* Progress Bar */}
               <div>
                 <div className="flex justify-between font-mono text-xs mb-2">
-                  <span className="text-[#8C8C88] uppercase">Completion Rate</span>
-                  <span className="font-bold text-[#F4F2EC]">{roadmapProgress}%</span>
+                  <span className="text-zinc-400 uppercase tracking-wider">Completion Rate</span>
+                  <span className="font-medium text-white">{roadmapProgress}%</span>
                 </div>
-                <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
+                <div className="h-1.5 w-full bg-white/[0.06] rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-[#2447FF] rounded-full transition-all duration-500"
+                    className="h-full bg-[#8052ff] rounded-full transition-all duration-500 shadow-[0_0_10px_rgba(128,82,255,0.6)]"
                     style={{ width: `${roadmapProgress}%` }}
                   />
                 </div>
               </div>
 
-              <div className="flex items-center justify-between text-xs font-mono text-[#8C8C88] pt-2 border-t border-white/[0.08]">
+              <div className="flex items-center justify-between text-xs font-mono text-zinc-500 pt-2 border-t border-white/[0.06]">
                 <span>{completedRoadmapItems} of {totalRoadmapItems} modules completed</span>
-                <span className="text-[#34d399] font-semibold">
+                <span className="text-[#15846e] font-medium">
                   {roadmapProgress === 100 ? 'CONQUERED' : 'IN PROGRESS'}
                 </span>
               </div>

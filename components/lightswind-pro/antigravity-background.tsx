@@ -13,6 +13,7 @@ export interface AntigravityBackgroundProps
   dispersionStrength?: number;
   color?: string;
   glowColor?: string;
+  baseAlpha?: number;
   fadeMask?: boolean;
   interactive?: boolean;
   children?: React.ReactNode;
@@ -34,14 +35,15 @@ interface RingParticle {
 }
 
 export function AntigravityBackground({
-  ringSpacing = 22,
-  dotSpacing = 15,
-  minRadius = 28,
-  centerShiftStrength = 0.42,
+  ringSpacing = 24,
+  dotSpacing = 16,
+  minRadius = 180,
+  centerShiftStrength = 0.28,
   dispersionRadius = 110,
   dispersionStrength = 16,
-  color = "#0F52BA", // Sapphire primary
-  glowColor = "#38bdf8", // Sapphire vivid glow
+  color = "#2447FF", // Cobalt primary
+  glowColor = "#4060FF", // Cobalt bright glow
+  baseAlpha = 0.35,
   fadeMask = true,
   interactive = true,
   children,
@@ -288,9 +290,9 @@ export function AntigravityBackground({
         }
       }
 
-      // Draw standard batch of dots (Rich Sapphire)
+      // Draw standard batch of dots (Rich Cobalt)
       ctx.fillStyle = color;
-      ctx.globalAlpha = 0.85;
+      ctx.globalAlpha = baseAlpha;
       ctx.fill();
 
       // Draw highlighted glowing dots near mouse
@@ -331,6 +333,7 @@ export function AntigravityBackground({
     dispersionStrength,
     color,
     glowColor,
+    baseAlpha,
   ]);
 
   return (

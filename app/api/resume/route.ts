@@ -5,7 +5,7 @@ import { formatResumeMarkdown, parseResumeMarkdown, structuredToDashboardResume 
 import { resolveCandidateName, isValidCandidateName } from '@/lib/resume/name-utils'
 import { ResumeParsingService } from '@/lib/resume/parser-service'
 import { extractTextFromPdfBuffer, isGarbageText } from '@/lib/resume/pdf-extractor'
-import { deleteFromUploadThing } from '@/lib/resume/storage'
+import { deleteFromUploadThing, uploadToUploadThing } from '@/lib/resume/storage'
 import type { StructuredResumeData, StoredResumeItem } from '@/lib/resume/types'
 
 type ResumeData = {
@@ -364,20 +364,15 @@ export async function POST(req: NextRequest) {
       data: { user },
     } = await supabase.auth.getUser()
 
-    // If user is authenticated, check existing count — limit is strictly 2 resumes
-    if (user) {
-      const existingResumes = await fetchUserResumes(supabaseAdmin, user.id)
-      if (existingResumes.length >= 2) {
-        return NextResponse.json(
-          {
-            error: 'Resume limit reached (2/2). Please remove at least 1 previous resume to upload a new one.',
-            limitReached: true,
-            currentCount: existingResumes.length,
-          },
-          { status: 400 }
-        )
-      }
+    // Upload file to UploadThing storage provider
+    let uploadThingResult: { url: string; key: string } | null = null
+    try {
+      uploadThingResult = await uploadToUploadThing(file)
+    } catch (uploadErr) {
+      console.warn('[api/resume] UploadThing upload error, falling back to local:', uploadErr)
     }
+
+    const fileUrl = uploadThingResult?.url || 'local-upload'
 
     let resumeText = ''
     try {
@@ -456,7 +451,7 @@ export async function POST(req: NextRequest) {
           .insert({
             resume_id: newResume.id,
             user_id: user.id,
-            file_url: 'local-upload',
+            file_url: fileUrl,
             file_name: file.name,
             file_size: file.size,
             version_number: 1,
@@ -496,7 +491,7 @@ export async function POST(req: NextRequest) {
       .from('profiles')
       .update({
         resume_text: markdown,
-        resume_url: file.name,
+        resume_url: fileUrl !== 'local-upload' ? fileUrl : file.name,
         full_name: safeName || null,
         target_role: resumeData.targetRole || null,
       })

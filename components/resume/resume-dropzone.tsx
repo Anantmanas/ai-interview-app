@@ -19,17 +19,11 @@ export function ResumeDropzone({ source, onSuccess }: ResumeDropzoneProps) {
     uploadingFileName,
     extractionError,
     handleResumeUpload,
-    isLimitReached,
     storedResumes,
-    setLimitModalOpen,
   } = useResume()
 
   const onPickFile = async (file?: File) => {
     if (!file) return
-    if (isLimitReached) {
-      setLimitModalOpen(true)
-      return
-    }
     const success = await handleResumeUpload(file, source)
     if (success) {
       onSuccess?.()
@@ -38,52 +32,51 @@ export function ResumeDropzone({ source, onSuccess }: ResumeDropzoneProps) {
 
   if (isExtracting) {
     return (
-      <div className="rounded-xl border border-[#3730a3]/60 bg-[#09090f] shadow-[0_8px_32px_rgba(0,0,0,0.5)] overflow-hidden">
-        <div className="flex items-center justify-between px-4 h-10 border-b border-[#1e2030] bg-[#11121b]/90 select-none">
-          <div className="flex items-center gap-3">
-            <MacTrafficLights size="sm" />
-            <span className="font-mono text-[11px] text-[#9ca3af] font-medium tracking-wide truncate max-w-[280px]">
-              {uploadingFileName || 'resume.pdf'} — active
+      <div className="rounded-3xl border border-[#8052ff]/40 bg-white/[0.03] backdrop-blur-2xl shadow-[0_20px_60px_rgba(128,82,255,0.15)] overflow-hidden">
+        <div className="flex items-center justify-between px-6 sm:px-7 h-12 border-b border-white/10 bg-white/[0.02] select-none">
+          <div className="flex items-center gap-2.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#8052ff] animate-pulse shadow-[0_0_8px_#8052ff]" />
+            <span className="font-mono text-[11px] text-zinc-400 font-semibold tracking-wider uppercase truncate max-w-[280px]">
+              {uploadingFileName || 'resume.pdf'} — PROCESSING
             </span>
           </div>
-          <span className="font-mono text-[10px] text-[#f59e0b] bg-[#f59e0b]/10 border border-[#f59e0b]/20 px-2 py-0.5 rounded-full uppercase tracking-wider">
-            ANALYZING
+          <span className="font-mono text-[10px] text-[#8052ff] bg-[#8052ff]/15 border border-[#8052ff]/30 px-3 py-0.5 rounded-full uppercase tracking-wider font-semibold animate-pulse">
+            ANALYZING & STORING
           </span>
         </div>
-        <div className="p-6 flex items-center gap-3 font-mono text-xs text-[#818cf8]">
-          <Spinner className="h-4 w-4 shrink-0" />
-          <span>Analyzing {uploadingFileName ? `"${uploadingFileName}"` : 'resume'} structure, extracting technical skills, experience and projects...</span>
+        <div className="p-8 sm:p-10 flex flex-col items-center justify-center text-center space-y-3">
+          <Spinner className="h-6 w-6 text-[#8052ff]" />
+          <p className="font-mono text-xs text-[#8052ff] tracking-wide font-medium">
+            Ingesting to Cloud Storage & extracting technical skills...
+          </p>
+          <p className="font-sans text-xs text-zinc-400 max-w-md font-light">
+            Analyzing {uploadingFileName ? `"${uploadingFileName}"` : 'resume'} structure, engineering experience, and technical vectors.
+          </p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="rounded-xl border border-white/10 bg-[#0D0D0D] shadow-xl overflow-hidden">
-      {/* Editorial Header */}
-      <div className="flex items-center justify-between px-6 h-12 border-b border-white/10 bg-white/[0.02] select-none">
+    <div className="rounded-3xl border border-white/10 bg-white/[0.03] backdrop-blur-2xl shadow-[0_20px_60px_rgba(0,0,0,0.5)] hover:border-white/20 transition-all overflow-hidden font-sans">
+      {/* Titlebar */}
+      <div className="flex items-center justify-between px-6 sm:px-7 h-12 border-b border-white/10 bg-white/[0.02] select-none">
         <div className="flex items-center gap-2.5">
-          <FileText className="w-4 h-4 text-[#2447FF]" />
-          <span className="font-mono text-xs text-[#8C8C88] font-medium tracking-wide">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#8052ff] shadow-[0_0_8px_#8052ff]" />
+          <span className="font-mono text-[11px] text-zinc-400 font-semibold tracking-wider uppercase">
             RESUME GROUNDING SOURCE
           </span>
         </div>
         <div className="flex items-center gap-2">
-          {isLimitReached ? (
-            <span className="font-mono text-[10px] text-[#f43f5e] bg-[#f43f5e]/10 border border-[#f43f5e]/30 px-2.5 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1">
-              <ShieldAlert className="w-3 h-3 inline" /> 2/2 SLOTS USED
-            </span>
-          ) : (
-            <span className="font-mono text-[10px] text-[#34d399] bg-[#34d399]/10 border border-[#34d399]/30 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
-              {Math.max(0, 2 - storedResumes.length)}/2 SLOTS AVAILABLE
-            </span>
-          )}
+          <span className="font-mono text-[10px] text-[#15846e] bg-[#15846e]/20 border border-[#15846e]/40 px-3 py-0.5 rounded-full uppercase tracking-wider font-semibold">
+            {storedResumes.length > 0 ? `${storedResumes.length} PROFILES STORED` : 'READY FOR UPLOAD'}
+          </span>
         </div>
       </div>
 
-      <div className="p-7 sm:p-8 text-center flex flex-col items-center justify-center space-y-4">
+      <div className="p-8 sm:p-10 text-center flex flex-col items-center justify-center space-y-4">
         {extractionError && (
-          <p className="text-[#f87171] text-[11px] flex items-center gap-1.5 font-mono bg-[#2a0e15] border border-[#5c1d28] px-3 py-1.5 rounded-md max-w-lg">
+          <p className="text-[#f43f5e] text-[11px] flex items-center gap-1.5 font-mono bg-[#f43f5e]/10 border border-[#f43f5e]/25 px-4 py-2 rounded-xl max-w-lg">
             <AlertCircle className="h-4 w-4 shrink-0" />
             <span>{extractionError}</span>
           </p>
@@ -101,40 +94,31 @@ export function ResumeDropzone({ source, onSuccess }: ResumeDropzoneProps) {
           }}
         />
 
-        <div className="p-3 rounded-xl bg-[#14142b] border border-[#3730a3] text-[#818cf8] shadow-[0_0_20px_rgba(79,70,229,0.3)]">
+        <div className="p-4 rounded-2xl bg-[#8052ff]/10 border border-[#8052ff]/30 text-[#8052ff]">
           <Upload className="w-6 h-6" />
         </div>
 
-        <div className="space-y-1 max-w-md">
-          <h3 className="font-display text-base font-semibold text-white">
-            {isLimitReached ? 'Storage Slots Full (2 of 2)' : 'Upload a Resume Document'}
+        <div className="space-y-1.5 max-w-md">
+          <h3 className="font-display text-xl sm:text-2xl font-normal text-white tracking-[-0.02em]">
+            Upload Engineering Resume
           </h3>
-          <p className="font-body text-xs text-[#9ca3af]">
-            {isLimitReached
-              ? 'You have reached the maximum 2 stored resumes. Please remove at least 1 previous resume to upload a new one.'
-              : 'Select a PDF or text document to extract skills, experience and target roles for AI interviews.'}
+          <p className="font-sans text-xs sm:text-sm text-zinc-400 font-light">
+            Upload any resume to parse skills, system scale, and calibrate AI interview simulation vectors.
           </p>
         </div>
 
-        {isLimitReached ? (
-          <button
-            type="button"
-            onClick={() => setLimitModalOpen(true)}
-            className="font-mono text-[12px] font-bold uppercase tracking-[0.05em] px-6 py-2.5 rounded-md cursor-pointer inline-flex items-center gap-2 bg-[#2a1a10] hover:bg-[#3d2415] text-[#f59e0b] border border-[#f59e0b]/40 shadow-[0_0_20px_rgba(245,158,11,0.2)] transition-all"
-          >
-            <ShieldAlert className="w-4 h-4" />
-            <span>Slot Limit Reached (2/2) — Manage List</span>
-          </button>
-        ) : (
-          <button
-            type="button"
-            onClick={() => inputRef.current?.click()}
-            className="btn-neo-violet font-mono text-[12px] font-bold uppercase tracking-[0.05em] px-6 py-2.5 rounded-md cursor-pointer inline-flex items-center gap-2 shadow-[0_0_20px_rgba(79,70,229,0.3)] transition-all hover:scale-[1.02]"
-          >
-            <Sparkles className="w-4 h-4" />
-            <span>Select Document</span>
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={() => inputRef.current?.click()}
+          className="btn-dala-primary inline-flex items-center gap-2 px-6 py-2.5 cursor-pointer hover:scale-[1.02] transition-all"
+        >
+          <Sparkles className="w-4 h-4 text-[#ffb829]" />
+          <span>Select Document (PDF / DOCX / TXT)</span>
+        </button>
+
+        <p className="font-mono text-[10px] text-zinc-500 tracking-wider">
+          Powered by UploadThing Storage • Up to 10MB • AES-256 Encrypted
+        </p>
       </div>
     </div>
   )

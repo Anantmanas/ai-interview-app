@@ -90,11 +90,11 @@ export const NavBody = ({ children, className, visible }: NavBodyProps) => {
   return (
     <motion.div
       animate={{
-        backdropFilter: visible ? "blur(12px)" : "none",
+        backdropFilter: visible ? "blur(14px)" : "none",
         boxShadow: visible
-          ? "0 0 24px rgba(0, 0, 0, 0.4), 0 1px 1px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.08), 0 16px 68px rgba(0, 0, 0, 0.3)"
+          ? "0 0 24px rgba(0, 0, 0, 0.6), 0 1px 1px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.08), 0 16px 68px rgba(0, 0, 0, 0.4)"
           : "none",
-        width: visible ? "60%" : "100%",
+        width: visible ? "max(70%, 920px)" : "100%",
         y: visible ? 10 : 0,
       }}
       transition={{
@@ -103,11 +103,11 @@ export const NavBody = ({ children, className, visible }: NavBodyProps) => {
         damping: 30,
       }}
       style={{
-        minWidth: "min(100%, 800px)",
+        maxWidth: "min(100%, 1280px)",
       }}
       className={cn(
-        "relative z-[60] mx-auto hidden w-full max-w-7xl flex-row items-center justify-between self-start rounded-full bg-transparent px-6 py-2.5 transition-all duration-300 lg:flex",
-        visible && "bg-[#040714]/85 border border-[#142347] shadow-[0_10px_35px_rgba(0,0,0,0.8),0_0_20px_rgba(37,99,235,0.15)] backdrop-blur-xl",
+        "relative z-[60] mx-auto hidden w-full flex-row items-center justify-between self-start rounded-full bg-transparent px-6 py-2.5 transition-all duration-300 lg:flex",
+        visible && "bg-black/90 border border-white/[0.08] shadow-[0_10px_35px_rgba(0,0,0,0.8),0_0_20px_rgba(128,82,255,0.15)] backdrop-blur-xl",
         className,
       )}
     >
@@ -123,7 +123,7 @@ export const NavItems = ({ items, className, onItemClick }: NavItemsProps) => {
     <motion.div
       onMouseLeave={() => setHovered(null)}
       className={cn(
-        "absolute inset-0 hidden flex-1 flex-row items-center justify-center space-x-2 text-sm font-medium transition duration-200 lg:flex lg:space-x-2",
+        "hidden flex-1 flex-row items-center justify-center space-x-2 text-sm font-medium transition duration-200 lg:flex lg:space-x-2",
         className,
       )}
     >
@@ -131,14 +131,14 @@ export const NavItems = ({ items, className, onItemClick }: NavItemsProps) => {
         <a
           onMouseEnter={() => setHovered(idx)}
           onClick={onItemClick}
-          className="relative px-4 py-2 font-mono text-[12px] uppercase tracking-[0.08em] text-[#94a3b8] hover:text-[#f8fafc] transition-colors duration-150"
+          className="relative px-3.5 py-1.5 font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-300 hover:text-[#ffffff] transition-colors duration-150"
           key={`link-${idx}`}
           href={item.link}
         >
           {hovered === idx && (
             <motion.div
               layoutId="hovered"
-              className="absolute inset-0 h-full w-full rounded-full bg-[#0a1226] border border-[#2563eb]/40 shadow-[0_0_12px_rgba(37,99,235,0.2)]"
+              className="absolute inset-0 h-full w-full rounded-full bg-white/[0.06] border border-[#8052ff]/40 shadow-[0_0_12px_rgba(128,82,255,0.2)]"
               transition={{ type: "spring", stiffness: 350, damping: 30 }}
             />
           )}
@@ -155,7 +155,7 @@ export const MobileNav = ({ children, className, visible }: MobileNavProps) => {
       animate={{
         backdropFilter: visible ? "blur(16px)" : "none",
         boxShadow: visible
-          ? "0 0 30px rgba(0, 0, 0, 0.6), 0 0 16px rgba(37, 99, 235, 0.15)"
+          ? "0 0 30px rgba(0, 0, 0, 0.7), 0 0 16px rgba(128, 82, 255, 0.15)"
           : "none",
         width: visible ? "95%" : "100%",
         paddingRight: visible ? "16px" : "8px",
@@ -170,7 +170,7 @@ export const MobileNav = ({ children, className, visible }: MobileNavProps) => {
       }}
       className={cn(
         "relative z-50 mx-auto flex w-full max-w-[calc(100vw-2rem)] flex-col items-center justify-between bg-transparent px-2 py-2 lg:hidden",
-        visible && "bg-[#040714]/90 border border-[#142347]",
+        visible && "bg-black/95 border border-white/10",
         className,
       )}
     >
@@ -178,6 +178,7 @@ export const MobileNav = ({ children, className, visible }: MobileNavProps) => {
     </motion.div>
   );
 };
+
 
 export const MobileNavHeader = ({
   children,
@@ -209,7 +210,7 @@ export const MobileNavMenu = ({
           exit={{ opacity: 0, y: -10 }}
           transition={{ duration: 0.2 }}
           className={cn(
-            "absolute inset-x-0 top-16 z-50 flex w-full flex-col items-start justify-start gap-4 rounded-xl bg-[#000000]/95 border border-[#1e1e2f] p-6 shadow-2xl backdrop-blur-2xl",
+            "absolute inset-x-0 top-16 z-50 flex w-full flex-col items-start justify-start gap-4 rounded-xl bg-[#000000]/95 border border-white/10 p-6 shadow-2xl backdrop-blur-2xl",
             className,
           )}
         >
@@ -232,7 +233,7 @@ export const MobileNavToggle = ({
       type="button"
       aria-label="Toggle navigation menu"
       onClick={onClick}
-      className="p-2 rounded-md hover:bg-[#14142b] transition-colors focus:outline-none"
+      className="p-2 rounded-md hover:bg-white/[0.08] transition-colors focus:outline-none"
     >
       {isOpen ? (
         <IconX className="h-5 w-5 text-neutral-100" />
@@ -293,11 +294,11 @@ export const NavbarButton = ({
 
   const variantStyles = {
     primary:
-      "bg-[#4f46e5] text-white hover:bg-[#5865f2] border border-[#6366f1]/40 shadow-[0_0_20px_rgba(79,70,229,0.35)]",
-    secondary: "bg-transparent text-[#9ca3af] hover:text-white shadow-none",
-    dark: "bg-[#09090e] text-white border border-[#1e1e2f] hover:bg-[#12121c] shadow-[0_0_20px_rgba(0,0,0,0.4)]",
+      "bg-[#8052ff] text-white hover:bg-[#926aff] border border-[#8052ff]/40 shadow-[0_0_20px_rgba(128,82,255,0.35)]",
+    secondary: "bg-transparent text-[#9a9a9a] hover:text-white shadow-none",
+    dark: "bg-[#0a0a0a] text-white border border-white/10 hover:bg-[#141414] shadow-[0_0_20px_rgba(0,0,0,0.6)]",
     gradient:
-      "bg-gradient-to-r from-[#4f46e5] to-[#6366f1] text-white shadow-[0_0_20px_rgba(79,70,229,0.3)] hover:brightness-110",
+      "bg-gradient-to-r from-[#8052ff] to-[#a855f7] text-white shadow-[0_0_20px_rgba(128,82,255,0.35)] hover:brightness-110",
   };
 
   return (

@@ -60,19 +60,23 @@ desktop.ini
 *.swo
 *~
 
+# ── Markdown files (ignore all except README.md) ─────────────────
+*.md
+*.MD
+!README.md
+!**/README.md
+
 # ── AI agent instruction files (not app code) ─────────────────────
+.gsd/
+Dala_Design-references/
 a2a_blueprint
 agent_instructions
-agent_instructions.md
 Claude
 codex_instructions_v3
 gemini_cli_prompt_v2
 gemini_fix_prompt
 implementation_plan
-implementation_plan.md
 interview-room-ui-ux-patch
-cursor_agent_instructions.md
-cursor_execution_prompt.md
 
 # ── Debug / test artifacts ────────────────────────────────────────
 RUNTIME_ERROR_LOG

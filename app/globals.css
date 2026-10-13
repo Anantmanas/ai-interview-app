@@ -1,181 +1,176 @@
 @import "tailwindcss";
 
-/* ── InterviewAI Editorial OS Design System ──────────────────────── */
-/* Philosophy: shapeofintelligence.com inspired                       */
-/* Foundation: Near-black & Deep Navy (#02040a, #060b18)             */
-/* Signature:  Electric Cobalt Blue (#2563eb, #3b82f6)                */
-/* Typography: Space Grotesk / Inter / JetBrains Mono (Off-white)    */
-/* Accents:    Cyan (#06b6d4), Violet (#8b5cf6)                       */
+/* ── Dala Dark Stage Design System ────────────────────────────── */
+/* Theme: Dark Void (#000000)                                         */
+/* Centerpiece: Constellation floating on black velvet                 */
+/* Primary Accent: Electric Iris (#8052ff)                             */
+/* Secondary Sparks: Saffron Spark (#ffb829), Deep Verdant (#15846e)  */
+/* Typography: Monolithic scale, weight 400 display, weight 200 body  */
 
 @theme {
-  /* ── 3-State Rhythm Scale (shapeofintelligence.com philosophy) ─── */
-  --color-paper:              #F4F2EC;   /* warm editorial off-white */
-  --color-paper-surface:      #EAE7DF;   /* warm elevated paper      */
-  --color-paper-contrast:     #0A0A0A;   /* sharp near-black text    */
-  --color-paper-subtle:       #5C5953;   /* secondary editorial text */
-  --color-paper-border:       rgba(10, 10, 10, 0.12);
-  --color-paper-rule:         rgba(10, 10, 10, 0.08);
+  /* ── Dala Color Tokens (DESIGN(system).md) ── */
+  --color-void:               #000000;   /* pure black canvas & section surface */
+  --color-bone-white:         #ffffff;   /* headlines, body, maximum hierarchy */
+  --color-ash-gray:           #9a9a9a;   /* muted nav text, secondary labels */
+  --color-silver-mist:        #bdbdbd;   /* tertiary body, caption context */
+  --color-electric-iris:      #8052ff;   /* primary action buttons, brand violet */
+  --color-saffron-spark:      #ffb829;   /* highlight emphasis, warm yellow */
+  --color-deep-verdant:       #15846e;   /* secondary tint, brand gradient stop */
 
-  --color-void:               #050505;   /* deep pure exhibition black */
-  --color-void-surface:       #0D0D0D;   /* subtle elevated black      */
-  --color-void-contrast:      #F4F2EC;   /* primary off-white text     */
-  --color-void-subtle:        #8C8C88;   /* secondary dim text         */
-  --color-void-border:        rgba(244, 242, 236, 0.14);
-  --color-void-rule:          rgba(244, 242, 236, 0.08);
+  /* ── Legacy Backward-Compatibility Aliases ── */
+  --color-paper:              #ffffff;
+  --color-paper-surface:      #000000;
+  --color-paper-contrast:     #000000;
+  --color-paper-subtle:       #9a9a9a;
+  --color-paper-border:       rgba(255, 255, 255, 0.1);
+  --color-paper-rule:         rgba(255, 255, 255, 0.08);
 
-  --color-electric:           #2447FF;   /* major visual field cobalt  */
-  --color-electric-deep:      #1A3AE8;   /* dark electric boundary     */
-  --color-electric-contrast:  #FFFFFF;   /* pure white text on blue    */
+  --color-void-surface:       #000000;
+  --color-void-contrast:      #ffffff;
+  --color-void-subtle:        #9a9a9a;
+  --color-void-border:        rgba(255, 255, 255, 0.1);
+  --color-void-rule:          rgba(255, 255, 255, 0.06);
+
+  --color-electric:           #8052ff;
+  --color-electric-deep:      #6935f0;
+  --color-electric-contrast:  #ffffff;
   --color-electric-subtle:    rgba(255, 255, 255, 0.78);
   --color-electric-border:    rgba(255, 255, 255, 0.22);
   --color-electric-rule:      rgba(255, 255, 255, 0.12);
 
-  /* ── Electric Cobalt Signature Scale (Legacy & UI Tokens) ─── */
-  --color-cobalt:             #2447FF;
-  --color-cobalt-light:       #4060FF;
-  --color-cobalt-bright:      #6B85FF;
-  --color-cobalt-vivid:       #1A3AE8;
-  --color-cobalt-deep:        #0E2499;
+  --color-cobalt:             #8052ff;
+  --color-cobalt-light:       #9a75ff;
+  --color-cobalt-bright:      #b295ff;
+  --color-cobalt-vivid:       #8052ff;
+  --color-cobalt-deep:        #5528cc;
 
-  /* ── Deep Navy Foundation Scale ─── */
-  --color-midnight:           #050505;
-  --color-navy-50:            #08080A;
-  --color-navy-100:           #0E0E12;
-  --color-navy-200:           #14141A;
-  --color-navy-300:           #1C1C24;
-  --color-navy-400:           #282834;
-  --color-navy-500:           #38384A;
+  --color-midnight:           #000000;
+  --color-navy-50:            #000000;
+  --color-navy-100:           #0a0a0a;
+  --color-navy-200:           #111111;
+  --color-navy-300:           #181818;
+  --color-navy-400:           #222222;
+  --color-navy-500:           #333333;
 
-  /* ── Editorial Secondary Accents ─── */
-  --color-cyan-vivid:         #06b6d4;
-  --color-violet-vivid:       #8b5cf6;
-  --color-emerald-vivid:      #10b981;
+  --color-cyan-vivid:         #38bdf8;
+  --color-violet-vivid:       #8052ff;
+  --color-emerald-vivid:      #15846e;
   --color-rose-vivid:         #f43f5e;
 
-  /* ── Typography Scale ─── */
-  --color-chalk:              #F4F2EC;
-  --color-chalk-dim:          #D6D3CA;
-  --color-chalk-muted:        #9E9B93;
-  --color-chalk-subtle:       #6B6860;
+  --color-chalk:              #ffffff;
+  --color-chalk-dim:          #bdbdbd;
+  --color-chalk-muted:        #9a9a9a;
+  --color-chalk-subtle:       #666666;
 
-  /* ── Legacy Shims ─── */
-  --color-sapphire:           #2447FF;
-  --color-sapphire-bright:    #4060FF;
-  --color-sapphire-vivid:     #6B85FF;
-  --color-sapphire-wash:      rgba(36, 71, 255, 0.08);
-  --color-sapphire-border:    rgba(36, 71, 255, 0.25);
-  --color-onyx:               #050505;
-  --color-onyx-1:             #0D0D0D;
-  --color-onyx-2:             #141414;
-  --color-onyx-3:             #1C1C1C;
-  --color-onyx-4:             #282828;
-  --color-onyx-5:             #383838;
-  --color-carbon:             #050505;
-  --color-graphite:           #0D0D0D;
-  --color-obsidian:           #141414;
-  --color-slate:              #1C1C1C;
-  --color-basalt:             #282828;
-  --color-iron:               #383838;
-  --color-pewter:             #2447FF;
-  --color-steel:              #4060FF;
-  --color-fog:                #9E9B93;
-  --color-silver:             #D6D3CA;
-  --color-ash:                #6B6860;
-  --color-electric-indigo:    #2447FF;
-  --color-indigo-hover:       #4060FF;
-  --color-indigo-glow:        rgba(36, 71, 255, 0.2);
-  --color-signal-green:       #10b981;
-  --color-led-green:          #064e3b;
+  --color-sapphire:           #8052ff;
+  --color-sapphire-bright:    #9a75ff;
+  --color-sapphire-vivid:     #b295ff;
+  --color-sapphire-wash:      rgba(128, 82, 255, 0.08);
+  --color-sapphire-border:    rgba(128, 82, 255, 0.25);
+  --color-onyx:               #000000;
+  --color-onyx-1:             #000000;
+  --color-onyx-2:             #000000;
+  --color-onyx-3:             #141414;
+  --color-onyx-4:             #1f1f1f;
+  --color-onyx-5:             #2a2a2a;
+  --color-carbon:             #000000;
+  --color-graphite:           #000000;
+  --color-obsidian:           #000000;
+  --color-slate:              #141414;
+  --color-basalt:             #1f1f1f;
+  --color-iron:               #2a2a2a;
+  --color-pewter:             #8052ff;
+  --color-steel:              #9a75ff;
+  --color-fog:                #9a9a9a;
+  --color-silver:             #bdbdbd;
+  --color-ash:                #666666;
+  --color-electric-indigo:    #8052ff;
+  --color-indigo-hover:       #9a75ff;
+  --color-indigo-glow:        rgba(128, 82, 255, 0.25);
+  --color-signal-green:       #15846e;
+  --color-led-green:          #0b4e40;
 
-  /* ── Typography Wiring: Premium Modern Grotesk & Technical Mono ─── */
-  --font-display: var(--font-space-grotesk), -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Arial", sans-serif;
-  --font-body:    var(--font-inter), -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Arial", sans-serif;
+  /* ── Typography Wiring ── */
+  --font-display: var(--font-space-grotesk), var(--font-inter), sans-serif;
+  --font-body:    var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-mono:    var(--font-jetbrains-mono), ui-monospace, "SF Mono", monospace;
 
-  /* ── Radix Radius Tokens ─── */
-  --radius-sm:   2px;
-  --radius-md:   6px;
-  --radius-lg:   10px;
-  --radius-xl:   14px;
+  /* ── Dala Spacing & Radius Tokens ── */
+  --radius-sm:   4px;
+  --radius-md:   8px;
+  --radius-lg:   16px;
+  --radius-xl:   24px;
+  --radius-3xl:  24px;
   --radius-full: 9999px;
 }
 
-/* ── CSS Custom Properties & Component Tokens ──────────────────── */
+/* ── CSS Custom Properties & Dala Component Tokens ─────────────── */
 :root {
-  /* Core Foundation (Default Void) */
-  --background:           #050505;
-  --foreground:           #F4F2EC;
+  --background:           #000000;
+  --foreground:           #ffffff;
 
-  /* Surfaces */
-  --card:                 #0D0D0D;
-  --card-foreground:      #F4F2EC;
-  --popover:              #0D0D0D;
-  --popover-foreground:   #F4F2EC;
+  --card:                 #000000;
+  --card-foreground:      #ffffff;
+  --popover:              #000000;
+  --popover-foreground:   #ffffff;
 
-  /* Signature Electric Cobalt */
-  --primary:              #2447FF;
-  --primary-foreground:   #FFFFFF;
+  /* Signature Electric Iris */
+  --primary:              #8052ff;
+  --primary-foreground:   #ffffff;
 
-  /* Secondary Surfaces */
-  --secondary:            #141414;
-  --secondary-foreground: #D6D3CA;
+  --secondary:            #0a0a0a;
+  --secondary-foreground: #bdbdbd;
 
-  /* Muted Elements */
-  --muted:                #141414;
-  --muted-foreground:     #9E9B93;
+  --muted:                #0a0a0a;
+  --muted-foreground:     #9a9a9a;
 
-  /* Accent Overlays */
-  --accent:               #1C1C1C;
-  --accent-foreground:    #6B85FF;
+  --accent:               #141414;
+  --accent-foreground:    #8052ff;
 
-  /* Destructive States */
   --destructive:          #f43f5e;
   --destructive-foreground: #ffffff;
 
-  /* Borders & Focus Rings */
-  --border:               rgba(244, 242, 236, 0.12);
-  --input:                #0D0D0D;
-  --ring:                 #2447FF;
-  --radius:               6px;
+  --border:               rgba(255, 255, 255, 0.1);
+  --input:                #000000;
+  --ring:                 #8052ff;
+  --radius:               24px;
 
-  /* Sidebar Tokens */
-  --sidebar-background:         #050505;
-  --sidebar-foreground:         #D6D3CA;
-  --sidebar-primary:            #2447FF;
-  --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent:             #0D0D0D;
-  --sidebar-accent-foreground:  #F4F2EC;
-  --sidebar-border:             rgba(244, 242, 236, 0.1);
-  --sidebar-ring:               #2447FF;
+  --sidebar-background:         #000000;
+  --sidebar-foreground:         #bdbdbd;
+  --sidebar-primary:            #8052ff;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent:             #0a0a0a;
+  --sidebar-accent-foreground:  #ffffff;
+  --sidebar-border:             rgba(255, 255, 255, 0.1);
+  --sidebar-ring:               #8052ff;
 
-  /* Chart Colors */
-  --chart-1: #2447FF;
-  --chart-2: #38bdf8;
-  --chart-3: #818cf8;
-  --chart-4: #10b981;
-  --chart-5: #a78bfa;
+  --chart-1: #8052ff;
+  --chart-2: #ffb829;
+  --chart-3: #15846e;
+  --chart-4: #38bdf8;
+  --chart-5: #e056fd;
 }
 
 .dark {
-  --background:           #050505;
-  --foreground:           #F4F2EC;
-  --card:                 #0D0D0D;
-  --card-foreground:      #F4F2EC;
-  --popover:              #0D0D0D;
-  --popover-foreground:   #F4F2EC;
-  --primary:              #2447FF;
-  --primary-foreground:   #FFFFFF;
-  --secondary:            #141414;
-  --secondary-foreground: #D6D3CA;
-  --muted:                #141414;
-  --muted-foreground:     #8C8C88;
-  --accent:               #1C1C1C;
-  --accent-foreground:    #6B85FF;
+  --background:           #000000;
+  --foreground:           #ffffff;
+  --card:                 #000000;
+  --card-foreground:      #ffffff;
+  --popover:              #000000;
+  --popover-foreground:   #ffffff;
+  --primary:              #8052ff;
+  --primary-foreground:   #ffffff;
+  --secondary:            #0a0a0a;
+  --secondary-foreground: #bdbdbd;
+  --muted:                #0a0a0a;
+  --muted-foreground:     #9a9a9a;
+  --accent:               #141414;
+  --accent-foreground:    #8052ff;
   --destructive:          #f43f5e;
   --destructive-foreground: #ffffff;
-  --border:               rgba(244, 242, 236, 0.12);
-  --input:                #0D0D0D;
-  --ring:                 #2447FF;
+  --border:               rgba(255, 255, 255, 0.1);
+  --input:                #000000;
+  --ring:                 #8052ff;
 }
 
 /* ── Base Layer ────────────────────────────────────────────────── */
@@ -188,25 +183,26 @@
 
   html {
     font-family: var(--font-body);
-    font-size: 15px; /* Refined compact editorial type scale across the entire app */
+    font-size: 15px;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     scroll-behavior: smooth;
     color-scheme: dark;
-    background-color: #050505;
+    background-color: #000000;
   }
 
   body {
-    background-color: #050505;
-    color: #F4F2EC;
+    background-color: #000000;
+    color: #ffffff;
     min-height: 100vh;
     overflow-x: hidden;
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
-    color: #F4F2EC;
-    letter-spacing: -0.035em;
+    color: #ffffff;
+    letter-spacing: -0.04em;
+    font-weight: 400;
   }
 
   code, pre, kbd, samp {
@@ -215,29 +211,29 @@
 
   input, textarea, select {
     font-family: var(--font-body);
-    background-color: #0D0D0D;
-    border: 1px solid rgba(244, 242, 236, 0.12);
-    border-radius: 6px;
-    color: #F4F2EC;
+    background-color: #000000;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 24px;
+    color: #ffffff;
     transition: border-color 0.15s ease, box-shadow 0.15s ease;
   }
 
   input:focus, textarea:focus, select:focus {
     outline: none;
-    border-color: #2447FF;
-    box-shadow: 0 0 0 2px rgba(36, 71, 255, 0.25);
+    border-color: #8052ff;
+    box-shadow: 0 0 0 2px rgba(128, 82, 255, 0.25);
   }
 
   input::placeholder, textarea::placeholder {
-    color: #8C8C88;
+    color: #9a9a9a;
   }
 
   /* Sleek Near-Black Scrollbar */
   ::-webkit-scrollbar { width: 5px; height: 5px; }
-  ::-webkit-scrollbar-track { background: #050505; }
-  ::-webkit-scrollbar-thumb { background: rgba(244, 242, 236, 0.14); border-radius: 2px; }
-  ::-webkit-scrollbar-thumb:hover { background: #2447FF; }
-  * { scrollbar-width: thin; scrollbar-color: rgba(244, 242, 236, 0.14) #050505; }
+  ::-webkit-scrollbar-track { background: #000000; }
+  ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.14); border-radius: 2px; }
+  ::-webkit-scrollbar-thumb:hover { background: #8052ff; }
+  * { scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, 0.14) #000000; }
 }
 
 /* ── Utilities & Editorial Visual Elements ──────────────────────── */
@@ -307,9 +303,9 @@
     border-radius: 3px;
   }
 
-  /* STATE 3: ELECTRIC COBALT BLUE (#2447FF) — Major Visual Field */
+  /* STATE 3: ELECTRIC IRIS (#8052ff) — Dala Visual Field */
   .section-electric {
-    background-color: #2447FF;
+    background-color: #8052ff;
     color: #FFFFFF;
   }
   .section-electric h1,
@@ -336,7 +332,7 @@
     background: rgba(255, 255, 255, 0.15);
     border: 1px solid rgba(255, 255, 255, 0.3);
     padding: 3px 8px;
-    border-radius: 3px;
+    border-radius: 9999px;
   }
 
   /* ── Editorial Display Typography Scale ─────────────────────── */
@@ -379,14 +375,15 @@
 
   /* Buttons */
   .btn-electric-primary {
-    background-color: #2447FF;
+    background-color: #8052ff;
     color: #FFFFFF;
     font-family: var(--font-body);
     font-weight: 600;
+    border-radius: 9999px;
     transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   }
   .btn-electric-primary:hover {
-    background-color: #1A3AE8;
+    background-color: #6e40f5;
     transform: translateY(-1px);
   }
 
@@ -395,10 +392,11 @@
     color: #F4F2EC;
     font-family: var(--font-body);
     font-weight: 600;
+    border-radius: 9999px;
     transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   }
   .btn-paper-primary:hover {
-    background-color: #2447FF;
+    background-color: #8052ff;
     color: #FFFFFF;
     transform: translateY(-1px);
   }
@@ -408,19 +406,20 @@
     width: 6px;
     height: 6px;
     border-radius: 9999px;
-    background-color: #2447FF;
+    background-color: #8052ff;
     display: inline-block;
   }
 
   /* Compatibility Shims for existing components */
   .btn-cobalt {
-    background: #2447FF;
+    background: #8052ff;
     color: #FFFFFF;
     font-weight: 600;
+    border-radius: 9999px;
     transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   }
   .btn-cobalt:hover {
-    background: #1A3AE8;
+    background: #6e40f5;
   }
   .btn-ghost-dark {
     background: transparent;
@@ -443,5 +442,113 @@
   @keyframes led-cobalt-pulse {
     0%, 100% { opacity: 1; }
     50%      { opacity: 0.4; }
+  }
+
+  /* ── Dala Signature UI Utilities (DESIGN(system).md) ── */
+  .btn-dala-primary {
+    background-color: #8052ff;
+    color: #ffffff;
+    border-radius: 9999px;
+    padding: 10px 22px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-family: var(--font-mono, monospace);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 0 20px rgba(128, 82, 255, 0.35);
+    line-height: 1;
+    white-space: nowrap;
+  }
+  .btn-dala-primary:hover {
+    background-color: #926aff;
+    transform: translateY(-1px);
+    box-shadow: 0 0 28px rgba(128, 82, 255, 0.5);
+  }
+  .btn-dala-primary:active {
+    transform: translateY(0);
+  }
+
+  .btn-dala-secondary {
+    background-color: rgba(255, 255, 255, 0.04);
+    color: #d4d4d8;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 9999px;
+    padding: 10px 22px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-family: var(--font-mono, monospace);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    line-height: 1;
+    white-space: nowrap;
+  }
+  .btn-dala-secondary:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.25);
+  }
+
+  .dala-title-hero {
+    font-family: var(--font-display);
+    font-size: clamp(48px, 8.5vw, 124px);
+    line-height: 0.94;
+    letter-spacing: -0.04em;
+    font-weight: 400;
+    color: #ffffff;
+  }
+
+  .dala-title-section {
+    font-family: var(--font-display);
+    font-size: clamp(32px, 5.5vw, 64px);
+    line-height: 1.08;
+    letter-spacing: -0.035em;
+    font-weight: 400;
+    color: #ffffff;
+  }
+
+  .dala-body-light {
+    font-family: var(--font-body);
+    font-size: clamp(17px, 2vw, 24px);
+    line-height: 1.55;
+    letter-spacing: -0.02em;
+    font-weight: 200;
+    color: #ffffff;
+  }
+
+  .dala-tag-amber {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    line-height: 1.2;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: #ffb829;
+  }
+
+  /* Dala mobile readability layer */
+  .mobile-blur {
+    position: relative;
+    z-index: 10;
+  }
+  @media (max-width: 1023px) {
+    .mobile-blur {
+      background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.82) 0%, rgba(0, 0, 0, 0.5) 75%, transparent 100%);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      padding: 1rem;
+      border-radius: 1rem;
+      max-width: 100%;
+      box-sizing: border-box;
+    }
   }
 }

@@ -24,6 +24,7 @@ export async function POST(req: Request) {
       title: sessionTitle,
       type,
       difficulty,
+      target_role: target_role || null,
       status: 'in_progress',
     }
 

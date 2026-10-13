@@ -26,23 +26,23 @@ export default async function HistoryPage() {
     .order('created_at', { ascending: false })
 
   return (
-    <div className="p-4 sm:p-6 md:p-8 max-w-[1300px] mx-auto space-y-8 pb-32 sm:pb-16">
+    <div className="p-4 sm:p-6 md:p-8 max-w-[1300px] mx-auto space-y-8 pb-32 sm:pb-16 font-sans">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 mb-2 font-mono text-[11px] text-[#2447FF] uppercase tracking-widest font-semibold">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#2447FF]" />
+          <div className="flex items-center gap-2 mb-2 font-mono text-[11px] text-[#8052ff] uppercase tracking-widest font-semibold">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#8052ff]" />
             <span>[ARCHIVE // 06] SESSION TIMELINE</span>
           </div>
-          <h1 className="font-display text-[32px] sm:text-[40px] font-bold text-[#F4F2EC] leading-[1.05] tracking-[-0.03em]">
+          <h1 className="font-sans text-3xl sm:text-4xl font-light text-white tracking-tight">
             Interview History
           </h1>
-          <p className="font-body text-[14px] sm:text-[15px] text-[#8C8C88] mt-2">
+          <p className="font-sans text-sm sm:text-base text-white/60 font-light mt-2">
             Chronological log of diagnostic scores, weaknesses, and performance evaluations.
           </p>
         </div>
         <Link 
           href="/interview/new" 
-          className="bg-[#2447FF] hover:bg-[#1f3ce0] text-white inline-flex items-center gap-2 font-mono text-[12px] font-semibold uppercase tracking-wider px-6 py-3 rounded-xl shadow-md transition-all cursor-pointer"
+          className="btn-dala-primary inline-flex items-center gap-2 px-6 py-2.5 cursor-pointer shrink-0"
         >
           <Mic className="h-4 w-4" />
           <span>Launch Simulation</span>
@@ -61,15 +61,15 @@ export default async function HistoryPage() {
           ))}
         </div>
       ) : (
-        <div className="rounded-2xl border border-white/10 bg-[#0D0D0D] p-16 text-center shadow-xl">
-          <HistoryIcon className="h-12 w-12 mx-auto mb-4 text-[#8C8C88]" />
-          <span className="font-mono text-[11px] text-[#8C8C88] uppercase tracking-widest block mb-2">// NO SESSIONS LOGGED</span>
-          <p className="font-body text-[15px] text-[#8C8C88] mt-2 mb-6 max-w-md mx-auto">
+        <div className="rounded-3xl border border-white/10 bg-[#0a0a0a] p-16 text-center shadow-xl">
+          <HistoryIcon className="h-12 w-12 mx-auto mb-4 text-[#8052ff]" />
+          <span className="font-mono text-[11px] text-white/40 uppercase tracking-widest block mb-2 font-semibold">// NO SESSIONS LOGGED</span>
+          <p className="font-sans text-[15px] text-white/60 font-light mt-2 mb-6 max-w-md mx-auto">
             You haven&apos;t completed any mock interview runs yet. Start your first session to calibrate your readiness score.
           </p>
           <Link 
             href="/interview/new" 
-            className="bg-[#2447FF] hover:bg-[#1f3ce0] text-white inline-flex items-center gap-2 font-mono text-[12px] font-semibold uppercase tracking-wider px-6 py-3.5 rounded-xl shadow-md cursor-pointer"
+            className="bg-[#8052ff] hover:bg-[#6e40f5] text-white inline-flex items-center gap-2 font-mono text-xs font-semibold uppercase tracking-wider px-6 py-3.5 rounded-full shadow-md cursor-pointer transition-all"
           >
             Start Your First Interview
           </Link>

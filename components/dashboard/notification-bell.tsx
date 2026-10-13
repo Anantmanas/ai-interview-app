@@ -20,37 +20,37 @@ const TYPE_CONFIG: Record<string, { icon: string; badge: string; badgeColor: str
   start_journey: {
     icon: '🚀',
     badge: 'JOURNEY',
-    badgeColor: 'text-[#2447FF] bg-[#2447FF]/10 border-[#2447FF]/30',
+    badgeColor: 'text-[#8052ff] bg-[#8052ff]/10 border-[#8052ff]/30',
   },
   marketing: {
     icon: '⚡',
     badge: 'PRO OFFER',
-    badgeColor: 'text-[#F59E0B] bg-[#F59E0B]/10 border-[#F59E0B]/30',
+    badgeColor: 'text-[#ffb829] bg-[#ffb829]/10 border-[#ffb829]/30',
   },
   resume_grounding: {
     icon: '📄',
     badge: 'GROUNDING',
-    badgeColor: 'text-[#38BDF8] bg-[#38BDF8]/10 border-[#38BDF8]/30',
+    badgeColor: 'text-[#8052ff] bg-[#8052ff]/10 border-[#8052ff]/30',
   },
   roadmap_ready: {
     icon: '🗺️',
     badge: 'STUDY PLAN',
-    badgeColor: 'text-[#10B981] bg-[#10B981]/10 border-[#10B981]/30',
+    badgeColor: 'text-[#15846e] bg-[#15846e]/10 border-[#15846e]/30',
   },
   daily_challenge: {
     icon: '🔥',
     badge: 'WARMUP',
-    badgeColor: 'text-[#EC4899] bg-[#EC4899]/10 border-[#EC4899]/30',
+    badgeColor: 'text-[#ffb829] bg-[#ffb829]/10 border-[#ffb829]/30',
   },
   interview_complete: {
     icon: '🎯',
     badge: 'COMPLETED',
-    badgeColor: 'text-[#10B981] bg-[#10B981]/10 border-[#10B981]/30',
+    badgeColor: 'text-[#15846e] bg-[#15846e]/10 border-[#15846e]/30',
   },
   system: {
     icon: '🔔',
     badge: 'SYSTEM',
-    badgeColor: 'text-[#8C8C88] bg-white/[0.05] border-white/10',
+    badgeColor: 'text-[#9a9a9a] bg-white/[0.05] border-white/10',
   },
 }
 
@@ -160,7 +160,7 @@ export function NotificationBell() {
           <motion.span
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
-            className="absolute -top-1 -right-1 h-4 min-w-4 px-1 rounded-full bg-[#2447FF] text-white font-mono text-[9px] font-bold flex items-center justify-center shadow-[0_0_10px_rgba(36,71,255,0.7)]"
+            className="absolute -top-1 -right-1 h-4 min-w-4 px-1 rounded-full bg-[#8052ff] text-white font-mono text-[9px] font-bold flex items-center justify-center shadow-[0_0_10px_rgba(128,82,255,0.7)]"
           >
             {unreadCount > 9 ? '9+' : unreadCount}
           </motion.span>
@@ -174,16 +174,16 @@ export function NotificationBell() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 6, scale: 0.98 }}
             transition={{ duration: 0.16, ease: 'easeOut' }}
-            className="absolute right-0 top-11 z-50 w-[350px] max-w-[calc(100vw-24px)] bg-[#0A0A0A] border border-white/10 rounded-xl shadow-[0_20px_60px_rgba(0,0,0,0.85)] overflow-hidden"
+            className="absolute right-0 top-11 z-50 w-[350px] max-w-[calc(100vw-24px)] bg-[#0A0A0A] border border-white/10 rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.85)] overflow-hidden"
           >
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.08] bg-white/[0.02]">
               <div className="flex items-center gap-2">
-                <span className="font-mono text-[11px] font-bold text-[#F4F2EC] uppercase tracking-[0.1em]">
+                <span className="font-mono text-[11px] font-bold text-white uppercase tracking-[0.1em]">
                   Notifications
                 </span>
                 {unreadCount > 0 && (
-                  <span className="font-mono text-[10px] text-[#2447FF] bg-[#2447FF]/15 border border-[#2447FF]/30 px-1.5 py-0.2 rounded font-semibold">
+                  <span className="font-mono text-[10px] text-[#8052ff] bg-[#8052ff]/15 border border-[#8052ff]/30 px-1.5 py-0.2 rounded-full font-semibold">
                     {unreadCount} new
                   </span>
                 )}
@@ -191,9 +191,9 @@ export function NotificationBell() {
               {unreadCount > 0 && (
                 <button
                   onClick={markAllRead}
-                  className="flex items-center gap-1 font-mono text-[10px] text-[#8C8C88] hover:text-white uppercase tracking-[0.06em] transition-colors"
+                  className="flex items-center gap-1 font-mono text-[10px] text-[#9a9a9a] hover:text-white uppercase tracking-[0.06em] transition-colors"
                 >
-                  <CheckCheck className="h-3 w-3 text-[#2447FF]" />
+                  <CheckCheck className="h-3 w-3 text-[#8052ff]" />
                   <span>Mark all read</span>
                 </button>
               )}
@@ -204,7 +204,7 @@ export function NotificationBell() {
               {notifications.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12 text-center">
                   <Bell className="h-6 w-6 text-white/20 mb-2" />
-                  <p className="font-mono text-[11px] text-[#8C8C88] uppercase tracking-[0.06em]">
+                  <p className="font-mono text-[11px] text-[#9a9a9a] uppercase tracking-[0.06em]">
                     No notifications yet
                   </p>
                 </div>
@@ -216,7 +216,7 @@ export function NotificationBell() {
                       key={n.id}
                       onClick={() => handleNotificationClick(n)}
                       className={`p-3.5 cursor-pointer transition-colors hover:bg-white/[0.04] text-left group ${
-                        !n.read ? 'bg-[#2447FF]/[0.04]' : 'opacity-85'
+                        !n.read ? 'bg-[#8052ff]/[0.05]' : 'opacity-85'
                       }`}
                     >
                       <div className="flex items-start gap-3">
@@ -229,33 +229,33 @@ export function NotificationBell() {
                               {cfg.badge}
                             </span>
                             <div className="flex items-center gap-1.5">
-                              <span className="font-mono text-[10px] text-[#8C8C88]">
+                              <span className="font-mono text-[10px] text-[#9a9a9a]">
                                 {timeAgo(n.created_at)}
                               </span>
                               {!n.read && (
-                                <span className="h-1.5 w-1.5 rounded-full bg-[#2447FF] shadow-[0_0_6px_#2447FF] shrink-0" />
+                                <span className="h-1.5 w-1.5 rounded-full bg-[#8052ff] shadow-[0_0_6px_#8052ff] shrink-0" />
                               )}
                             </div>
                           </div>
 
                           <p
-                            className={`font-display text-[13px] leading-snug mb-1 transition-colors ${
+                            className={`font-sans text-[13px] leading-snug mb-1 transition-colors ${
                               !n.read
-                                ? 'text-[#F4F2EC] font-semibold group-hover:text-white'
-                                : 'text-[#A09E96]'
+                                ? 'text-white font-medium group-hover:text-white'
+                                : 'text-[#bdbdbd]'
                             }`}
                           >
                             {n.title}
                           </p>
 
                           {n.body && (
-                            <p className="font-body text-[12px] text-[#8C8C88] leading-relaxed line-clamp-2">
+                            <p className="font-sans text-[12px] text-[#9a9a9a] font-light leading-relaxed line-clamp-2">
                               {n.body}
                             </p>
                           )}
 
                           {n.action_url && (
-                            <div className="mt-2 flex items-center gap-1 font-mono text-[10px] text-[#2447FF] group-hover:text-[#4B6BFF] uppercase tracking-[0.06em] font-medium">
+                            <div className="mt-2 flex items-center gap-1 font-mono text-[10px] text-[#8052ff] group-hover:text-[#a882ff] uppercase tracking-[0.06em] font-medium">
                               <span>Action</span>
                               <ArrowRight className="h-2.5 w-2.5 transition-transform group-hover:translate-x-0.5" />
                             </div>

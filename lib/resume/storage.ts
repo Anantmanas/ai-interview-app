@@ -46,3 +46,42 @@ export async function deleteFromUploadThing(fileUrlOrKey: string | null | undefi
     return false
   }
 }
+
+/**
+ * Uploads a resume File to UploadThing storage and returns its CDN URL and file key.
+ */
+export async function uploadToUploadThing(file: File): Promise<{ url: string; key: string } | null> {
+  const token = process.env.UPLOADTHING_TOKEN
+  if (!token) {
+    console.warn('[UploadThing] UPLOADTHING_TOKEN not configured in environment; skipping remote upload.')
+    return null
+  }
+
+  try {
+    const utapi = new UTApi()
+    console.log('[UploadThing] Uploading file to storage:', file.name, `(${file.size} bytes)`)
+    const res = await utapi.uploadFiles(file)
+    const fileData = Array.isArray(res) ? res[0]?.data : res?.data
+    const fileError = Array.isArray(res) ? res[0]?.error : res?.error
+
+    if (fileError) {
+      console.error('[UploadThing] Upload returned error:', fileError)
+      return null
+    }
+
+    if (fileData) {
+      const cdnUrl = (fileData as any).ufsUrl || fileData.url
+      console.log('[UploadThing] Upload successful:', fileData.key, cdnUrl)
+      return {
+        url: cdnUrl,
+        key: fileData.key,
+      }
+    }
+
+    return null
+  } catch (error) {
+    console.error('[UploadThing] Failed to upload file to UploadThing:', error)
+    return null
+  }
+}
+

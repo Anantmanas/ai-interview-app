@@ -126,7 +126,7 @@ export function ResumeProvider({ children }: { children: ReactNode }) {
   const [extractionError, setExtractionError] = useState<string | null>(null)
   const [limitModalOpen, setLimitModalOpen] = useState(false)
 
-  const isLimitReached = storedResumes.length >= 2
+  const isLimitReached = false
 
   const activeResumeId = storedResumes.find(r => r.isActive)?.id || (storedResumes[0]?.id ?? null)
 
@@ -230,12 +230,6 @@ export function ResumeProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const handleResumeUpload = async (file: File, source: ResumeMeta['source']): Promise<boolean> => {
-    if (storedResumes.length >= 2) {
-      setLimitModalOpen(true)
-      setExtractionError('Maximum 2 resumes allowed. Please remove at least 1 previous resume to upload a new one.')
-      return false
-    }
-
     setUploadingFileName(file.name)
     setIsExtracting(true)
     setExtractionError(null)

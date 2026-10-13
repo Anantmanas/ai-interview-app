@@ -10,7 +10,11 @@ const f = createUploadthing();
 
 
 export const ourFileRouter = {
-  resumeUploader: f({ pdf: { maxFileSize: "4MB" } })
+  resumeUploader: f({
+    blob: { maxFileSize: "16MB" },
+    pdf: { maxFileSize: "16MB" },
+    text: { maxFileSize: "16MB" },
+  })
     .middleware(async ({ req }) => {
       const supabase = await createClient();
       const { data: { user } } = await supabase.auth.getUser();

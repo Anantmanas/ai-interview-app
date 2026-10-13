@@ -29,9 +29,6 @@ export default function ResumePage() {
     activeResumeId,
     deleteResume,
     activateResume,
-    isLimitReached,
-    limitModalOpen,
-    setLimitModalOpen,
   } = useResume()
 
   const [deletingId, setDeletingId] = useState<string | null>(null)
@@ -43,9 +40,6 @@ export default function ResumePage() {
     try {
       await deleteResume(id)
       setConfirmDeleteId(null)
-      if (limitModalOpen && storedResumes.length <= 2) {
-        setLimitModalOpen(false)
-      }
     } finally {
       setDeletingId(null)
     }
@@ -63,26 +57,26 @@ export default function ResumePage() {
   return (
     <div className="p-4 sm:p-6 md:p-8 max-w-4xl mx-auto space-y-8 pb-32 sm:pb-16">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#142347] pb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-6">
         <div>
-          <p className="font-mono text-[11px] text-[#38bdf8] uppercase tracking-[0.15em] mb-1 font-semibold">
+          <p className="font-mono text-[11px] text-[#8052ff] uppercase tracking-[0.18em] mb-1 font-semibold">
             // GROUNDING ASSETS & STORAGE
           </p>
-          <h1 className="font-display text-[28px] sm:text-[32px] font-bold text-white leading-[1.1] tracking-[-0.03em]">
+          <h1 className="font-display text-[28px] sm:text-[34px] font-normal text-white leading-[1.1] tracking-[-0.03em]">
             Resume Management
           </h1>
-          <p className="font-body text-[13px] sm:text-[14px] text-[#94a3b8] mt-1">
-            Store up to 2 resumes. Select your active resume to ground AI mock interviews and test questions.
+          <p className="font-sans text-[13px] sm:text-[14px] text-zinc-400 mt-1 font-light">
+            Store and manage your engineering resumes. Select your active resume to ground AI mock interviews and test questions.
           </p>
         </div>
 
-        {/* Capacity Indicator Pill */}
-        <div className="flex items-center gap-3 self-start sm:self-auto bg-[#0a1226] border border-[#142347] px-3.5 py-2 rounded-xl">
-          <Layers className="w-4 h-4 text-[#38bdf8]" />
+        {/* Profiles Count Indicator Pill */}
+        <div className="flex items-center gap-3 self-start sm:self-auto bg-white/[0.03] border border-white/10 px-4 py-2 rounded-2xl backdrop-blur-xl">
+          <Layers className="w-4 h-4 text-[#8052ff]" />
           <div className="text-xs font-mono">
-            <span className="text-[#64748b]">STORAGE SLOTS: </span>
-            <span className={storedResumes.length >= 2 ? 'text-[#f59e0b] font-bold' : 'text-[#22c55e] font-bold'}>
-              {storedResumes.length} / 2
+            <span className="text-zinc-500 uppercase">STORED PROFILES: </span>
+            <span className="text-[#8052ff] font-bold">
+              {storedResumes.length}
             </span>
           </div>
         </div>
@@ -97,29 +91,23 @@ export default function ResumePage() {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <h2 className="font-display text-lg font-semibold text-white">Stored Documents</h2>
-            <span className="font-mono text-xs px-2.5 py-0.5 rounded-full bg-[#0a1226] border border-[#2563eb]/40 text-[#60a5fa] font-semibold">
-              {storedResumes.length} of 2
+            <h2 className="font-display text-lg font-normal text-white">Stored Documents</h2>
+            <span className="font-mono text-xs px-3 py-0.5 rounded-full bg-white/[0.04] border border-white/10 text-white/70 font-semibold">
+              {storedResumes.length} {storedResumes.length === 1 ? 'profile' : 'profiles'}
             </span>
           </div>
-          {isLimitReached && (
-            <span className="font-mono text-[11px] text-[#f59e0b] flex items-center gap-1.5 bg-[#2a1a10] border border-[#5c3716] px-2.5 py-1 rounded-md">
-              <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
-              <span>Limit reached — remove 1 to add new</span>
-            </span>
-          )}
         </div>
 
         {storedResumes.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-[#142347] bg-[#060b18]/60 p-8 text-center">
-            <FileText className="w-8 h-8 text-[#475569] mx-auto mb-3" />
-            <p className="font-mono text-sm text-[#94a3b8]">No resumes stored yet</p>
-            <p className="font-body text-xs text-[#64748b] mt-1">
-              Upload your first resume above to calibrate personalized AI interview questions.
+          <div className="rounded-3xl border border-dashed border-white/10 bg-white/[0.02] p-10 text-center">
+            <FileText className="w-8 h-8 text-zinc-500 mx-auto mb-3" />
+            <p className="font-mono text-sm text-zinc-300">No resumes stored yet</p>
+            <p className="font-sans text-xs text-zinc-500 mt-1 font-light">
+              Upload your engineering resume above to calibrate personalized AI interview questions.
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-5">
+          <div className="grid grid-cols-1 gap-6">
             {storedResumes.map((resume, idx) => {
               const isActive = resume.isActive || resume.id === activeResumeId
               const data = resume.data
@@ -134,33 +122,33 @@ export default function ResumePage() {
               return (
                 <div
                   key={resume.id || resume.versionId || idx}
-                  className={`rounded-xl border transition-all overflow-hidden ${
+                  className={`rounded-3xl border transition-all overflow-hidden font-sans ${
                     isActive
-                      ? 'border-[#2563eb] bg-[#0a1226] shadow-[0_0_35px_rgba(37,99,235,0.22),inset_0_1px_0_rgba(255,255,255,0.08)]'
-                      : 'border-[#142347] bg-[#060b18] hover:border-[#1e3a8a]'
+                      ? 'border-[#8052ff]/50 bg-white/[0.04] backdrop-blur-2xl shadow-[0_20px_60px_rgba(128,82,255,0.12)]'
+                      : 'border-white/10 bg-white/[0.03] backdrop-blur-2xl hover:border-white/20 shadow-[0_20px_60px_rgba(0,0,0,0.5)]'
                   }`}
                 >
-                  {/* macOS Titlebar */}
-                  <div className="flex items-center justify-between px-4 h-11 border-b border-[#142347] bg-[#0a1226]/90 select-none">
-                    <div className="flex items-center gap-3">
-                      <MacTrafficLights size="sm" />
-                      <span className="font-mono text-[11px] text-[#cbd5e1] font-medium tracking-wide truncate max-w-[200px] sm:max-w-xs">
+                  {/* Titlebar */}
+                  <div className="flex items-center justify-between px-6 sm:px-7 h-12 border-b border-white/10 bg-white/[0.02] select-none">
+                    <div className="flex items-center gap-2.5">
+                      <span className={`w-1.5 h-1.5 rounded-full ${isActive ? 'bg-[#8052ff] shadow-[0_0_8px_#8052ff]' : 'bg-zinc-500'}`} />
+                      <span className="font-mono text-[11px] text-zinc-300 font-medium tracking-wide truncate max-w-[200px] sm:max-w-xs">
                         {resume.fileName || `resume_${idx + 1}.pdf`}
                       </span>
                     </div>
 
                     <div className="flex items-center gap-2">
                       {isActive ? (
-                        <div className="flex items-center gap-1.5 bg-[#22c55e]/10 border border-[#22c55e]/30 px-2.5 py-0.5 rounded-full">
-                          <span className="h-2 w-2 rounded-full bg-[#22c55e] led-pulse" />
-                          <span className="font-mono text-[10px] text-[#22c55e] uppercase tracking-wider font-semibold">
+                        <div className="flex items-center gap-1.5 bg-[#15846e]/20 border border-[#15846e]/40 px-3 py-0.5 rounded-full">
+                          <span className="h-1.5 w-1.5 rounded-full bg-[#15846e] shadow-[0_0_6px_#15846e]" />
+                          <span className="font-mono text-[10px] text-[#15846e] uppercase tracking-wider font-semibold">
                             ACTIVE GROUNDING
                           </span>
                         </div>
                       ) : (
-                        <div className="flex items-center gap-1.5 bg-[#060b18] border border-[#142347] px-2.5 py-0.5 rounded-full">
-                          <span className="h-1.5 w-1.5 rounded-full bg-[#64748b]" />
-                          <span className="font-mono text-[10px] text-[#94a3b8] uppercase tracking-wider font-medium">
+                        <div className="flex items-center gap-1.5 bg-white/5 border border-white/10 px-3 py-0.5 rounded-full">
+                          <span className="h-1.5 w-1.5 rounded-full bg-zinc-500" />
+                          <span className="font-mono text-[10px] text-zinc-400 uppercase tracking-wider font-medium">
                             STANDBY
                           </span>
                         </div>
@@ -168,50 +156,48 @@ export default function ResumePage() {
                     </div>
                   </div>
 
-                  {/* Terminal Header Bar */}
-                  <div className="px-3 sm:px-5 py-2.5 border-b border-[#142347]/50 bg-[#040814]/70 flex flex-wrap items-center justify-between gap-2 font-mono text-[11px] sm:text-[12px]">
-                    <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-                      <span className="text-[#38bdf8] font-semibold">sys@interviewai</span>
-                      <span className="text-[#94a3b8]">:</span>
-                      <span className="text-[#60a5fa]">~/resumes/slot_{idx + 1}</span>
-                      <span className="text-[#f8fafc]">$</span>
-                      <span className="text-[#22c55e] break-all">inspect --detailed</span>
+                  {/* Header Sub-bar */}
+                  <div className="px-6 sm:px-7 py-2.5 border-b border-white/10 bg-white/[0.01] flex flex-wrap items-center justify-between gap-2 font-mono text-[11px]">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-[#8052ff] font-semibold">DOC // #{String(idx + 1).padStart(2, '0')}</span>
+                      <span className="text-white/20">•</span>
+                      <span className="text-zinc-400 truncate max-w-[220px]">{resume.fileName}</span>
                     </div>
-                    <div className="flex items-center gap-1 text-[10px] sm:text-[11px] text-[#64748b] shrink-0">
-                      <Calendar className="w-3 h-3" />
+                    <div className="flex items-center gap-1.5 text-[11px] text-zinc-500 shrink-0">
+                      <Calendar className="w-3 h-3 text-[#8052ff]" />
                       <span>{new Date(resume.uploadedAt).toLocaleDateString()}</span>
                     </div>
                   </div>
 
                   {/* Body Content */}
-                  <div className="p-5 sm:p-6 space-y-5">
+                  <div className="p-6 sm:p-7 space-y-5">
                     {/* Meta summary grid */}
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs font-mono bg-[#040814] border border-[#142347] p-3.5 rounded-lg">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs font-mono bg-white/[0.02] border border-white/10 p-4 rounded-2xl">
                       <div>
-                        <span className="text-[#64748b] uppercase block text-[10px] mb-0.5 font-semibold">CANDIDATE</span>
-                        <span className="text-white font-medium">{candidateDisplayName}</span>
+                        <span className="text-white/40 uppercase block text-[10px] mb-1 font-semibold tracking-wider">CANDIDATE</span>
+                        <span className="text-white font-medium text-sm font-sans">{candidateDisplayName}</span>
                       </div>
                       <div>
-                        <span className="text-[#64748b] uppercase block text-[10px] mb-0.5 font-semibold">TARGET ROLE</span>
-                        <span className="text-[#60a5fa] font-medium">{data?.targetRole || resume.targetRole || 'Software Engineer'}</span>
+                        <span className="text-white/40 uppercase block text-[10px] mb-1 font-semibold tracking-wider">TARGET ROLE</span>
+                        <span className="text-[#8052ff] font-medium">{data?.targetRole || resume.targetRole || 'Software Engineer'}</span>
                       </div>
                       <div>
-                        <span className="text-[#64748b] uppercase block text-[10px] mb-0.5 font-semibold">SKILLS DETECTED</span>
-                        <span className="text-[#22c55e] font-medium">{data?.skills?.length ?? 0} technologies</span>
+                        <span className="text-white/40 uppercase block text-[10px] mb-1 font-semibold tracking-wider">SKILLS DETECTED</span>
+                        <span className="text-[#15846e] font-medium">{data?.skills?.length ?? 0} technologies</span>
                       </div>
                     </div>
 
                     {/* Summary (if present) */}
                     {data?.summary && (
-                      <div className="text-xs text-[#cbd5e1] bg-[#060b18] border border-[#142347] p-3 rounded-lg leading-relaxed font-body">
-                        <span className="font-mono text-[10px] uppercase text-[#38bdf8] block mb-1 font-semibold">// PROFESSIONAL SUMMARY</span>
+                      <div className="text-xs text-zinc-300 bg-white/[0.02] border border-white/10 p-4 rounded-2xl leading-relaxed font-sans">
+                        <span className="font-mono text-[10px] uppercase text-[#8052ff] block mb-1.5 font-semibold tracking-wider">// PROFESSIONAL SUMMARY</span>
                         {data.summary}
                       </div>
                     )}
 
                     {/* Extracted Skills */}
                     <div>
-                      <p className="font-mono text-[10px] uppercase text-[#64748b] tracking-[0.1em] mb-2.5 font-semibold">
+                      <p className="font-mono text-[10px] uppercase text-white/50 tracking-[0.16em] mb-2.5 font-semibold">
                         TECHNICAL STACK ({data?.skills?.length ?? 0})
                       </p>
                       <div className="flex flex-wrap gap-2">
@@ -219,31 +205,31 @@ export default function ResumePage() {
                           data.skills.map((skill: string) => (
                             <div
                               key={skill}
-                              className="group inline-flex items-center gap-1.5 bg-[#060b18] hover:bg-[#0f1b38] border border-[#142347] hover:border-[#2563eb] rounded-lg px-2.5 py-1 transition-all"
+                              className="group inline-flex items-center gap-2 bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 hover:border-[#8052ff]/40 rounded-full px-3 py-1.5 transition-all shadow-sm"
                             >
                               <SkillIcon skill={skill} className="w-3.5 h-3.5 shrink-0" size={14} />
-                              <span className="font-mono text-[11px] font-medium text-[#f8fafc] group-hover:text-[#60a5fa] transition-colors">
+                              <span className="font-mono text-[11px] font-medium text-white group-hover:text-[#8052ff] transition-colors">
                                 {skill}
                               </span>
                             </div>
                           ))
                         ) : (
-                          <span className="font-mono text-[11px] text-[#64748b]">No technical skills extracted</span>
+                          <span className="font-mono text-[11px] text-zinc-500">No technical skills extracted</span>
                         )}
                       </div>
                     </div>
 
                     {/* Experience & Education Highlights */}
                     {((data?.experience && data.experience.length > 0) || (data?.education && data.education.length > 0)) && (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-[#142347]/60">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-white/10">
                         {data?.experience && data.experience.length > 0 && (
-                          <div className="space-y-1.5">
-                            <span className="font-mono text-[10px] text-[#64748b] uppercase font-semibold flex items-center gap-1">
-                              <Briefcase className="w-3 h-3 text-[#38bdf8]" /> EXPERIENCE
+                          <div className="space-y-2">
+                            <span className="font-mono text-[10px] text-white/50 uppercase font-semibold flex items-center gap-1.5 tracking-wider">
+                              <Briefcase className="w-3 h-3 text-[#8052ff]" /> EXPERIENCE
                             </span>
-                            <div className="space-y-1">
+                            <div className="space-y-1.5">
                               {data.experience.slice(0, 2).map((exp, eIdx) => (
-                                <p key={eIdx} className="text-xs text-[#cbd5e1] font-mono truncate">
+                                <p key={eIdx} className="text-xs text-zinc-300 font-mono truncate">
                                   • <strong className="text-white">{exp.role}</strong> at {exp.company}
                                 </p>
                               ))}
@@ -252,13 +238,13 @@ export default function ResumePage() {
                         )}
 
                         {data?.education && data.education.length > 0 && (
-                          <div className="space-y-1.5">
-                            <span className="font-mono text-[10px] text-[#64748b] uppercase font-semibold flex items-center gap-1">
-                              <GraduationCap className="w-3 h-3 text-[#22c55e]" /> EDUCATION
+                          <div className="space-y-2">
+                            <span className="font-mono text-[10px] text-white/50 uppercase font-semibold flex items-center gap-1.5 tracking-wider">
+                              <GraduationCap className="w-3 h-3 text-[#15846e]" /> EDUCATION
                             </span>
-                            <div className="space-y-1">
+                            <div className="space-y-1.5">
                               {data.education.slice(0, 2).map((edu, edIdx) => (
-                                <p key={edIdx} className="text-xs text-[#cbd5e1] font-mono truncate">
+                                <p key={edIdx} className="text-xs text-zinc-300 font-mono truncate">
                                   • {edu}
                                 </p>
                               ))}
@@ -269,10 +255,10 @@ export default function ResumePage() {
                     )}
 
                     {/* Actions Toolbar */}
-                    <div className="pt-3 border-t border-[#142347]/80 flex flex-wrap items-center justify-between gap-3">
+                    <div className="pt-4 border-t border-white/10 flex flex-wrap items-center justify-between gap-3">
                       <div className="flex items-center gap-2">
                         {isActive ? (
-                          <div className="inline-flex items-center gap-1.5 font-mono text-[11px] text-[#22c55e] bg-[#22c55e]/10 px-3 py-1.5 rounded-lg border border-[#22c55e]/20">
+                          <div className="inline-flex items-center gap-2 font-mono text-[11px] text-[#15846e] bg-[#15846e]/15 px-3.5 py-1.5 rounded-full border border-[#15846e]/30 font-semibold">
                             <CheckCircle2 className="w-3.5 h-3.5" />
                             <span>Currently Grounding Mock Interviews</span>
                           </div>
@@ -281,7 +267,7 @@ export default function ResumePage() {
                             type="button"
                             onClick={() => handleActivate(resume.id || resume.versionId || '')}
                             disabled={isActivating || isDeleting}
-                            className="bg-gradient-to-r from-[#2563eb] to-[#1d4ed8] text-white hover:from-[#3b82f6] hover:to-[#2563eb] border border-[#3b82f6]/40 font-mono text-[11px] font-bold uppercase tracking-[0.05em] px-4 py-2 rounded-lg cursor-pointer inline-flex items-center gap-1.5 shadow-[0_0_20px_rgba(37,99,235,0.35)] transition-all hover:scale-[1.02] disabled:opacity-50"
+                            className="btn-dala-primary inline-flex items-center gap-2 font-mono text-[11px] font-bold uppercase tracking-wider px-5 py-2 rounded-full cursor-pointer shadow-[0_0_20px_rgba(128,82,255,0.3)] transition-all hover:scale-[1.02] disabled:opacity-50"
                           >
                             {isActivating ? <Spinner className="w-3.5 h-3.5" /> : <Check className="w-3.5 h-3.5" />}
                             <span>Use This Resume</span>
@@ -292,20 +278,20 @@ export default function ResumePage() {
                       {/* Delete / Remove with Confirmation */}
                       <div>
                         {isConfirmingDelete ? (
-                          <div className="flex items-center gap-2 bg-[#2a0e15] border border-[#5c1d28] p-1.5 rounded-lg">
-                            <span className="font-mono text-[11px] text-[#f87171] px-1">Purge from DB & Storage?</span>
+                          <div className="flex items-center gap-2 bg-[#f43f5e]/10 border border-[#f43f5e]/30 p-1.5 rounded-full">
+                            <span className="font-mono text-[11px] text-[#f43f5e] px-2">Purge document?</span>
                             <button
                               type="button"
                               onClick={() => handleDelete(resume.id || resume.versionId || '')}
                               disabled={isDeleting}
-                              className="font-mono text-[11px] bg-[#dc2626] hover:bg-[#b91c1c] text-white px-2.5 py-1 rounded cursor-pointer transition-colors"
+                              className="font-mono text-[11px] bg-[#f43f5e] hover:bg-[#e11d48] text-white px-3 py-1 rounded-full cursor-pointer transition-colors"
                             >
                               {isDeleting ? <Spinner className="w-3 h-3" /> : 'Yes, Delete'}
                             </button>
                             <button
                               type="button"
                               onClick={() => setConfirmDeleteId(null)}
-                              className="font-mono text-[11px] text-[#9ca3af] hover:text-white px-2 py-1 cursor-pointer"
+                              className="font-mono text-[11px] text-zinc-400 hover:text-white px-2 py-1 cursor-pointer"
                             >
                               Cancel
                             </button>
@@ -315,7 +301,7 @@ export default function ResumePage() {
                             type="button"
                             onClick={() => setConfirmDeleteId(resume.id || resume.versionId || '')}
                             disabled={isDeleting}
-                            className="inline-flex items-center gap-1.5 font-mono text-[11px] text-[#ef4444] hover:text-[#f87171] bg-[#1a0f14] hover:bg-[#26131b] border border-[#3f1922] hover:border-[#5c1d28] px-3 py-1.5 rounded-lg transition-all cursor-pointer"
+                            className="inline-flex items-center gap-1.5 font-mono text-[11px] text-[#f43f5e] hover:text-white bg-[#f43f5e]/10 hover:bg-[#f43f5e]/20 border border-[#f43f5e]/20 hover:border-[#f43f5e]/40 px-3.5 py-1.5 rounded-full transition-all cursor-pointer"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                             <span>Remove</span>
@@ -333,84 +319,6 @@ export default function ResumePage() {
 
       {/* Target Job Description ATS Matcher */}
       <ATSMatcherCard />
-
-      {/* Storage Limit Exceeded Popup Modal */}
-      {limitModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
-          <div className="w-full max-w-lg rounded-2xl border border-[#f59e0b]/40 bg-[#060b18] shadow-[0_0_50px_rgba(245,158,11,0.25)] overflow-hidden">
-            {/* Modal Titlebar */}
-            <div className="flex items-center justify-between px-5 h-12 border-b border-[#142347] bg-[#0a1226]">
-              <div className="flex items-center gap-2.5 text-[#f59e0b]">
-                <AlertTriangle className="w-5 h-5" />
-                <span className="font-display font-semibold text-sm text-white">Storage Slot Limit Reached (2 of 2)</span>
-              </div>
-              <button
-                type="button"
-                onClick={() => setLimitModalOpen(false)}
-                className="text-[#9ca3af] hover:text-white p-1 rounded-lg hover:bg-[#0f1b38] cursor-pointer"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Modal Content */}
-            <div className="p-6 space-y-5">
-              <div className="p-3.5 rounded-xl bg-[#2a1a10] border border-[#5c3716] text-[#fcd34d] text-xs font-body leading-relaxed flex items-start gap-3">
-                <ShieldCheck className="w-5 h-5 text-[#f59e0b] shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-semibold text-white mb-1">Clean Storage Quota Enforcement</p>
-                  To keep your storage footprint optimal and avoid exceeding usage limits, you can store up to <strong>2 resumes</strong>.
-                  Please remove at least 1 previous resume to upload a new one.
-                </div>
-              </div>
-
-              <div>
-                <p className="font-mono text-[11px] uppercase text-[#64748b] tracking-wider mb-2.5 font-semibold">
-                  CHOOSE A RESUME TO PURGE:
-                </p>
-                <div className="space-y-2.5">
-                  {storedResumes.map((resume, idx) => (
-                    <div
-                      key={resume.id || idx}
-                      className="flex items-center justify-between p-3 rounded-lg bg-[#0a1226] border border-[#142347] hover:border-[#2563eb]"
-                    >
-                      <div className="flex items-center gap-3 overflow-hidden">
-                        <FileText className="w-4 h-4 text-[#38bdf8] shrink-0" />
-                        <div className="truncate">
-                          <p className="font-mono text-xs text-white font-medium truncate">{resume.fileName}</p>
-                          <p className="font-mono text-[10px] text-[#9ca3af]">
-                            {resume.data?.skills?.length ?? 0} skills • {resume.data?.targetRole || 'Software Engineer'}
-                          </p>
-                        </div>
-                      </div>
-
-                      <button
-                        type="button"
-                        onClick={() => handleDelete(resume.id || resume.versionId || '')}
-                        disabled={deletingId === resume.id}
-                        className="font-mono text-xs bg-[#dc2626] hover:bg-[#b91c1c] text-white px-3 py-1.5 rounded-lg cursor-pointer inline-flex items-center gap-1.5 shrink-0 transition-colors"
-                      >
-                        {deletingId === resume.id ? <Spinner className="w-3.5 h-3.5" /> : <Trash2 className="w-3.5 h-3.5" />}
-                        <span>Delete</span>
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="pt-2 flex justify-end">
-                <button
-                  type="button"
-                  onClick={() => setLimitModalOpen(false)}
-                  className="font-mono text-xs text-[#9ca3af] hover:text-white bg-[#0a1226] border border-[#142347] hover:border-[#2563eb] px-4 py-2 rounded-lg cursor-pointer transition-colors"
-                >
-                  Close & Keep Existing
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }

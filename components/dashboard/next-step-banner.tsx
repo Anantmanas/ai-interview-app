@@ -39,9 +39,9 @@ function getBannerConfig({
       cta: 'Upload your resume to get questions tailored to your background.',
       ctaButton: 'Upload Resume →',
       href: '/dashboard/resume',
-      accent: '#FFD700',
-      bg: 'rgba(255,215,0,0.06)',
-      border: 'rgba(255,215,0,0.2)',
+      accent: '#ffb829',
+      bg: 'rgba(255,184,41,0.06)',
+      border: 'rgba(255,184,41,0.25)',
     }
   }
 
@@ -53,9 +53,9 @@ function getBannerConfig({
       cta: 'Run your first mock interview to establish your baseline score.',
       ctaButton: 'Start first interview →',
       href: '/interview/new',
-      accent: '#00D4AA',
-      bg: 'rgba(0,212,170,0.06)',
-      border: 'rgba(0,212,170,0.2)',
+      accent: '#8052ff',
+      bg: 'rgba(128,82,255,0.06)',
+      border: 'rgba(128,82,255,0.25)',
     }
   }
 
@@ -67,9 +67,9 @@ function getBannerConfig({
       cta: `${weaknessCount} weak areas identified. Generate your personalized study plan.`,
       ctaButton: 'Generate roadmap →',
       href: '/dashboard/roadmap',
-      accent: '#FF6B9D',
-      bg: 'rgba(255,107,157,0.06)',
-      border: 'rgba(255,107,157,0.2)',
+      accent: '#ffb829',
+      bg: 'rgba(255,184,41,0.06)',
+      border: 'rgba(255,184,41,0.25)',
     }
   }
 
@@ -81,9 +81,9 @@ function getBannerConfig({
       cta: `Average score is ${avgScore}%. Practice more sessions to improve.`,
       ctaButton: 'Practice now →',
       href: '/interview/new',
-      accent: '#7B6FFF',
-      bg: 'rgba(123,111,255,0.06)',
-      border: 'rgba(123,111,255,0.2)',
+      accent: '#8052ff',
+      bg: 'rgba(128,82,255,0.06)',
+      border: 'rgba(128,82,255,0.25)',
     }
   }
 
@@ -95,9 +95,9 @@ function getBannerConfig({
       cta: `Your study plan is ready. Next up: ${topRoadmapItem}`,
       ctaButton: 'Open study plan →',
       href: '/dashboard/roadmap',
-      accent: '#00D4AA',
-      bg: 'rgba(0,212,170,0.06)',
-      border: 'rgba(0,212,170,0.2)',
+      accent: '#15846e',
+      bg: 'rgba(21,132,110,0.06)',
+      border: 'rgba(21,132,110,0.25)',
     }
   }
 
@@ -108,9 +108,9 @@ function getBannerConfig({
     cta: 'Keep your streak going with another practice session.',
     ctaButton: 'Start interview →',
     href: '/interview/new',
-    accent: '#00D4AA',
-    bg: 'rgba(0,212,170,0.06)',
-    border: 'rgba(0,212,170,0.2)',
+    accent: '#8052ff',
+    bg: 'rgba(128,82,255,0.06)',
+    border: 'rgba(128,82,255,0.25)',
   }
 }
 
@@ -121,52 +121,56 @@ export function NextStepBanner(props: NextStepBannerProps) {
   return (
     <Link
       href={config.href}
-      className="group block w-full rounded-2xl transition-all duration-200 hover:scale-[1.005] relative overflow-hidden"
+      className="group block w-full rounded-3xl transition-all duration-300 hover:scale-[1.005] relative overflow-hidden backdrop-blur-2xl shadow-[0_15px_40px_rgba(0,0,0,0.3)] hover:shadow-[0_20px_50px_rgba(0,0,0,0.5)]"
       style={{
         background: config.bg,
         border: `1px solid ${config.border}`,
       }}
     >
-      {/* Top accent line */}
-      <div className="absolute top-0 left-0 right-0 h-px"
-        style={{ background: `linear-gradient(90deg, transparent, ${config.accent}60, transparent)` }} />
+      {/* Top ambient accent highlight */}
+      <div
+        className="absolute top-0 left-0 right-0 h-px"
+        style={{ background: `linear-gradient(90deg, transparent, ${config.accent}80, transparent)` }}
+      />
 
-      <div className="flex items-center gap-4 px-5 py-4">
-        {/* Pulsing dot + Icon */}
+      <div className="flex items-center gap-5 px-7 py-5">
+        {/* Pulsing indicator + Icon */}
         <div
-          className="h-10 w-10 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-110 relative"
-          style={{ background: `${config.accent}18`, border: `1px solid ${config.accent}30` }}
+          className="h-11 w-11 rounded-2xl flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-105 relative"
+          style={{ background: `${config.accent}15`, border: `1px solid ${config.accent}35` }}
         >
-          <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full animate-pulse"
-            style={{ background: config.accent }} />
+          <span
+            className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full animate-pulse"
+            style={{ background: config.accent }}
+          />
           <Icon className="h-5 w-5" style={{ color: config.accent }} />
         </div>
 
-        {/* Text */}
+        {/* Text details */}
         <div className="flex-1 min-w-0">
           <p
-            className="font-mono text-[10px] uppercase tracking-[0.14em] font-semibold mb-0.5"
+            className="font-mono text-[10px] sm:text-[11px] uppercase tracking-[0.2em] font-medium mb-1"
             style={{ color: config.accent }}
           >
             {config.label}
           </p>
-          <p className="font-body text-sm text-[#F4F2EC] mt-0.5 truncate">
+          <p className="font-sans text-sm sm:text-base text-white truncate font-light">
             {config.cta}
           </p>
         </div>
 
-        {/* CTA button */}
+        {/* Action Link text */}
         <span
-          className="shrink-0 font-mono text-[12px] whitespace-nowrap ml-4 group-hover:translate-x-0.5 transition-transform"
+          className="shrink-0 font-mono text-xs uppercase tracking-wider whitespace-nowrap ml-4 group-hover:translate-x-1 transition-transform font-medium"
           style={{ color: config.accent }}
         >
           {config.ctaButton}
         </span>
 
-        {/* Arrow */}
+        {/* Arrow glyph */}
         <div className="shrink-0">
           <ArrowRight
-            className="h-5 w-5 text-[#8C8C88] group-hover:text-white transition-all duration-200 group-hover:translate-x-0.5"
+            className="h-4 w-4 text-zinc-400 group-hover:text-white transition-all duration-200 group-hover:translate-x-1"
           />
         </div>
       </div>

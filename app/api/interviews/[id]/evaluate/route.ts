@@ -4,7 +4,7 @@ import { supabaseAdmin } from '@/lib/supabase/admin'
 import { createChatCompletion, streamChatCompletion, EVALUATION_MODEL } from '@/lib/ai/client'
 import { updateWeaknessScores } from '@/lib/ai/weakness-tracker'
 import { checkRateLimit } from '@/lib/middleware/rate-limit'
-import { evaluateTechnicalAnswer, isNonAnswer } from '@/lib/ai/semantic-evaluator'
+import { evaluateTechnicalAnswer } from '@/lib/ai/semantic-evaluator'
 
 function isNonAnswer(text?: string | null): boolean {
   if (!text) return true
@@ -650,7 +650,7 @@ Return valid JSON with:
     const weaknesses = Array.isArray(evaluation.weaknesses) ? evaluation.weaknesses : []
 
     // Update interview record
-    await supabaseAdmin
+    const { error: fullUpdateErr } = await supabaseAdmin
       .from('interviews')
       .update({
         overall_score: computedOverallScore,
@@ -661,6 +661,22 @@ Return valid JSON with:
         completed_at: new Date().toISOString(),
       })
       .eq('id', id)
+
+    if (fullUpdateErr) {
+      console.warn('[POST /api/interviews/[id]/evaluate] Full update failed, falling back to core fields:', fullUpdateErr.message)
+      const { error: fallbackErr } = await supabaseAdmin
+        .from('interviews')
+        .update({
+          overall_score: computedOverallScore,
+          feedback_summary: evaluation.summary || null,
+          status: 'completed',
+          completed_at: new Date().toISOString(),
+        })
+        .eq('id', id)
+      if (fallbackErr) {
+        console.error('[POST /api/interviews/[id]/evaluate] Fallback update error:', fallbackErr.message)
+      }
+    }
 
     // Update weakness tracking table (user_weaknesses) for roadmap generation!
     const weaknessEvaluations = weaknesses.map((w: any) => ({

@@ -257,6 +257,11 @@ export default async function InterviewDetailPage({ params }: { params: Promise<
       ? 'Strong fundamentals. Actionable system-design gaps diagnosed.'
       : 'Fundamental concepts require structured remediation.'
 
+  const targetRole = interview.target_role || interview.title?.replace('Targeted: ', '').split('—')[0].split('[')[0].trim() || 'Software Engineer'
+  const retryType = interview.type || 'technical'
+  const retryDifficulty = interview.difficulty || 'medium'
+  const retryUrl = `/interview/new?role=${encodeURIComponent(targetRole)}&type=${encodeURIComponent(retryType)}&difficulty=${encodeURIComponent(retryDifficulty)}&retry=true`
+
   return (
     <div className="p-6 sm:p-10 md:p-12 max-w-[1300px] mx-auto space-y-12 select-text pb-20">
       {/* Top Navigation & Export Action */}
@@ -276,27 +281,27 @@ export default async function InterviewDetailPage({ params }: { params: Promise<
       <div className="border-b border-white/10 pb-10">
         <div className="flex flex-col lg:flex-row lg:items-baseline justify-between gap-8 mb-6">
           <div>
-            <span className="font-mono text-xs uppercase tracking-widest text-[#2447FF] font-semibold block mb-2">
+            <span className="font-mono text-xs uppercase tracking-widest text-[#8052ff] font-semibold block mb-2">
               COMPOSITE TELEMETRY // {interview.type?.toUpperCase()}
             </span>
             <div className="flex items-baseline gap-4">
-              <span className="display-giant text-[#F4F2EC] font-bold leading-none">
+              <span className="font-sans text-6xl sm:text-7xl font-light text-white leading-none">
                 {interview.overall_score !== null ? interview.overall_score : '—'}
               </span>
-              <span className="font-mono text-sm uppercase tracking-wider text-[#8C8C88]">
+              <span className="font-mono text-sm uppercase tracking-wider text-white/50">
                 INTERVIEW SIGNAL / 100
               </span>
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-6 font-mono text-xs text-[#8C8C88]">
+          <div className="flex flex-wrap items-center gap-6 font-mono text-xs text-white/50">
             <span className="flex items-center gap-1.5">
-              <Calendar className="h-3.5 w-3.5 text-[#8C8C88]" />
+              <Calendar className="h-3.5 w-3.5 text-white/40" />
               {formatSessionDate(interview.created_at)}
             </span>
             <span>•</span>
             <span className="flex items-center gap-1.5">
-              <Clock className="h-3.5 w-3.5 text-[#8C8C88]" />
+              <Clock className="h-3.5 w-3.5 text-white/40" />
               {formatDuration(interview.duration_seconds)}
             </span>
             <span>•</span>
@@ -306,10 +311,10 @@ export default async function InterviewDetailPage({ params }: { params: Promise<
           </div>
         </div>
 
-        <h1 className="display-statement text-[#F4F2EC] font-semibold max-w-4xl">
+        <h1 className="font-sans text-2xl sm:text-3xl font-light text-white max-w-4xl tracking-tight">
           "{scoreDiagnosis}"
         </h1>
-        <p className="font-mono text-xs text-[#8C8C88] mt-3 uppercase tracking-wider">
+        <p className="font-mono text-xs text-white/40 mt-3 uppercase tracking-wider">
           TARGET: {interview.title}
         </p>
       </div>
@@ -317,24 +322,24 @@ export default async function InterviewDetailPage({ params }: { params: Promise<
       {/* Narrative Flow: Diagnosis → Weakness → Recommendation → Next action */}
       <div className="space-y-10 max-w-4xl border-b border-white/10 pb-12">
         {/* Step 1: Diagnosis */}
-        <div className="border-l-2 border-[#2447FF] pl-6 sm:pl-8 space-y-2">
-          <span className="font-mono text-xs uppercase tracking-[0.18em] text-[#2447FF] font-semibold">
+        <div className="border-l-2 border-[#8052ff] pl-6 sm:pl-8 space-y-2">
+          <span className="font-mono text-xs uppercase tracking-[0.18em] text-[#8052ff] font-semibold">
             01 // DIAGNOSTIC SYNTHESIS
           </span>
-          <h3 className="font-display text-xl font-bold text-[#F4F2EC]">
+          <h3 className="font-sans text-xl font-light text-white">
             Key Observed Strengths
           </h3>
           {interview.strengths && interview.strengths.length > 0 ? (
             <ul className="space-y-1.5 pt-1">
               {interview.strengths.map((s: string, i: number) => (
-                <li key={i} className="font-body text-base text-[#8C8C88] flex items-start gap-2">
-                  <span className="text-[#2447FF] mt-1 shrink-0 font-bold">•</span>
+                <li key={i} className="font-sans text-sm text-white/70 flex items-start gap-2 font-light">
+                  <span className="text-[#8052ff] mt-0.5 shrink-0 font-bold">•</span>
                   <span>{s}</span>
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="font-body text-base text-[#8C8C88]">
+            <p className="font-sans text-sm text-white/50 font-light">
               Initial participation recorded.
             </p>
           )}
@@ -342,20 +347,20 @@ export default async function InterviewDetailPage({ params }: { params: Promise<
 
         {/* Step 2: Critical Weakness */}
         {interview.weaknesses && interview.weaknesses.length > 0 && (
-          <div className="border-l-2 border-[#f43f5e] pl-6 sm:pl-8 space-y-2">
-            <span className="font-mono text-xs uppercase tracking-[0.18em] text-[#f43f5e] font-semibold">
+          <div className="border-l-2 border-[#ffb829] pl-6 sm:pl-8 space-y-2">
+            <span className="font-mono text-xs uppercase tracking-[0.18em] text-[#ffb829] font-semibold">
               02 // IDENTIFIED BLINDSPOTS
             </span>
-            <h3 className="font-display text-xl font-bold text-[#F4F2EC]">
+            <h3 className="font-sans text-xl font-light text-white">
               Gaps Requiring Remediation
             </h3>
             <div className="space-y-3 pt-1">
               {interview.weaknesses.map((w: any, i: number) => (
-                <div key={i} className="p-4 rounded-xl bg-[#0D0D0D] border border-white/10 text-sm">
-                  <span className="font-mono text-xs uppercase text-[#f43f5e] font-semibold block mb-1">
+                <div key={i} className="p-4 rounded-2xl bg-[#0a0a0a] border border-white/10 text-sm">
+                  <span className="font-mono text-xs uppercase text-[#ffb829] font-semibold block mb-1">
                     {w.topic}
                   </span>
-                  <p className="text-[#8C8C88] leading-relaxed">
+                  <p className="text-white/70 leading-relaxed font-sans font-light">
                     {w.feedback}
                   </p>
                 </div>
@@ -365,22 +370,29 @@ export default async function InterviewDetailPage({ params }: { params: Promise<
         )}
 
         {/* Step 3: Next Action */}
-        <div className="border-l-2 border-[#34d399] pl-6 sm:pl-8 space-y-2">
-          <span className="font-mono text-xs uppercase tracking-[0.18em] text-[#34d399] font-semibold">
+        <div className="border-l-2 border-[#15846e] pl-6 sm:pl-8 space-y-3">
+          <span className="font-mono text-xs uppercase tracking-[0.18em] text-[#15846e] font-semibold">
             03 // RECOMMENDED NEXT ACTION
           </span>
-          <h3 className="font-display text-xl font-bold text-[#F4F2EC]">
-            Curriculum Remediation & Re-test
+          <h3 className="font-sans text-xl font-light text-white">
+            Curriculum Remediation & 1-Click Re-test
           </h3>
-          <p className="font-body text-base text-[#8C8C88] leading-relaxed">
-            Review the prioritized video modules in your mastery roadmap and schedule a targeted 15-minute re-test session to verify progress.
+          <p className="font-sans text-sm text-white/70 leading-relaxed font-light">
+            Review the prioritized modules in your mastery roadmap and launch a targeted 15-minute re-test session calibrated to <strong className="text-white font-medium">{targetRole}</strong>.
           </p>
-          <div className="pt-2">
+          <div className="pt-2 flex flex-wrap items-center gap-3">
+            <Link
+              href={retryUrl}
+              className="btn-dala-primary inline-flex items-center gap-2 text-white px-5 py-2.5 font-mono text-xs uppercase tracking-wider font-semibold"
+            >
+              <span>Practice Diagnosed Blindspots (15-Min Re-Test)</span>
+              <span>⚡</span>
+            </Link>
             <Link
               href="/dashboard/roadmap"
-              className="inline-flex items-center gap-2 font-mono text-xs uppercase text-[#2447FF] hover:underline font-semibold"
+              className="btn-dala-secondary inline-flex items-center gap-2 text-white px-5 py-2.5 font-mono text-xs uppercase tracking-wider font-semibold hover:text-[#8052ff]"
             >
-              <span>Navigate to Mastery Roadmap →</span>
+              <span>Open Tailored Curriculum in Roadmap →</span>
             </Link>
           </div>
         </div>
