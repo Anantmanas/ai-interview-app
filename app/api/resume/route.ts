@@ -185,6 +185,60 @@ function buildFallbackResumeData(text: string, fileName: string): ResumeData {
   }
 }
 
+import zlib from 'zlib'
+
+function extractTextFromDocxBuffer(buf: Buffer): string {
+  let offset = 0
+  while (offset < buf.length - 30) {
+    if (buf.readUInt32LE(offset) === 0x04034b50) {
+      const compressionMethod = buf.readUInt16LE(offset + 8)
+      const compressedSize = buf.readUInt32LE(offset + 18)
+      const fileNameLen = buf.readUInt16LE(offset + 26)
+      const extraFieldLen = buf.readUInt16LE(offset + 28)
+
+      const fileNameStart = offset + 30
+      const fileNameEnd = fileNameStart + fileNameLen
+      const fileName = buf.toString('utf8', fileNameStart, fileNameEnd)
+
+      const dataStart = fileNameEnd + extraFieldLen
+      const dataEnd = dataStart + compressedSize
+
+      if (fileName === 'word/document.xml') {
+        const compressedData = buf.subarray(dataStart, dataEnd)
+        let xml = ''
+        try {
+          if (compressionMethod === 8) {
+            xml = zlib.inflateRawSync(compressedData).toString('utf8')
+          } else if (compressionMethod === 0) {
+            xml = compressedData.toString('utf8')
+          }
+        } catch (e) {
+          console.warn('[api/resume] docx inflation warning:', e)
+        }
+
+        const text = xml
+          .replace(/<w:p(?: [^>]*)?>/g, '\n')
+          .replace(/<w:br(?: [^>]*)?\/>/g, '\n')
+          .replace(/<w:tab(?: [^>]*)?\/>/g, '\t')
+          .replace(/<[^>]+>/g, '')
+          .replace(/&amp;/g, '&')
+          .replace(/&lt;/g, '<')
+          .replace(/&gt;/g, '>')
+          .replace(/&quot;/g, '"')
+          .replace(/&apos;/g, "'")
+          .replace(/\n\s*\n/g, '\n\n')
+          .trim()
+        return text
+      }
+
+      offset = compressedSize > 0 ? dataEnd : offset + 1
+    } else {
+      offset++
+    }
+  }
+  return ''
+}
+
 async function extractRawText(file: File): Promise<string> {
   const name = file.name.toLowerCase()
 
@@ -192,6 +246,18 @@ async function extractRawText(file: File): Promise<string> {
     const ab = await file.arrayBuffer()
     const buf = Buffer.from(ab)
     return await extractTextFromPdfBuffer(buf)
+  }
+
+  if (
+    name.endsWith('.docx') ||
+    name.endsWith('.doc') ||
+    file.type.includes('wordprocessingml') ||
+    file.type.includes('msword')
+  ) {
+    const ab = await file.arrayBuffer()
+    const buf = Buffer.from(ab)
+    const docxText = extractTextFromDocxBuffer(buf)
+    if (docxText && docxText.length > 20) return docxText
   }
 
   // Text/Markdown files
@@ -347,12 +413,18 @@ export async function POST(req: NextRequest) {
 
     if (!file) return NextResponse.json({ error: 'No file provided' }, { status: 400 })
 
-    const ALLOWED_TYPES = ['application/pdf', 'text/plain']
-    const ALLOWED_EXTENSIONS = ['.pdf', '.txt', '.md']
+    const ALLOWED_TYPES = [
+      'application/pdf',
+      'text/plain',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/msword',
+      'application/octet-stream',
+    ]
+    const ALLOWED_EXTENSIONS = ['.pdf', '.txt', '.md', '.docx', '.doc']
     const ext = '.' + (file.name.split('.').pop() ?? '').toLowerCase()
 
     if (!ALLOWED_TYPES.includes(file.type) && !ALLOWED_EXTENSIONS.includes(ext)) {
-      return NextResponse.json({ error: 'Only PDF and text files are supported' }, { status: 415 })
+      return NextResponse.json({ error: 'Only PDF, DOCX, and text files are supported' }, { status: 415 })
     }
 
     if (file.size > 10 * 1024 * 1024) {

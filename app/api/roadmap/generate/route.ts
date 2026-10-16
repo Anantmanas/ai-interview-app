@@ -41,12 +41,17 @@ export async function POST(req: Request) {
     const customTopics: string[] = Array.isArray(body.topics) ? body.topics.filter(Boolean) : []
 
     // 1. Fetch user's completed interviews and recorded weaknesses
-    const { data: completedInterviews } = await supabaseAdmin
+    let completedInterviews: any[] | null = null
+    const { data: invData, error: invErr } = await supabaseAdmin
       .from('interviews')
-      .select('id, weaknesses, status')
+      .select('id, status')
       .eq('user_id', user.id)
       .eq('status', 'completed')
       .limit(5)
+
+    if (invData && !invErr) {
+      completedInterviews = invData
+    }
 
     const { data: weaknesses } = await supabaseAdmin
       .from('user_weaknesses')

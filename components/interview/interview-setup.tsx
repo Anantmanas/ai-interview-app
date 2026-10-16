@@ -210,8 +210,11 @@ export function InterviewSetup({ profile, existingCount = 0 }: InterviewSetupPro
   const handleStartInterview = async () => {
     setLoading(true)
     try {
-      const sessionTitle = title.trim() || defaultSessionName
       const targetRoleValue = role.trim() || profile?.target_role || 'Software Engineer'
+      let sessionTitle = title.trim() || defaultSessionName
+      if (targetRoleValue && !sessionTitle.toLowerCase().includes(targetRoleValue.toLowerCase())) {
+        sessionTitle = `Targeted: ${targetRoleValue} — ${sessionTitle}`
+      }
 
       const res = await fetch('/api/interviews/create', {
         method: 'POST',
@@ -232,7 +235,7 @@ export function InterviewSetup({ profile, existingCount = 0 }: InterviewSetupPro
         return
       }
 
-      // Fallback
+      // Fallback: Direct client insert with verified core columns only
       const supabase = createClient()
       const {
         data: { user },
@@ -245,36 +248,38 @@ export function InterviewSetup({ profile, existingCount = 0 }: InterviewSetupPro
         return
       }
 
+      const VALID_TYPES: InterviewType[] = ['technical', 'behavioral', 'system_design', 'coding']
+      const dbType = VALID_TYPES.includes(type) ? type : 'technical'
+
+      const VALID_DIFFICULTIES: Difficulty[] = ['easy', 'medium', 'hard']
+      const dbDifficulty = VALID_DIFFICULTIES.includes(difficulty) ? difficulty : 'medium'
+
       const basePayload = {
         user_id: effectiveUserId,
         title: sessionTitle,
-        type,
-        difficulty,
+        type: dbType,
+        difficulty: dbDifficulty,
         status: 'in_progress',
       }
 
-      let { data: interview, error } = await supabase
+      const { data: interview, error } = await supabase
         .from('interviews')
-        .insert({
-          ...basePayload,
-          target_role: targetRoleValue,
-        })
+        .insert(basePayload)
         .select()
         .single()
 
-      if (error && (error.message?.includes('target_role') || error.code === 'PGRST204')) {
-        const retryResult = await supabase
-          .from('interviews')
-          .insert(basePayload)
-          .select()
-          .single()
-
-        interview = retryResult.data
-        error = retryResult.error
+      if (error || !interview) {
+        throw new Error(data?.error || error?.message || 'Failed to initialize interview database record')
       }
 
-      if (error || !interview) {
-        throw new Error(error?.message || 'Failed to initialize interview database record')
+      // Best-effort: sync target_role to user profile
+      if (targetRoleValue) {
+        Promise.resolve(
+          supabase
+            .from('profiles')
+            .update({ target_role: targetRoleValue })
+            .eq('id', effectiveUserId)
+        ).catch(() => {})
       }
 
       router.push(`/interview/${interview.id}`)

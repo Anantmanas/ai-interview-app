@@ -182,7 +182,7 @@ export default function OnboardingWelcomePage() {
   const StepIcon = STEPS[step].icon
 
   return (
-    <main className="min-h-screen bg-[#000000] text-white flex items-center justify-center p-3 sm:p-4 md:p-6 relative overflow-hidden font-sans">
+    <main className="min-h-screen bg-[#050505] text-white flex items-center justify-center p-3 sm:p-4 md:p-6 relative overflow-hidden font-sans">
       {/* Background ambient */}
       <div aria-hidden className="pointer-events-none fixed inset-0 z-0">
         <div className="absolute top-[-10%] left-1/2 -translate-x-1/2 h-[500px] w-[500px] rounded-full bg-[#2447FF] opacity-[0.05] blur-[140px]" />
@@ -244,7 +244,7 @@ export default function OnboardingWelcomePage() {
             animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
             exit={{ opacity: 0, y: -12, filter: 'blur(4px)' }}
             transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-            className="rounded-3xl border border-white/10 bg-white/[0.03] backdrop-blur-2xl shadow-[0_24px_80px_rgba(0,0,0,0.8)] overflow-hidden relative"
+            className="rounded-3xl border border-white/10 bg-[#0A0A0A] shadow-[0_24px_80px_rgba(0,0,0,0.8)] overflow-hidden relative"
           >
             {/* Subtle top hairline */}
             <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#2447FF]/40 to-transparent pointer-events-none" />

@@ -190,9 +190,10 @@ function SidebarInnerContent({ user, profile }: DashboardSidebarProps) {
       <div className="pt-3 border-t border-white/10 shrink-0 mt-auto">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <div
+            <button
+              type="button"
               className={cn(
-                'flex items-center rounded-xl hover:bg-white/[0.04] transition-colors cursor-pointer border border-transparent hover:border-white/10',
+                'flex items-center rounded-xl hover:bg-white/[0.04] transition-colors cursor-pointer border border-transparent hover:border-white/10 text-left outline-none',
                 open ? 'gap-3 p-2 w-full' : 'justify-center p-1 w-10 h-10 mx-auto'
               )}
               title={!open ? (profile?.full_name ?? user.email ?? 'Account') : undefined}
@@ -218,27 +219,48 @@ function SidebarInnerContent({ user, profile }: DashboardSidebarProps) {
                   <ChevronUp className="h-3.5 w-3.5 text-[#9a9a9a] ml-auto shrink-0" />
                 </>
               )}
-            </div>
+            </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent
-            className="w-56 bg-[#0a0a0a] border border-white/10 text-white shadow-2xl rounded-2xl p-1.5 backdrop-blur-xl"
+            className="w-56 bg-[#0a0a0a] border border-white/10 text-white shadow-2xl rounded-2xl p-1.5 backdrop-blur-xl z-[150]"
             side="top"
             align="start"
           >
             <DropdownMenuItem asChild className="focus:bg-white/[0.08] focus:text-white cursor-pointer rounded-xl font-mono text-[11px] uppercase tracking-wider py-2">
-              <Link href="/dashboard/profile">
+              <Link
+                href="/dashboard/profile"
+                onClick={() => {
+                  if (typeof window !== 'undefined' && window.innerWidth < 768) {
+                    setOpen(false)
+                  }
+                }}
+              >
                 <UserIcon className="mr-2 h-4 w-4 text-[#8052ff]" />
                 Profile
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild className="focus:bg-white/[0.08] focus:text-white cursor-pointer rounded-xl font-mono text-[11px] uppercase tracking-wider py-2">
-              <Link href="/dashboard/resume">
+              <Link
+                href="/dashboard/resume"
+                onClick={() => {
+                  if (typeof window !== 'undefined' && window.innerWidth < 768) {
+                    setOpen(false)
+                  }
+                }}
+              >
                 <FileText className="mr-2 h-4 w-4 text-[#8052ff]" />
                 My Resume
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild className="focus:bg-white/[0.08] focus:text-white cursor-pointer rounded-xl font-mono text-[11px] uppercase tracking-wider py-2">
-              <Link href="/dashboard/settings">
+              <Link
+                href="/dashboard/settings"
+                onClick={() => {
+                  if (typeof window !== 'undefined' && window.innerWidth < 768) {
+                    setOpen(false)
+                  }
+                }}
+              >
                 <Settings className="mr-2 h-4 w-4 text-[#8052ff]" />
                 Settings
               </Link>

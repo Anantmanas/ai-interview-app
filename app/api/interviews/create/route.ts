@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 
+const VALID_TYPES = ['technical', 'behavioral', 'system_design', 'coding'] as const
+const VALID_DIFFICULTIES = ['easy', 'medium', 'hard'] as const
+
 export async function POST(req: Request) {
   try {
     const supabase = await createClient()
@@ -14,69 +17,83 @@ export async function POST(req: Request) {
     const body = await req.json().catch(() => ({}))
     const { title, type = 'technical', difficulty = 'medium', target_role } = body
 
-    let sessionTitle = title?.trim() || `Mock_Test ${Date.now().toString().slice(-4)}`
-    if (target_role && !sessionTitle.toLowerCase().includes(target_role.toLowerCase())) {
-      sessionTitle = `Targeted: ${target_role} — ${sessionTitle}`
+    const targetRoleValue = (typeof target_role === 'string' ? target_role.trim() : '') || 'Software Engineer'
+
+    let sessionTitle = title?.trim() || `Mock_Session ${Date.now().toString().slice(-4)}`
+    if (targetRoleValue && !sessionTitle.toLowerCase().includes(targetRoleValue.toLowerCase())) {
+      sessionTitle = `Targeted: ${targetRoleValue} — ${sessionTitle}`
     }
+
+    const dbType = VALID_TYPES.includes(type as any) ? type : 'technical'
+    const dbDifficulty = VALID_DIFFICULTIES.includes(difficulty as any) ? difficulty : 'medium'
 
     const basePayload = {
       user_id: user.id,
       title: sessionTitle,
-      type,
-      difficulty,
+      type: dbType,
+      difficulty: dbDifficulty,
       status: 'in_progress',
     }
 
-    const payload = {
-      ...basePayload,
-      target_role: target_role || null,
-    }
+    let createdInterview: any = null
 
-    // Primary: Insert via supabaseAdmin for guaranteed delivery without RLS / schema role mismatches
-    let adminResult = await supabaseAdmin
+    // 1. Primary: Insert via supabaseAdmin for guaranteed delivery without RLS / schema role mismatches
+    const adminResult = await supabaseAdmin
       .from('interviews')
-      .insert(payload)
+      .insert(basePayload)
       .select()
       .single()
-
-    // If target_role column does not exist in schema cache, retry without target_role
-    if (adminResult.error && (adminResult.error.message?.includes('target_role') || adminResult.error.code === 'PGRST204')) {
-      adminResult = await supabaseAdmin
-        .from('interviews')
-        .insert(basePayload)
-        .select()
-        .single()
-    }
 
     if (adminResult.data && !adminResult.error) {
-      return NextResponse.json({ success: true, interview: adminResult.data })
-    }
+      createdInterview = adminResult.data
+    } else {
+      if (adminResult.error) {
+        console.warn('[POST /api/interviews/create] Admin insert failed, trying client insert:', adminResult.error)
+      }
 
-    if (adminResult.error) {
-      console.warn('[POST /api/interviews/create] Admin insert failed, trying client insert:', adminResult.error)
-    }
-
-    // Fallback: Insert via user-authenticated supabase client
-    let clientResult = await supabase
-      .from('interviews')
-      .insert(payload)
-      .select()
-      .single()
-
-    // If target_role column does not exist in schema cache, retry without target_role
-    if (clientResult.error && (clientResult.error.message?.includes('target_role') || clientResult.error.code === 'PGRST204')) {
-      clientResult = await supabase
+      // 2. Fallback: Insert via user-authenticated supabase client
+      const clientResult = await supabase
         .from('interviews')
         .insert(basePayload)
         .select()
         .single()
+
+      if (clientResult.error) {
+        throw clientResult.error
+      }
+      createdInterview = clientResult.data
     }
 
-    if (clientResult.error) {
-      throw clientResult.error
+    if (!createdInterview) {
+      throw new Error('Failed to create interview record')
     }
 
-    return NextResponse.json({ success: true, interview: clientResult.data })
+    // Best-effort: sync target_role to user profile
+    if (targetRoleValue) {
+      Promise.resolve(
+        supabaseAdmin
+          .from('profiles')
+          .update({ target_role: targetRoleValue })
+          .eq('id', user.id)
+      ).catch(() => {})
+
+      // Best-effort: update target_role column on interviews if it exists in DB schema
+      Promise.resolve(
+        supabaseAdmin
+          .from('interviews')
+          .update({ target_role: targetRoleValue })
+          .eq('id', createdInterview.id)
+      ).catch(() => {})
+    }
+
+    return NextResponse.json({
+      success: true,
+      interview: {
+        ...createdInterview,
+        type: type, // preserve requested simulation type ('mixed', etc.) for the client
+        target_role: targetRoleValue,
+      },
+    })
   } catch (error: any) {
     console.error('[POST /api/interviews/create] Error:', error)
     return NextResponse.json(

@@ -235,8 +235,24 @@ export function ResumeProvider({ children }: { children: ReactNode }) {
     setExtractionError(null)
 
     try {
+      if (file.size > 10 * 1024 * 1024) {
+        throw new Error('File exceeds the 10MB limit. Please choose a file under 10MB.')
+      }
+
+      // Optimize text files between 4MB and 10MB to avoid edge proxy payload rejection (413)
+      let uploadFile = file
+      if (
+        file.size > 4 * 1024 * 1024 &&
+        (file.name.endsWith('.txt') || file.type === 'text/plain' || file.name.endsWith('.md'))
+      ) {
+        const fullText = await file.text()
+        const trimmed = fullText.trim()
+        const safeText = trimmed.length > 500_000 ? trimmed.slice(0, 500_000) : trimmed
+        uploadFile = new File([safeText], file.name, { type: 'text/plain' })
+      }
+
       const formData = new FormData()
-      formData.append('file', file)
+      formData.append('file', uploadFile)
 
       const res = await fetch('/api/resume', {
         method: 'POST',
@@ -247,6 +263,12 @@ export function ResumeProvider({ children }: { children: ReactNode }) {
       if (!res.ok) {
         if (body?.limitReached) {
           setLimitModalOpen(true)
+        }
+        if (res.status === 413) {
+          throw new Error(
+            body?.error ||
+            'File exceeds server payload limits. Please select a resume under 10MB or compress your document.'
+          )
         }
         throw new Error(body?.error || `API error: ${res.status}`)
       }

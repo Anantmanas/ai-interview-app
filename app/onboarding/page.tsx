@@ -112,7 +112,7 @@ export default function OnboardingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#000000] text-white flex flex-col items-center justify-center p-3 sm:p-4 md:p-6 relative select-none font-sans overflow-hidden">
+    <div className="min-h-screen bg-[#050505] text-white flex flex-col items-center justify-center p-3 sm:p-4 md:p-6 relative select-none font-sans overflow-hidden">
       <div className="relative z-10 w-full max-w-[660px] md:max-w-[700px] my-auto">
         {/* Brand Header + Skip to Dashboard */}
         <div className="flex items-center justify-between mb-3 sm:mb-4">
@@ -177,7 +177,7 @@ export default function OnboardingPage() {
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.2 }}
             >
-              <div className="rounded-3xl border border-white/10 bg-white/[0.03] backdrop-blur-2xl p-5 sm:p-7 shadow-[0_24px_80px_rgba(0,0,0,0.8)] relative overflow-hidden font-sans">
+              <div className="rounded-3xl border border-white/10 bg-[#0A0A0A] p-5 sm:p-7 shadow-[0_24px_80px_rgba(0,0,0,0.8)] relative overflow-hidden font-sans">
                 {/* Subtle top hairline */}
                 <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#2447FF]/40 to-transparent pointer-events-none" />
 
@@ -195,7 +195,7 @@ export default function OnboardingPage() {
 
                 {/* Upload zone or Selected Resume display */}
                 {resumeUploaded ? (
-                  <div className="rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-xl p-4 sm:p-5 mb-4 relative overflow-hidden font-sans space-y-3">
+                  <div className="rounded-2xl border border-white/10 bg-[#0A0A0A] p-4 sm:p-5 mb-4 relative overflow-hidden font-sans space-y-3">
                     <div className="flex items-center justify-between gap-3">
                       <div className="flex items-center gap-3 min-w-0">
                         <div className="h-10 w-10 rounded-xl bg-[#2447FF]/10 border border-[#2447FF]/25 flex items-center justify-center shrink-0">
@@ -246,9 +246,9 @@ export default function OnboardingPage() {
                         )}
                       </div>
                       <p className="text-white text-xs font-mono font-medium">
-                        {uploading ? 'Parsing your resume...' : 'Drop your resume PDF or click to browse'}
+                        {uploading ? 'Parsing your resume...' : 'Drop your resume (PDF, DOCX, TXT) or click to browse'}
                       </p>
-                      <p className="text-zinc-500 text-[10px] font-mono">PDF only · Max 10MB</p>
+                      <p className="text-zinc-500 text-[10px] font-mono">PDF, DOCX or TXT · Max 10MB</p>
                     </div>
                   </div>
                 )}
@@ -256,15 +256,25 @@ export default function OnboardingPage() {
                 <input
                   id="resume-upload"
                   type="file"
-                  accept=".pdf"
+                  accept=".pdf,.docx,.doc,.txt"
                   className="hidden"
                   onChange={async (e) => {
                     const file = e.target.files?.[0]
                     if (!file) return
                     setUploading(true)
                     setResumeFileName(file.name)
+                    let uploadFile = file
+                    if (
+                      file.size > 4 * 1024 * 1024 &&
+                      (file.name.endsWith('.txt') || file.type === 'text/plain')
+                    ) {
+                      const text = await file.text()
+                      const trimmed = text.trim()
+                      const safeText = trimmed.length > 500_000 ? trimmed.slice(0, 500_000) : trimmed
+                      uploadFile = new File([safeText], file.name, { type: 'text/plain' })
+                    }
                     const form = new FormData()
-                    form.append('file', file)
+                    form.append('file', uploadFile)
                     try {
                       await fetch('/api/resume', { method: 'POST', body: form })
                       setResumeUploaded(true)
@@ -304,7 +314,7 @@ export default function OnboardingPage() {
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.2 }}
             >
-              <div className="rounded-3xl border border-white/10 bg-white/[0.03] backdrop-blur-2xl p-5 sm:p-7 shadow-[0_24px_80px_rgba(0,0,0,0.8)] relative overflow-hidden font-sans">
+              <div className="rounded-3xl border border-white/10 bg-[#0A0A0A] p-5 sm:p-7 shadow-[0_24px_80px_rgba(0,0,0,0.8)] relative overflow-hidden font-sans">
                 {/* Subtle top hairline */}
                 <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#2447FF]/40 to-transparent pointer-events-none" />
 
@@ -370,7 +380,7 @@ export default function OnboardingPage() {
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.2 }}
             >
-              <div className="rounded-3xl border border-white/10 bg-white/[0.03] backdrop-blur-2xl p-5 sm:p-7 text-center shadow-[0_24px_80px_rgba(0,0,0,0.8)] relative overflow-hidden font-sans">
+              <div className="rounded-3xl border border-white/10 bg-[#0A0A0A] p-5 sm:p-7 text-center shadow-[0_24px_80px_rgba(0,0,0,0.8)] relative overflow-hidden font-sans">
                 {/* Subtle top hairline */}
                 <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#2447FF]/40 to-transparent pointer-events-none" />
 
