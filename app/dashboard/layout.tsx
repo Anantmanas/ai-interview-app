@@ -23,12 +23,16 @@ export default async function DashboardLayout({
     .eq('id', user.id)
     .maybeSingle()
 
-  // Graceful fallback profile if row is not yet created or target_role is pending
-  const effectiveProfile = profile || {
+  // User's signup name is the source of truth for display across sidebar and header
+  const signupName = user.user_metadata?.full_name?.trim() || user.user_metadata?.name?.trim()
+  const effectiveFullName = signupName || profile?.full_name?.trim() || user.email?.split('@')[0] || 'Engineer'
+
+  const effectiveProfile = {
+    ...profile,
     id: user.id,
     email: user.email,
-    full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Engineer',
-    target_role: 'Software Engineer',
+    full_name: effectiveFullName,
+    target_role: profile?.target_role || 'Software Engineer',
   }
 
   return (

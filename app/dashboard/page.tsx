@@ -73,10 +73,19 @@ export default async function DashboardPage() {
       : 0
 
   const recentInterviews = interviews?.slice(0, 5) ?? []
-  const safeFullName = isValidCandidateName(profile?.full_name) ? (profile?.full_name || '') : ''
+  // User's signup name is the primary source of truth for the user's identity across the application
+  const signupName = user.user_metadata?.full_name?.trim() || user.user_metadata?.name?.trim()
+  const safeFullName = signupName || (isValidCandidateName(profile?.full_name) ? (profile?.full_name || '') : '')
   const name =
-    safeFullName.split(' ')[0] || user.user_metadata?.full_name?.split(' ')[0] || user.email?.split('@')[0] || 'Engineer'
-  const targetRole = profile?.target_role || 'Staff / Senior Engineer'
+    safeFullName.split(' ')[0] || user.email?.split('@')[0] || 'Engineer'
+
+  // Self-heal profile full_name if it was previously overwritten by a resume or unset
+  if (signupName && profile && profile.full_name !== signupName) {
+    void supabase.from('profiles').update({ full_name: signupName }).eq('id', user.id)
+  }
+
+  const rawTargetRole = profile ? profile.target_role : user.user_metadata?.target_role
+  const targetRole = rawTargetRole?.trim() || null
 
   return (
     <div className="p-6 sm:p-10 md:p-12 max-w-[1440px] mx-auto space-y-12 select-text">
@@ -89,9 +98,15 @@ export default async function DashboardPage() {
               <span>CONSOLE // OVERVIEW</span>
             </span>
             <span className="text-white/20">•</span>
-            <span className="font-mono text-[10px] sm:text-[11px] text-[#8052ff] uppercase tracking-wider font-medium px-3 py-1 rounded-full bg-[#8052ff]/10 border border-[#8052ff]/30">
-              {targetRole}
-            </span>
+            {targetRole ? (
+              <span className="font-mono text-[10px] sm:text-[11px] text-[#8052ff] uppercase tracking-wider font-medium px-3 py-1 rounded-full bg-[#8052ff]/10 border border-[#8052ff]/30">
+                {targetRole}
+              </span>
+            ) : (
+              <span className="font-mono text-[10px] sm:text-[11px] text-zinc-400 uppercase tracking-wider font-medium px-3 py-1 rounded-full bg-white/[0.04] border border-white/10">
+                Role Not Set
+              </span>
+            )}
           </div>
 
           <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl text-white font-normal tracking-[-0.035em]">

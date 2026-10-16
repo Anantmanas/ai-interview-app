@@ -485,16 +485,20 @@ export async function POST(req: NextRequest) {
       console.warn('[api/resume] direct table insert error:', dbErr)
     }
 
-    // Sync profile as active grounding
-    const safeName = sanitizeFullName(resumeData.name || '')
+    // Sync profile as active grounding without overwriting the user's signup name
+    const profileUpdatePayload: Record<string, any> = {
+      resume_text: markdown,
+      resume_url: fileUrl !== 'local-upload' ? fileUrl : file.name,
+      target_role: resumeData.targetRole || null,
+    }
+    const userSignupName = user.user_metadata?.full_name?.trim() || user.user_metadata?.name?.trim()
+    if (userSignupName) {
+      profileUpdatePayload.full_name = userSignupName
+    }
+
     await supabaseAdmin
       .from('profiles')
-      .update({
-        resume_text: markdown,
-        resume_url: fileUrl !== 'local-upload' ? fileUrl : file.name,
-        full_name: safeName || null,
-        target_role: resumeData.targetRole || null,
-      })
+      .update(profileUpdatePayload)
       .eq('id', user.id)
 
     const updatedResumes = await fetchUserResumes(supabaseAdmin, user.id)
@@ -621,7 +625,6 @@ export async function DELETE(req: NextRequest) {
           .update({
             resume_text: nextMarkdown,
             resume_url: nextActive.fileUrl || nextActive.fileName || null,
-            full_name: sanitizeFullName(activeData.name) || null,
             target_role: activeData.targetRole || null,
           })
           .eq('id', user.id)
@@ -683,7 +686,6 @@ export async function PATCH(req: NextRequest) {
         .update({
           resume_text: nextMarkdown,
           resume_url: active.fileUrl || active.fileName || null,
-          full_name: sanitizeFullName(activeData.name) || null,
           target_role: activeData.targetRole || null,
         })
         .eq('id', user.id)

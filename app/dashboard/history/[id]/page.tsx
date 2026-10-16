@@ -249,7 +249,15 @@ export default async function InterviewDetailPage({ params }: { params: Promise<
     return `${mins}:${secs.toString().padStart(2, '0')}`
   }
 
-  const overallScore = interview.overall_score ?? 0
+  const questionsScores = (questions || [])
+    .map((q) => Number(q.ai_evaluation?.score))
+    .filter((s) => !isNaN(s));
+  const fallbackOverallScore = questionsScores.length > 0
+    ? Math.round(questionsScores.reduce((a, b) => a + b, 0) / questionsScores.length)
+    : 0;
+  const overallScore = (interview.overall_score !== null && interview.overall_score !== undefined && interview.overall_score > 0)
+    ? interview.overall_score
+    : (fallbackOverallScore > 0 ? fallbackOverallScore : (interview.overall_score ?? 0));
   const scoreDiagnosis =
     overallScore >= 80
       ? 'Exceptional mastery across problem space and edge cases.'

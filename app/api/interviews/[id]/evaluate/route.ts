@@ -437,6 +437,22 @@ Candidate Answer: ${userAnswer || '(No answer provided)'}
       }
     }
 
+    // If client supplied recordedHistory (answers + evaluations), sync them into DB
+    if (Array.isArray(body.recordedHistory) && body.recordedHistory.length > 0) {
+      for (let i = 0; i < body.recordedHistory.length; i++) {
+        const rec = body.recordedHistory[i]
+        const order = rec.sequence_order !== undefined ? rec.sequence_order : i
+        await upsertQuestionRecord(id, order, {
+          question_text: rec.question?.text || rec.question?.question_text || '',
+          question_type: rec.question?.type || rec.question?.question_type || interview.type || 'technical',
+          topic: rec.question?.topic || rec.evaluation?.topic || 'General',
+          difficulty: rec.question?.difficulty || interview.difficulty || 'medium',
+          user_answer: rec.userAnswer || '',
+          ai_evaluation: rec.evaluation || null,
+        })
+      }
+    }
+
     // Retrieve all recorded questions for this interview
     const { data: existingQuestions } = await supabaseAdmin
       .from('interview_questions')
@@ -555,8 +571,17 @@ Candidate Answer: ${userAnswer || '(No answer provided)'}
     }
 
     // Compute actual overall score from all questions
+    const validNonZeroScores = allQuestions
+      .map((q) => Number(q.ai_evaluation?.score))
+      .filter((s) => !isNaN(s) && s > 0)
+
     const totalScore = allQuestions.reduce((sum, q) => sum + (Number(q.ai_evaluation?.score) || 0), 0)
-    const computedOverallScore = allQuestions.length > 0 ? Math.round(totalScore / allQuestions.length) : 0
+    let computedOverallScore = allQuestions.length > 0 ? Math.round(totalScore / allQuestions.length) : 0
+
+    // Guard: If there are nonzero evaluations but computedOverallScore is 0, use their average
+    if (computedOverallScore === 0 && validNonZeroScores.length > 0) {
+      computedOverallScore = Math.round(validNonZeroScores.reduce((sum, s) => sum + s, 0) / validNonZeroScores.length)
+    }
 
     // Construct Context for Strengths, Weaknesses and Overall Summary
     const interviewContext = `

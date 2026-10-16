@@ -19,42 +19,64 @@ export async function POST(req: Request) {
       sessionTitle = `Targeted: ${target_role} — ${sessionTitle}`
     }
 
-    const payload = {
+    const basePayload = {
       user_id: user.id,
       title: sessionTitle,
       type,
       difficulty,
-      target_role: target_role || null,
       status: 'in_progress',
     }
 
+    const payload = {
+      ...basePayload,
+      target_role: target_role || null,
+    }
+
     // Primary: Insert via supabaseAdmin for guaranteed delivery without RLS / schema role mismatches
-    const { data: adminData, error: adminErr } = await supabaseAdmin
+    let adminResult = await supabaseAdmin
       .from('interviews')
       .insert(payload)
       .select()
       .single()
 
-    if (adminData && !adminErr) {
-      return NextResponse.json({ success: true, interview: adminData })
+    // If target_role column does not exist in schema cache, retry without target_role
+    if (adminResult.error && (adminResult.error.message?.includes('target_role') || adminResult.error.code === 'PGRST204')) {
+      adminResult = await supabaseAdmin
+        .from('interviews')
+        .insert(basePayload)
+        .select()
+        .single()
     }
 
-    if (adminErr) {
-      console.warn('[POST /api/interviews/create] Admin insert failed, trying client insert:', adminErr)
+    if (adminResult.data && !adminResult.error) {
+      return NextResponse.json({ success: true, interview: adminResult.data })
+    }
+
+    if (adminResult.error) {
+      console.warn('[POST /api/interviews/create] Admin insert failed, trying client insert:', adminResult.error)
     }
 
     // Fallback: Insert via user-authenticated supabase client
-    const { data: clientData, error: clientErr } = await supabase
+    let clientResult = await supabase
       .from('interviews')
       .insert(payload)
       .select()
       .single()
 
-    if (clientErr) {
-      throw clientErr
+    // If target_role column does not exist in schema cache, retry without target_role
+    if (clientResult.error && (clientResult.error.message?.includes('target_role') || clientResult.error.code === 'PGRST204')) {
+      clientResult = await supabase
+        .from('interviews')
+        .insert(basePayload)
+        .select()
+        .single()
     }
 
-    return NextResponse.json({ success: true, interview: clientData })
+    if (clientResult.error) {
+      throw clientResult.error
+    }
+
+    return NextResponse.json({ success: true, interview: clientResult.data })
   } catch (error: any) {
     console.error('[POST /api/interviews/create] Error:', error)
     return NextResponse.json(

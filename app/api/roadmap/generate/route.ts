@@ -40,46 +40,80 @@ export async function POST(req: Request) {
     const body = await req.json().catch(() => ({}))
     const customTopics: string[] = Array.isArray(body.topics) ? body.topics.filter(Boolean) : []
 
+    // 1. Fetch user's completed interviews and recorded weaknesses
+    const { data: completedInterviews } = await supabaseAdmin
+      .from('interviews')
+      .select('id, weaknesses, status')
+      .eq('user_id', user.id)
+      .eq('status', 'completed')
+      .limit(5)
+
+    const { data: weaknesses } = await supabaseAdmin
+      .from('user_weaknesses')
+      .select('topic, subtopic, weakness_score')
+      .eq('user_id', user.id)
+      .gt('weakness_score', 40)
+      .order('weakness_score', { ascending: false })
+
+    const hasCompletedEvaluations = Boolean(
+      (completedInterviews && completedInterviews.length > 0) ||
+      (weaknesses && weaknesses.length > 0)
+    )
+
+    // Check if this generation should be treated as a starter curriculum without evaluations
+    const isStarter = body.isStarter === true || !hasCompletedEvaluations
+
+    const measuredWeaknessMap = new Map<string, number>()
+    if (weaknesses) {
+      for (const w of weaknesses) {
+        if (w.topic && typeof w.weakness_score === 'number') {
+          measuredWeaknessMap.set(w.topic.toLowerCase().trim(), w.weakness_score)
+        }
+      }
+    }
+    if (completedInterviews) {
+      for (const inv of completedInterviews) {
+        if (Array.isArray(inv.weaknesses)) {
+          for (const w of inv.weaknesses) {
+            if (w?.topic && typeof w?.score === 'number') {
+              measuredWeaknessMap.set(w.topic.toLowerCase().trim(), w.score)
+            }
+          }
+        }
+      }
+    }
+
     let promptContext = ''
 
-    if (customTopics.length > 0) {
+    if (isStarter) {
+      const starterTopicsList = customTopics.length > 0 ? customTopics : [
+        'Algorithms & Data Structures',
+        'System Design & Scalability',
+        'Concurrency & Performance',
+        'API Architecture',
+      ]
       promptContext = `
-        The candidate wants a targeted learning roadmap focused specifically on these custom weak skills and topics:
+        The candidate has no completed interview evaluations yet.
+        Generate a structured foundational engineering study curriculum for the following core skills:
+        ${starterTopicsList.map((t) => `- ${t}`).join('\n')}
+        CRITICAL REQUIREMENT:
+        Present this as general foundational engineering study content, NOT as diagnosed weaknesses or critical blindspots.
+        Set "weakness_score": null for all items.
+        Set "priority": number 1-4 representing natural curriculum learning sequence (1 = Core Foundation, 2 = Core Concept, 3 = Intermediate Practice, 4 = Advanced Concept).
+      `
+    } else if (customTopics.length > 0) {
+      promptContext = `
+        The candidate has completed interview evaluations and wants a targeted learning roadmap focused on these skills:
         ${customTopics.map((t) => `- ${t}`).join('\n')}
-        Generate a structured mastery roadmap for each of these specific skills.
+        Diagnosed weakness context:
+        ${Array.from(measuredWeaknessMap.entries()).map(([t, s]) => `- ${t}: Diagnosed weakness score ${s}%`).join('\n')}
+        Generate a structured mastery roadmap targeting these specific areas.
       `
     } else {
-      // 1. Fetch user's weaknesses (weakness_score > 40)
-      const { data: weaknesses } = await supabaseAdmin
-        .from('user_weaknesses')
-        .select('*')
-        .eq('user_id', user.id)
-        .gt('weakness_score', 40)
-        .order('weakness_score', { ascending: false })
-
-      if (!weaknesses || weaknesses.length === 0) {
-        // Fetch user profile for role-specific starter roadmap
-        const { data: profile } = await supabaseAdmin
-          .from('profiles')
-          .select('target_role, experience_level, target_companies')
-          .eq('id', user.id)
-          .single()
-
-        const role = profile?.target_role || 'Software Engineer'
-        const level = profile?.experience_level || 'mid'
-
-        promptContext = `
-          The user has no recorded weaknesses yet. Generate a starter learning roadmap for a 
-          ${level}-level ${role} candidate covering the most important technical topics they should master.
-          Focus on: DSA fundamentals, system design basics, and 2-3 role-specific topics.
-          Use weakness_score values between 60-80 (these are estimated starter gaps, not measured).
-        `
-      } else {
-        promptContext = `
-          Based on the following measured weaknesses from technical interviews:
-          ${weaknesses.map((w) => `- ${w.topic} (${w.subtopic || 'General'}): Score ${w.weakness_score}/100`).join('\n')}
-        `
-      }
+      promptContext = `
+        Based on the following measured weaknesses from technical interviews:
+        ${(weaknesses || []).map((w) => `- ${w.topic} (${w.subtopic || 'General'}): Score ${w.weakness_score}/100`).join('\n')}
+      `
     }
 
     // Build AI prompt using the context from above
@@ -90,10 +124,10 @@ export async function POST(req: Request) {
       '- "topic": string - the exact topic name (e.g. "JavaScript Data Types", "Dynamic Programming", "System Design")',
       '- "title": string - a short action-oriented learning title (e.g. "Master JavaScript Data Types & Type Coercion")',
       '- "description": string - 2 sentences: why this matters in interviews + what concepts to focus on',
-      '- "priority": number 1-5 where 1 = most urgent',
+      `- "priority": number 1-5 ${isStarter ? '(curriculum sequence order 1 to 4)' : '(1 = most urgent weakness, 5 = lowest priority)'}`,
       '- "estimated_hours": number - realistic hours to improve',
       '- "youtube_search_query": string - best YouTube search query for full tutorials',
-      '- "weakness_score": number between 40-100 indicating how weak the area is',
+      `- "weakness_score": ${isStarter ? 'null (do NOT assign or invent a weakness score for starter content)' : 'number between 40-100 indicating measured weakness, or null if not an evaluated weakness'}`,
       '',
       'Return as {"items": [...]}',
     ].join('\n')
@@ -130,10 +164,12 @@ export async function POST(req: Request) {
       aiItems = fallbackTopics.map((topic, idx) => ({
         topic,
         title: `Master ${topic}`,
-        description: `Comprehensive mastery module for ${topic}. Deep dive into core algorithmic trade-offs, system architecture, and frequent interview patterns.`,
+        description: isStarter
+          ? `Foundational engineering study module for ${topic}. Deep dive into core concepts, algorithmic patterns, and architectural trade-offs.`
+          : `Comprehensive mastery module for ${topic}. Deep dive into core algorithmic trade-offs, system architecture, and frequent interview patterns.`,
         priority: idx + 1,
         estimated_hours: 4 + idx,
-        weakness_score: Math.max(50, 85 - (idx * 8)),
+        weakness_score: isStarter ? null : (measuredWeaknessMap.get(topic.toLowerCase().trim()) ?? null),
         youtube_search_query: `${topic} tutorial course`,
       }))
     }
@@ -184,6 +220,13 @@ export async function POST(req: Request) {
         })
       }
 
+      // Ensure weakness_score is strictly null for starter roadmap
+      const resolvedWeaknessScore = isStarter
+        ? null
+        : (typeof item.weakness_score === 'number'
+            ? item.weakness_score
+            : (measuredWeaknessMap.get(item.topic?.toLowerCase().trim()) ?? null))
+
       // Store in database
       const baseRecord = {
         user_id: user.id,
@@ -201,7 +244,7 @@ export async function POST(req: Request) {
       try {
         const r1 = await supabaseAdmin
           .from('roadmap_items')
-          .insert({ ...baseRecord, weakness_score: item.weakness_score })
+          .insert({ ...baseRecord, weakness_score: resolvedWeaknessScore })
           .select('*')
           .maybeSingle()
 
@@ -221,7 +264,7 @@ export async function POST(req: Request) {
             // Try via authenticated client
             const r3 = await supabase
               .from('roadmap_items')
-              .insert({ ...baseRecord, weakness_score: item.weakness_score })
+              .insert({ ...baseRecord, weakness_score: resolvedWeaknessScore })
               .select('*')
               .maybeSingle()
 
@@ -235,7 +278,7 @@ export async function POST(req: Request) {
       const finalRecord = inserted || {
         id: crypto.randomUUID(),
         ...baseRecord,
-        weakness_score: item.weakness_score,
+        weakness_score: resolvedWeaknessScore,
       }
 
       insertedItems.push(finalRecord)

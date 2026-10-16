@@ -337,7 +337,7 @@ export default function QuestionsPage() {
           <Button
             onClick={handleFinish}
             disabled={loading || isExtracting || selectedRoles.length === 0}
-            className="bg-indigo-600 hover:bg-indigo-500 text-white px-6 h-11 rounded-xl font-medium shadow-lg shadow-indigo-600/25 transition-all flex items-center gap-2 group disabled:opacity-50"
+            className="bg-[#2447FF] hover:bg-[#1d3ad4] text-white px-6 h-11 rounded-xl font-medium transition-colors flex items-center gap-2 group disabled:opacity-50 shadow-none"
           >
             {loading ? (
               <>

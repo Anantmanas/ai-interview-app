@@ -1,25 +1,36 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { createClient } from '@/lib/supabase/client'
 import { useResume } from '@/components/resume/resume-provider'
 import { SkillIcon } from '@/components/resume/skill-icon'
 import { CheckCircle2, FileText, ChevronDown, ChevronUp } from 'lucide-react'
-import { resolveCandidateName } from '@/lib/resume/name-utils'
 
 export function ResumeSummary() {
   const { resumeData, resumeMeta, isResumeReady } = useResume()
   const [expanded, setExpanded] = useState(false)
+  const [userFullName, setUserFullName] = useState<string>('')
+
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) {
+        const name =
+          user.user_metadata?.full_name?.trim() ||
+          user.user_metadata?.name?.trim() ||
+          user.email?.split('@')[0] ||
+          ''
+        if (name) setUserFullName(name)
+      }
+    })
+  }, [])
 
   if (!isResumeReady || !resumeData) {
     return null
   }
 
-  const candidateName = resolveCandidateName({
-    name: resumeData.name,
-    fileName: resumeMeta?.fileName,
-  })
-  const hasValidName = candidateName !== 'Candidate Profile'
   const skills = resumeData.skills || []
+  const displayName = userFullName || 'Candidate'
 
   return (
     <div className="rounded-3xl border border-white/10 bg-white/[0.03] backdrop-blur-2xl shadow-[0_20px_60px_rgba(0,0,0,0.5)] hover:border-white/20 transition-all overflow-hidden font-sans">
@@ -28,7 +39,7 @@ export function ResumeSummary() {
         <div className="flex items-center gap-2.5">
           <span className="h-1.5 w-1.5 rounded-full bg-[#8052ff] shadow-[0_0_8px_#8052ff]" />
           <span className="font-mono text-[10px] sm:text-[11px] text-white/50 font-semibold tracking-wider uppercase truncate max-w-[280px] sm:max-w-md">
-            CANDIDATE PROFILE // {resumeMeta?.fileName || 'RESUME_ACTIVE'}
+            RESUME GROUNDING // {resumeMeta?.fileName || 'ACTIVE_FILE'}
           </span>
         </div>
         <div className="flex items-center gap-2">
@@ -40,15 +51,13 @@ export function ResumeSummary() {
 
       <div className="p-6 sm:p-7 space-y-5">
         {/* Candidate & Target Role */}
-        {hasValidName && (
-          <div className="flex flex-wrap items-center gap-3 text-xs font-mono">
-            <span className="text-white/50">Candidate:</span>
-            <strong className="text-white font-medium text-sm font-sans">{candidateName}</strong>
-            <span className="text-white/20">•</span>
-            <span className="text-white/50">Target:</span>
-            <span className="text-[#8052ff] font-medium">{resumeData.targetRole || 'Software Engineer'}</span>
-          </div>
-        )}
+        <div className="flex flex-wrap items-center gap-3 text-xs font-mono">
+          <span className="text-white/50">Candidate:</span>
+          <strong className="text-white font-medium text-sm font-sans">{displayName}</strong>
+          <span className="text-white/20">•</span>
+          <span className="text-white/50">Target:</span>
+          <span className="text-[#8052ff] font-medium">{resumeData.targetRole || 'Software Engineer'}</span>
+        </div>
 
         {/* Collapsible Executive Summary */}
         {(() => {

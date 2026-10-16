@@ -79,11 +79,19 @@ function SidebarInnerContent({ user, profile }: DashboardSidebarProps) {
     router.refresh()
   }
 
+  const accountName =
+    user.user_metadata?.full_name?.trim() ||
+    user.user_metadata?.name?.trim() ||
+    profile?.full_name?.trim() ||
+    user.email?.split('@')[0] ||
+    'Engineer'
+
   const getInitials = () => {
-    if (profile?.full_name) {
-      return profile.full_name
+    if (accountName) {
+      return accountName
         .split(' ')
-        .map((n) => n[0])
+        .filter(Boolean)
+        .map((n: string) => n[0])
         .join('')
         .toUpperCase()
         .slice(0, 2)
@@ -201,7 +209,7 @@ function SidebarInnerContent({ user, profile }: DashboardSidebarProps) {
                 <>
                   <div className="flex-1 min-w-0 flex flex-col overflow-hidden text-left">
                     <p className="font-mono text-[11px] text-white font-medium uppercase tracking-[0.04em] truncate">
-                      {profile?.full_name ?? 'Engineer'}
+                      {accountName}
                     </p>
                     <p className="font-mono text-[10px] text-[#9a9a9a] truncate">
                       {user.email}

@@ -245,21 +245,36 @@ export function InterviewSetup({ profile, existingCount = 0 }: InterviewSetupPro
         return
       }
 
-      const { data: interview, error } = await supabase
+      const basePayload = {
+        user_id: effectiveUserId,
+        title: sessionTitle,
+        type,
+        difficulty,
+        status: 'in_progress',
+      }
+
+      let { data: interview, error } = await supabase
         .from('interviews')
         .insert({
-          user_id: effectiveUserId,
-          title: sessionTitle,
-          type,
-          difficulty,
+          ...basePayload,
           target_role: targetRoleValue,
-          status: 'in_progress',
         })
         .select()
         .single()
 
-      if (error) {
-        throw new Error(error.message || 'Failed to initialize interview database record')
+      if (error && (error.message?.includes('target_role') || error.code === 'PGRST204')) {
+        const retryResult = await supabase
+          .from('interviews')
+          .insert(basePayload)
+          .select()
+          .single()
+
+        interview = retryResult.data
+        error = retryResult.error
+      }
+
+      if (error || !interview) {
+        throw new Error(error?.message || 'Failed to initialize interview database record')
       }
 
       router.push(`/interview/${interview.id}`)
@@ -360,7 +375,7 @@ export function InterviewSetup({ profile, existingCount = 0 }: InterviewSetupPro
                         )}
                       </div>
                       <p className="text-xs text-zinc-300 mt-1">
-                        Active Profile: <strong className="text-white">{resumeData?.name || 'Candidate'}</strong>
+                        Active Profile: <strong className="text-white">{profile?.full_name || 'Candidate'}</strong>
                         {resumeData?.skills?.length ? ` (${resumeData.skills.length} technical skills verified)` : ''}
                       </p>
                     </div>

@@ -54,7 +54,14 @@ interface RoadmapItem {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-function priorityLabel(p: number): { label: string; color: string; bg: string; border: string } {
+function priorityLabel(p: number, isStarter = false): { label: string; color: string; bg: string; border: string } {
+  if (isStarter) {
+    if (p <= 1) return { label: 'Core Foundation', color: '#8052ff', bg: 'rgba(128,82,255,0.12)', border: 'rgba(128,82,255,0.3)' }
+    if (p <= 2) return { label: 'Core Concept', color: '#8052ff', bg: 'rgba(128,82,255,0.08)', border: 'rgba(128,82,255,0.25)' }
+    if (p <= 3) return { label: 'Intermediate Practice', color: '#15846e', bg: 'rgba(21,132,110,0.1)', border: 'rgba(21,132,110,0.3)' }
+    if (p <= 4) return { label: 'Advanced Concept', color: '#15846e', bg: 'rgba(21,132,110,0.08)', border: 'rgba(21,132,110,0.25)' }
+    return { label: 'Elective Study', color: '#8052ff', bg: 'rgba(128,82,255,0.06)', border: 'rgba(128,82,255,0.2)' }
+  }
   if (p <= 1) return { label: 'Priority 1 — Critical', color: '#f43f5e', bg: 'rgba(244,63,94,0.1)', border: 'rgba(244,63,94,0.3)' }
   if (p <= 2) return { label: 'Priority 2 — High', color: '#ffb829', bg: 'rgba(255,184,41,0.1)', border: 'rgba(255,184,41,0.3)' }
   if (p <= 3) return { label: 'Priority 3 — Medium', color: '#ffb829', bg: 'rgba(255,184,41,0.06)', border: 'rgba(255,184,41,0.2)' }
@@ -208,12 +215,15 @@ function RoadmapCard({
   item,
   index = 0,
   onToggle,
+  hasEvaluations = false,
 }: {
   item: RoadmapItem
   index?: number
   onToggle: (id: string, status: string) => void
+  hasEvaluations?: boolean
 }) {
-  const { label, color, bg, border } = priorityLabel(item.priority)
+  const isStarterModule = !hasEvaluations || !item.weakness_score
+  const { label, color, bg, border } = priorityLabel(item.priority, isStarterModule)
   const completed = item.status === 'completed'
 
   const videoResources = item.resources?.filter((r) => r.type === 'video') || []
@@ -236,13 +246,13 @@ function RoadmapCard({
             {String(index + 1).padStart(2, '0')}
           </span>
           <div className="flex items-center gap-2 text-[11px] font-mono text-white/40">
-            <span className="text-white font-medium">WEAKNESS</span>
+            <span className="text-white font-medium">{isStarterModule ? 'FOUNDATION' : 'WEAKNESS'}</span>
             <span>↓</span>
             <span className="text-white font-medium">SKILL</span>
             <span>↓</span>
             <span className="text-white font-medium">MODULE</span>
             <span>↓</span>
-            <span className="text-[#8052ff] font-semibold">RE-TEST</span>
+            <span className="text-[#8052ff] font-semibold">{isStarterModule ? 'PRACTICE' : 'RE-TEST'}</span>
           </div>
         </div>
 
@@ -268,11 +278,11 @@ function RoadmapCard({
               <span className="font-mono text-[10px] uppercase font-semibold text-white bg-white/5 border border-white/10 px-2.5 py-0.5 rounded-full">
                 ⚡ {item.topic}
               </span>
-              {item.weakness_score && (
+              {!isStarterModule && item.weakness_score ? (
                 <span className="font-mono text-[10px] text-[#ffb829] bg-[#ffb829]/10 border border-[#ffb829]/25 px-2.5 py-0.5 rounded-full font-semibold">
                   Blindspot: {item.weakness_score}%
                 </span>
-              )}
+              ) : null}
             </div>
             <h3
               className={`font-sans text-xl sm:text-2xl font-light tracking-tight transition-colors ${
@@ -440,8 +450,9 @@ export default function RoadmapPage() {
 
         const { data: recentInterviews } = await supabase
           .from('interviews')
-          .select('weaknesses, title')
+          .select('weaknesses, title, status')
           .eq('user_id', user.id)
+          .eq('status', 'completed')
           .order('created_at', { ascending: false })
           .limit(5)
 
@@ -459,7 +470,12 @@ export default function RoadmapPage() {
         const dbWeaknessTopics = (weaknesses || []).map((w) => w.topic).filter(Boolean)
         const combined = Array.from(new Set([...extractedInterviewTopics, ...dbWeaknessTopics]))
 
-        if (combined.length > 0) {
+        const hasRealEvaluations = Boolean(
+          (weaknesses && weaknesses.length > 0) ||
+          (recentInterviews && recentInterviews.length > 0 && extractedInterviewTopics.length > 0)
+        )
+
+        if (hasRealEvaluations && combined.length > 0) {
           setHasEvaluations(true)
           setFocusTopics(combined.slice(0, 6))
         } else {
@@ -474,13 +490,13 @@ export default function RoadmapPage() {
 
         // If no roadmap plan exists yet, but candidate has completed interviews / weak areas:
         // Automatically generate their personalized curriculum so it is ready when they arrive!
-        if (!hasExistingRoadmap && combined.length > 0) {
+        if (!hasExistingRoadmap && hasRealEvaluations && combined.length > 0) {
           try {
             const autoTopics = combined.slice(0, 6)
             const res = await fetch('/api/roadmap/generate', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ topics: autoTopics }),
+              body: JSON.stringify({ topics: autoTopics, isStarter: false }),
             })
             if (res.ok) {
               const data = await res.json()
@@ -538,7 +554,7 @@ export default function RoadmapPage() {
       const res = await fetch('/api/roadmap/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ topics: topicsToUse }),
+        body: JSON.stringify({ topics: topicsToUse, isStarter: !hasEvaluations }),
       })
 
       const data = await res.json()
@@ -623,7 +639,9 @@ export default function RoadmapPage() {
           Adaptive Video Roadmap
         </h1>
         <p className="font-sans text-sm sm:text-base text-white/60 font-light mt-2 max-w-2xl">
-          Auto-calibrated based on your interview weak signals with high-yield video modules and targeted practice drills.
+          {hasEvaluations
+            ? 'Auto-calibrated based on your interview weak signals with high-yield video modules and targeted practice drills.'
+            : 'Structured core-engineering study curriculum with high-yield video modules and targeted practice drills. Complete mock interviews to auto-calibrate this curriculum to your diagnosed weak spots.'}
         </p>
       </div>
 
@@ -770,7 +788,13 @@ export default function RoadmapPage() {
         ) : items.length > 0 ? (
           <div className="space-y-6">
             {items.map((item, idx) => (
-              <RoadmapCard key={item.id} item={item} index={idx} onToggle={handleToggle} />
+              <RoadmapCard
+                key={item.id}
+                item={item}
+                index={idx}
+                onToggle={handleToggle}
+                hasEvaluations={hasEvaluations}
+              />
             ))}
           </div>
         ) : (

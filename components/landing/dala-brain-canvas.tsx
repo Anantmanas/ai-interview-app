@@ -39,12 +39,30 @@ export default function DalaBrainCanvas() {
     const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100)
     camera.position.set(0, 0, 4.8)
 
-    const renderer = new THREE.WebGLRenderer({
-      canvas,
-      antialias: !isMobile,
-      alpha: true,
-      powerPreference: 'high-performance',
-    })
+    const isWebGLAvailable = () => {
+      try {
+        const testCanvas = document.createElement('canvas')
+        return !!(window.WebGLRenderingContext && (testCanvas.getContext('webgl') || testCanvas.getContext('experimental-webgl')))
+      } catch {
+        return false
+      }
+    }
+
+    if (!isWebGLAvailable()) {
+      return
+    }
+
+    let renderer: THREE.WebGLRenderer
+    try {
+      renderer = new THREE.WebGLRenderer({
+        canvas,
+        antialias: !isMobile,
+        alpha: true,
+        powerPreference: 'high-performance',
+      })
+    } catch {
+      return
+    }
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2))
     renderer.setSize(width, height)
     renderer.setClearColor(0x000000, 0)

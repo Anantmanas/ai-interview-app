@@ -63,7 +63,8 @@ export default function ProfilePage() {
 
         if (data) {
           setProfile(data)
-          setFullName(data.full_name || '')
+          const signupName = user.user_metadata?.full_name?.trim() || user.user_metadata?.name?.trim()
+          setFullName(signupName || data.full_name || '')
           setTargetRole(data.target_role || '')
           const metaCompanies = user.user_metadata?.target_companies
           if (Array.isArray(metaCompanies) && metaCompanies.length > 0) {
@@ -145,8 +146,8 @@ export default function ProfilePage() {
         await supabase.auth.updateUser({
           data: {
             target_companies: targetCompanies,
-            target_role: targetRole.trim() || undefined,
-            full_name: fullName.trim() || undefined,
+            target_role: targetRole.trim() || null,
+            full_name: fullName.trim() || null,
           },
         })
       } catch {}

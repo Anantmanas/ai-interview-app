@@ -26,6 +26,7 @@ create table if not exists public.profiles (
 
 -- Migration for existing installations
 alter table public.profiles add column if not exists target_companies text[];
+alter table public.interviews add column if not exists target_role text;
 
 -- 2. Interviews Table
 create table if not exists public.interviews (
